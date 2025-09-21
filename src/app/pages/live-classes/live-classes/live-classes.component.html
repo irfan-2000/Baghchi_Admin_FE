@@ -1,0 +1,305 @@
+<!-- Available Courses (Desktop Table) -->
+<div class="flow-root" *ngIf="AvailableCourses && AvailableCourses.length > 0 && !ShowClassDetailsFrom">
+  <div class="overflow-x-auto">
+    <div class="inline-block min-w-full align-middle">
+      <table class="min-w-full table-fixed divide-y divide-gray-200">
+        <thead class="bg-gray-50 sticky top-0 z-10">
+          <tr>
+             <th scope="col" class="w-20 px-4 py-3 text-left text-xs font-semibold text-gray-600">Course Id</th>
+            <th scope="col" class="w-20 px-4 py-3 text-left text-xs font-semibold text-gray-600">Image</th>
+            <th scope="col" class="w-56 px-4 py-3 text-left text-xs font-semibold text-gray-600">Course</th>
+            <th scope="col" class="w-28 px-4 py-3 text-left text-xs font-semibold text-gray-600">Level</th>
+            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-600">Description</th>
+            <th scope="col" class="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-600">Price</th>
+            <th scope="col" class="w-32 px-4 py-3 text-center text-xs font-semibold text-gray-600">Action</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100 bg-white">
+          <tr *ngFor="let c of AvailableCourses " class="hover:bg-gray-50">
+            <!-- Image -->
+             <td class="px-4 py-4 align-middle">
+              <div class="text-sm font-medium text-gray-900 truncate">{{ c.CourseId }}</div>
+            </td>
+            <td class="px-4 py-4 align-middle">
+              <img
+                [src]="c.CourseImage || 'assets/images/placeholder-course.jpg'"
+                [alt]="c.CourseName"
+                class="h-12 w-12 rounded object-cover border"
+                loading="lazy"
+              />
+            </td>
+
+            <!-- Course -->
+            <td class="px-4 py-4 align-middle">
+              <div class="text-sm font-medium text-gray-900 truncate">{{ c.CourseName }}</div>
+            </td>
+
+            <!-- Level -->
+            <td class="px-4 py-4 align-middle">
+              <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                {{ c.CourseLevel || 'N/A' }}
+              </span>
+            </td>
+
+            <!-- Description -->
+            <td class="px-4 py-4 align-middle">
+              <p class="text-sm text-gray-600 line-clamp-2">
+                {{ c.Description?.shortDescription || c.Description || 'No description' }}
+              </p>
+            </td>
+
+            <!-- Price -->
+            <td class="px-4 py-4 align-middle">
+              <div class="text-sm">
+                <span class="text-indigo-600 font-bold">₹{{ c.Price }}</span>
+                <span *ngIf="c.OldPrice" class="text-xs text-gray-400 line-through ml-1">₹{{ c.OldPrice }}</span>
+              </div>
+            </td>
+<!--  [disabled]="OngoignClassDetails?.LiveSessionId"               -->
+
+            <!-- Action -->
+            <td class="px-4 py-4 align-middle">
+              <div class="flex justify-center">
+                <button
+  (click)="StartClass(c)"  [disabled]=" this.OngoignClassDetails != null"
+  type="button"
+ class="px-3 py-1.5 rounded-md bg-indigo-600 text-white text-xs font-medium
+         hover:bg-indigo-700 focus:outline-none focus-visible:ring-2
+         focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition
+         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600">
+  Start Class
+</button>
+
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Live class form -->
+ <!-- Live class form (single boxed card with integrated header) -->
+<div class="px-4 py-4" *ngIf="ShowClassDetailsFrom">
+  <form [formGroup]="form" class="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+
+    <!-- Card header with Back + contextual title -->
+    <div class="flex items-center gap-3 px-4 sm:px-6 py-3 bg-gray-50 border-b border-gray-200">
+      <!-- Back -->
+      <button
+      type="button" (click)="GobackToCourses()"
+      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none"
+    >
+      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12.75 15.25 7.5 10l5.25-5.25" />
+      </svg>
+      Back
+    </button>
+
+
+      <!-- Title -->
+      <h2 class="text-base sm:text-lg font-medium text-gray-800">
+        You are about to start a live class for
+        <span class="inline-flex items-center gap-2 align-middle">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-200">
+            ID: {{ SelectedLiveClass.CourseId }}
+          </span>
+          <span class="text-indigo-700 font-semibold">{{ SelectedLiveClass.CourseName }}</span>
+        </span>
+        <span class="text-gray-500 font-normal"> — make sure to select the correct batch.</span>
+      </h2>
+    </div>
+
+    <!-- Card body -->
+    <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      <!-- Topic -->
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Subject / Topic *</label>
+        <input type="text" formControlName="topic" placeholder="e.g., Maths Class"
+               class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
+                      placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+        <span class="text-sm text-red-600" *ngIf="ErrorMsg['topic']">{{ ErrorMsg['topic'] }}</span>
+      </div>
+
+      <!-- Select batch -->
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Select batch *</label>
+        <select formControlName="batchId" (change)="onTypeChange()"
+                class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="" selected>-- Select Batch --</option>
+          <option *ngFor="let batch of Batches" [value]="batch.BatchId">
+            {{ batch.BatchName }}
+          </option>
+        </select>
+        <span class="text-sm text-red-600" *ngIf="ErrorMsg['batch']">{{ ErrorMsg['batch'] }}</span>
+      </div>
+
+      <!-- Meeting Type -->
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Meeting Type *</label>
+        <select formControlName="type" (change)="onTypeChange()"
+                class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <option [value]="1">Instant</option>
+          <!-- <option [value]="2">Scheduled</option> -->
+        </select>
+        <span class="text-sm text-red-600" *ngIf="ErrorMsg['type']">{{ ErrorMsg['type'] }}</span>
+      </div>
+
+      <!-- Duration -->
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+        <input type="number" formControlName="duration" min="1" placeholder="e.g., 45"
+               class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
+                      placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+        <small class="text-xs text-gray-500">For Instant meetings Zoom ignores duration, but it’s sent for consistency.</small>
+        <span class="text-sm text-red-600" *ngIf="ErrorMsg['duration']">{{ ErrorMsg['duration'] }}</span>
+      </div>
+
+      <!-- Start Time (Scheduled only) -->
+      <div class="space-y-1" *ngIf="form.value.type === 2">
+        <label class="block text-sm font-medium text-gray-700">Start Time (Local)</label>
+        <input type="datetime-local" formControlName="start_time_local"
+               class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+        <small class="text-xs text-gray-500">Your timezone: {{ defaultTimezone }}</small>
+        <span class="text-sm text-red-600" *ngIf="ErrorMsg['start_time_local']">{{ ErrorMsg['start_time_local'] }}</span>
+      </div>
+
+      <!-- Timezone -->
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Timezone</label>
+        <input type="text" formControlName="timezone" placeholder="e.g., Asia/Kolkata"
+               class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
+                      placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+        <span class="text-sm text-red-600" *ngIf="ErrorMsg['timezone']">{{ ErrorMsg['timezone'] }}</span>
+      </div>
+
+    <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Teacher Name</label>
+        <input type="text" formControlName="teachername" placeholder="enter teacher name"
+               class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
+                      placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+        <span class="text-sm text-red-600" *ngIf="ErrorMsg['teachername']">{{ ErrorMsg['teachername'] }}</span>
+      </div>
+
+
+      <!-- Agenda (full width) -->
+      <div class="md:col-span-2 space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Agenda / Description</label>
+        <textarea rows="3" formControlName="agenda" placeholder="Short description of the session"
+                  class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
+                         placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+        <span class="text-sm text-red-600" *ngIf="ErrorMsg['agenda']">{{ ErrorMsg['agenda'] }}</span>
+      </div>
+
+      <!-- Toggles -->
+      <div class="space-y-1">
+        <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" formControlName="host_video" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+          Host video on
+        </label>
+        <span class="block text-sm text-red-600" *ngIf="ErrorMsg['host_video']">{{ ErrorMsg['host_video'] }}</span>
+      </div>
+
+      <div class="space-y-1">
+        <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" formControlName="participant_video" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+          Participant video on
+        </label>
+        <span class="block text-sm text-red-600" *ngIf="ErrorMsg['participant_video']">{{ ErrorMsg['participant_video'] }}</span>
+      </div>
+
+      <div class="space-y-1">
+        <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" formControlName="join_before_host" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+          Allow join before host
+        </label>
+        <span class="block text-sm text-red-600" *ngIf="ErrorMsg['join_before_host']">{{ ErrorMsg['join_before_host'] }}</span>
+      </div>
+
+      <div class="space-y-1">
+        <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" formControlName="mute_upon_entry" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+          Mute upon entry
+        </label>
+        <span class="block text-sm text-red-600" *ngIf="ErrorMsg['mute_upon_entry']">{{ ErrorMsg['mute_upon_entry'] }}</span>
+      </div>
+
+      <!-- Approval -->
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Approval Type</label>
+        <select formControlName="approval_type"
+                class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <option [value]="0">Automatically Approve</option>
+          <option [value]="1">Manually Approve</option>
+          <option [value]="2">No Registration Required</option>
+        </select>
+        <span class="text-sm text-red-600" *ngIf="ErrorMsg['approval_type']">{{ ErrorMsg['approval_type'] }}</span>
+      </div>
+    </div>
+
+  
+    <!-- Card footer -->
+    <div class="px-4 sm:px-6 py-3 border-t border-gray-100 flex items-center gap-3">
+ <button
+  type="submit"
+   (click)="docallback()" [disabled]="loading"
+  class="cursor-pointer px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium
+         hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600">
+  {{ form.value.type === 1 ? 'Start Instant Meeting' : 'Create Scheduled Meeting' }}
+</button>
+
+
+       
+     <div class="flex justify-center items-center gap-3">
+  <div class="text-sm text-gray-500 text-center" id="msg" *ngIf="loading">
+    <!-- Creating meeting… please wait!! Don't Refresh or close -->
+      {{msg}}
+  </div>
+ 
+
+  <div class="text-sm text-red-600 text-center" *ngIf="error">
+    {{ error }}
+  </div>
+<div class="text-sm text-green-600 text-center" *ngIf="successmsg">
+  {{ successmsg }}
+</div>
+
+</div>
+
+    </div>
+  </form>
+</div>
+
+
+
+<style>
+  .page { max-width: 940px; margin: 18px auto; padding: 0 12px; }
+  .title { margin: 0 0 12px; }
+  .card { background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.04); margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.span2 { grid-column: span 2; }
+  label { font-weight: 600; font-size: 14px; }
+  input[type="text"], input[type="number"], input[type="datetime-local"], textarea, select {
+    width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px;
+  }
+  .actions { display: flex; gap: 10px; margin-top: 12px; }
+  button { padding: 10px 14px; border: none; border-radius: 10px; background: #2563eb; color: #fff; cursor: pointer; }
+  button.ghost, a.ghost { background: #f3f4f6; color: #111; text-decoration: none; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; }
+  .error { color: #b91c1c; margin-top: 8px; }
+  .hint { color: #6b7280; }
+  .status { color: #2563eb; margin-top: 8px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+</style>

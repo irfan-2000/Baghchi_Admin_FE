@@ -1,0 +1,41 @@
+<div class="flex h-screen bg-gray-100">
+
+  <!-- Sidebar -->
+  <aside
+    class="w-64 bg-white shadow-lg transition-all duration-300 hidden md:block"
+    [class.w-16]="isCollapsed">
+    <div class="flex items-center justify-center h-16 border-b">
+      <!-- <img src="assets/logo.png" alt="Logo" class="h-10" *ngIf="!isCollapsed"> -->
+    </div>
+    <nav class="mt-4">
+      <ul>
+        <li *ngFor="let item of menuItems" class="p-3 hover:bg-gray-200 cursor-pointer flex items-center">
+          <i [class]="item.icon"></i>
+          <span class="ml-3" *ngIf="!isCollapsed">{{ item.label }}</span>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    
+    <!-- Top Strip -->
+    <header class="flex justify-between items-center bg-white shadow px-6 h-16">
+      <button (click)="toggleSidebar()" class="md:hidden">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1 class="text-xl font-semibold">Admin Panel</h1>
+      <div class="flex items-center space-x-3">
+        <span class="font-medium">Dr. Bagchi</span>
+        <!-- <img src="/admin-avatar.png" alt="Admin Avatar" class="w-10 h-10 rounded-full border"> -->
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+</div>
