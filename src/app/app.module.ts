@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -7,17 +7,21 @@ import { AppComponent } from './app.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-
+import { CreateQuizComponent } from './pages/create-quiz/create-quiz.component';
+ 
+ 
 @NgModule({
   declarations: [
     AppComponent,
-    AdminLayoutComponent
+    AdminLayoutComponent,
+    CreateQuizComponent
   ],
   imports: [ HttpClientModule,FormsModule,ReactiveFormsModule,RouterModule, BrowserModule, AppRoutingModule
   ],
   providers: [
     provideClientHydration(withEventReplay())
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }
