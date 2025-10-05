@@ -1,34 +1,52 @@
-<div class="flex h-screen bg-gray-100">
+<div class="flex h-screen bg-gray-100 font-sans">
 
   <!-- Sidebar -->
   <aside
-    class="w-64 bg-white shadow-lg transition-all duration-300 hidden md:block"
+    class="w-64 bg-white shadow-lg transition-all duration-300 hidden md:flex flex-col"
     [class.w-16]="isCollapsed">
+    
+    <!-- Logo / Brand -->
     <div class="flex items-center justify-center h-16 border-b">
-      <!-- <img src="assets/logo.png" alt="Logo" class="h-10" *ngIf="!isCollapsed"> -->
+      <span class="text-xl font-bold" *ngIf="!isCollapsed">Admin Panel</span>
+      <span *ngIf="isCollapsed" class="text-xl font-bold">AP</span>
     </div>
-    <nav class="mt-4">
-      <ul>
-        <li *ngFor="let item of menuItems" class="p-3 hover:bg-gray-200 cursor-pointer flex items-center">
-          <i [class]="item.icon"></i>
-          <span class="ml-3" *ngIf="!isCollapsed">{{ item.label }}</span>
+
+    <!-- Navigation -->
+    <nav class="flex-1 mt-4">
+      <ul class="space-y-1">
+        <li *ngFor="let item of menuItems" 
+            [routerLink]="item.route"
+            routerLinkActive="bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-lg rounded-lg"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="flex items-center p-3 cursor-pointer hover:bg-blue-100 transition-colors duration-200">
+          
+          <i [class]="item.icon + ' text-lg w-6 text-gray-700'" 
+             [ngClass]="{'text-white': isActiveRoute(item.route)}"></i>
+          <span class="ml-3 font-medium" *ngIf="!isCollapsed">{{ item.label }}</span>
         </li>
       </ul>
     </nav>
+    
+    <!-- Optional Footer / Version -->
+    <div class="p-4 border-t text-sm text-gray-500" *ngIf="!isCollapsed">
+      v1.0.0
+    </div>
   </aside>
 
   <!-- Main Content -->
   <div class="flex-1 flex flex-col">
-    
-    <!-- Top Strip -->
+
+    <!-- Top Bar -->
     <header class="flex justify-between items-center bg-white shadow px-6 h-16">
-      <button (click)="toggleSidebar()" class="md:hidden">
-        <i class="fas fa-bars"></i>
+      <button (click)="toggleSidebar()" class="md:hidden text-gray-700 hover:text-gray-900">
+        <i class="fas fa-bars text-lg"></i>
       </button>
-      <h1 class="text-xl font-semibold">Admin Panel</h1>
+
+      <h1 class="text-xl font-semibold text-gray-800">Admin Panel</h1>
+
       <div class="flex items-center space-x-3">
-        <span class="font-medium">Dr. Bagchi</span>
-        <!-- <img src="/admin-avatar.png" alt="Admin Avatar" class="w-10 h-10 rounded-full border"> -->
+        <span class="font-medium text-gray-700">Dr. Bagchi</span>
+        <img src="" alt="Admin Avatar" class="w-10 h-10 rounded-full border border-gray-200">
       </div>
     </header>
 
@@ -38,4 +56,5 @@
     </main>
 
   </div>
+
 </div>

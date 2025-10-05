@@ -170,8 +170,7 @@ if(!Zoomcode)
   this.Liveclasses.CreateMeeting(payload).subscribe({
 next:(response:any) =>{
 
-  console.log(response);
-  
+   
  if(response.StatusCode == 200)
 {
   this.msg = "Session has been creating in new tab"
@@ -372,8 +371,7 @@ getAllCourses()
           return c;
         });
 
-          console.log(this.AvailableCourses);
-
+ 
 
           },
           error: (error: any) => {             

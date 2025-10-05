@@ -4,6 +4,7 @@ import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.compone
 import { ClassroomComponent } from './pages/live-classes/classroom/classroom.component';
 import { CreateQuizComponent } from './pages/create-quiz/create-quiz.component';
 import { ManageClassBoardSubjectsComponent } from './manage-class-board-subjects/manage-class-board-subjects.component';
+import { ManageCoursePackagesandDetailsComponent } from './manage-course-packagesand-details/manage-course-packagesand-details.component';
 
 const routes: Routes = [
 
@@ -20,6 +21,7 @@ const routes: Routes = [
      }, 
      {path:'create-quiz',component:CreateQuizComponent},
       { path:'manage-class-board-subjects',component:ManageClassBoardSubjectsComponent},
+      {path:'manage-courses',component:ManageCoursePackagesandDetailsComponent}
  
      
       

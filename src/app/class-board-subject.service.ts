@@ -28,7 +28,7 @@ export class ClassBoardSubjectService {
  SubmitClassDetails(payload:any)
   {
    const token = localStorage.getItem('token'); // Or wherever you store your token
-debugger
+ 
   const headers = new HttpHeaders({
     'Authorization': `Bearer ${token}`
   }); 
@@ -78,7 +78,7 @@ let params = new HttpParams().set('Classid',id.toString());
     SubmitBoardDetails(payload:any)
     {
    const token = localStorage.getItem('token'); // Or wherever you store your token
-debugger
+ 
   const headers = new HttpHeaders({
     'Authorization': `Bearer ${token}`
   }); 
@@ -92,7 +92,7 @@ debugger
 
  DeleteboardDetails(id:any)
   {
-    debugger
+     
 let params = new HttpParams().set('Boardid',id.toString());
  
    const token = localStorage.getItem('token'); // Or wherever you store your token
@@ -123,14 +123,40 @@ let params = new HttpParams().set('Boardid',id.toString());
   return this.http.get<any>(`${this.baseurl}api/GetAvailableSubjects?_=${unique}`, {
     headers,withCredentials: false
   });
-    }
+    } 
+
+SubmitSubjectDetails(payload:any)
+{ const token = localStorage.getItem('token'); // Or wherever you store your token
+ 
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+  return this.http.post<any>(`${this.baseurl}api/AddUpdateSubjects?_=${unique}`, payload,
+    {
+    headers,withCredentials: false
+  });
+
+}
 
 
+DeleteSubjectDetails(id:any)
+{  
+let params = new HttpParams().set('subjectid',id.toString());
+ 
+   const token = localStorage.getItem('token'); // Or wherever you store your token
 
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+  return this.http.post<any>(`${this.baseurl}api/DeleteSubjects?_=${unique}`,null,
+    {
+      params:params,
+    headers,withCredentials: false
+  });
 
-
-
-
+}
 
 
 

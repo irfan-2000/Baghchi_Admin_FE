@@ -60,9 +60,11 @@ this.boardForm = this.fb.group({
     
 this.subjectForm = this.fb.group({
         subjectId: [0],  
-        classId:['',Validators.required],
-        subjectName:['',Validators.required],
-        boardId:['',Validators.required],
+             subjectName:['',Validators.required],
+        
+        // classId:['',Validators.required],
+        // boardId:['',Validators.required],
+   
         flag:['I'],
        status: ['', Validators.required]
     });
@@ -76,11 +78,9 @@ this.subjectForm = this.fb.group({
     next: (response: any) => {
        
       this.AvailableCourses = response.Result; // match backend casing
-      console.log("Courses fetched:", this.AvailableCourses);
-    },
+     },
     error: (err: any) => {
-      console.error("Error fetching courses:", err);
-    }
+     }
   });
 }
 
@@ -175,11 +175,9 @@ this.Class_board_subjectservice.DeleteClassDetails(id).subscribe({
     next: (response: any) => {
        
       this.AvailableBoards = response.Result; // match backend casing
-      console.log("Courses fetched:", this.AvailableCourses);
-    },
+     },
     error: (err: any) => {
-      console.error("Error fetching courses:", err);
-    }
+     }
   });
 }
  
@@ -286,52 +284,56 @@ this.Class_board_subjectservice.DeleteboardDetails(id).subscribe({
  
 
 EditSubjectDetails(item:any,flag:any = '')
-{  
-   
-  this.boardForm.patchValue(
-    {
+{   
+   this.subjectForm.patchValue({
+      subjectId:item.SubjectId,
+      subjectName:item.SubjectName,
+      classId:item.ClassId,
       boardId:item.BoardId,
-      boardName:item.BoardName,
       status:item.Status,
-      flag:flag
-    }
-  )
+      flag: flag})
+ 
 }
 
 
 
 SubmitSubjectDetails( )
 {
-this.errorMessage_Board = ''
+this.errorMessage_Subject= ''
 
-  if (this.boardForm.invalid) 
+  if (this.subjectForm.invalid) 
       {
-      this.errorMessage_Board = 'Please enter a board name and select status.';
+      this.errorMessage_Subject = 'Please fill all the details';
       return;
     }
+ 
 
   const payload =
   {
-    BoardId: this.boardForm.get('boardId')?.value,
-    BoardName :this.boardForm.get('boardName')?.value,
-    Status : this.boardForm.get('status')?.value,
-    Flag :this.boardForm.get('flag')?.value,
+    subjectId:this.subjectForm.get('subjectId')?.value,
+    SubjectName:this.subjectForm.get('subjectName')?.value,
+    classId:this.subjectForm.get('classId')?.value,
+    BoardId: this.subjectForm.get('boardId')?.value,
+    Status : this.subjectForm.get('status')?.value,
+    Flag :this.subjectForm.get('flag')?.value,
   }
     debugger
-this.Class_board_subjectservice.SubmitBoardDetails(payload).subscribe({
+this.Class_board_subjectservice.SubmitSubjectDetails(payload).subscribe({
     next: (response: any) => 
-      {
+       {
         if(response.Result)
         {
-           this.boardForm.patchValue({
-      boardId:0,
-      boardName:'',
+           this.subjectForm.patchValue({
+      subjectId:0,
+      subjectName:'',
+      classId:'',
+      BoardId:'',
       status:'',
       flag:'I'})
           alert("Data has been updated successfully");
         }
                 
-       this.GetAvailableBoards();
+       this.GetAvailableSubjects();
      },
     error: (err: any) => {
       console.error("Error fetching courses:", err);
@@ -347,8 +349,8 @@ DeleteSubjectDetails(id:any)
   {
     return;
   }
-    
-this.Class_board_subjectservice.DeleteboardDetails(id).subscribe({
+     
+this.Class_board_subjectservice.DeleteSubjectDetails(id).subscribe({
     next: (response: any) =>
        {
         if(response.Result)
@@ -359,7 +361,7 @@ this.Class_board_subjectservice.DeleteboardDetails(id).subscribe({
         {
           alert("there are some associated data with it try deleting it");
         }
-       this.GetAvailableBoards();
+       this.GetAvailableSubjects();
      },
     error: (err: any) => {
       console.error("Error fetching courses:", err);
@@ -367,16 +369,37 @@ this.Class_board_subjectservice.DeleteboardDetails(id).subscribe({
   });
 }
 
-getClassName(classId: number): string {
-  const course = this.AvailableCourses.find((s:any) => s.ClassId === classId);
-  return course ? course.ClassName : 'N/A';
+getClassName(classId: any = '',flag:any = ''): any 
+{
+    
+if(flag == 'selected')
+{
+    const course = this.AvailableCourses.find((s:any) => s.ClassId === classId);
+  return course ? course.ClassName : 'N/A'; }
+
+if(flag == 'select')
+{  
+return this.AvailableCourses.filter((s:any)=>s.Status == 1)
+}
+ 
 }
 
 
-getboardName(Boardid: number): string
- {
-   
-  const course = this.AvailableBoards;this.AvailableBoards.find((s:any) => s.Boardid === Boardid);
-  return course ? course.BoardName : 'N/A';
+getboardName(Boardid: any = '',flag:any = ''): any
+ {   
+if(flag == 'selected')
+{
+    
+  const boards = this.AvailableBoards.find((s:any) => s.BoardId === Boardid);
+  return boards ? boards.BoardName : 'N/A';
 }
+
+if(flag == 'select')
+{    
+  return this.AvailableBoards.filter((s:any) => s.Status === 1);
+} 
+}
+
+
+
 }
