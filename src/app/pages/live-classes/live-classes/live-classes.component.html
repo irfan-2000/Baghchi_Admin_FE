@@ -1,5 +1,27 @@
 <!-- Available Courses (Desktop Table) -->
 <div class="flow-root" *ngIf="AvailableCourses && AvailableCourses.length > 0 && !ShowClassDetailsFrom">
+<div *ng-If="OngoignClassDetails != null"  class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded shadow flex items-center space-x-4 max-w-[40rem] w-auto mx-auto">
+  <div class="flex flex-col space-y-1">
+    <h3 class="text-sm font-semibold text-blue-800 truncate">
+      Ongoing Class: {{ OngoignClassDetails?.Topic }}
+    </h3>
+    <p class="text-xs text-blue-700 truncate">
+      Teacher: {{ OngoignClassDetails?.Teachername }} | Batch: {{ OngoignClassDetails?.Batchname }} of class {{ OngoignClassDetails?.Classname }}
+    </p>
+  </div>
+  <div class="ml-21"> <!-- add left margin to create space before button -->
+   <button  
+  class="px-4 py-2 rounded-md bg-green-600 text-white font-medium text-sm cursor-pointer">
+  Join Class
+</button>
+
+  </div>
+</div>
+
+
+<br/>
+  <!-- Join Button -->
+ 
   <div class="overflow-x-auto">
     <div class="inline-block min-w-full align-middle">
       <table class="min-w-full table-fixed divide-y divide-gray-200">
@@ -59,20 +81,27 @@
 <!--  [disabled]="OngoignClassDetails?.LiveSessionId"               -->
 
             <!-- Action -->
-            <td class="px-4 py-4 align-middle">
-              <div class="flex justify-center">
-                <button
-  (click)="StartClass(c)"  [disabled]=" this.OngoignClassDetails != null"
-  type="button"
- class="px-3 py-1.5 rounded-md bg-indigo-600 text-white text-xs font-medium
-         hover:bg-indigo-700 focus:outline-none focus-visible:ring-2
-         focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition
-         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600">
-  Start Class
-</button>
+           <td class="px-4 py-4 align-middle">
+  <div class="flex justify-center gap-1">
+    <button
+      (click)="StartClass(c)"
+      [disabled]="OngoignClassDetails != null"
+      type="button"
+      class="px-2 py-1 rounded-md bg-indigo-600 text-white text-xs font-medium
+             hover:bg-indigo-700 focus:ring-1 focus:ring-indigo-500 transition
+             disabled:opacity-50 disabled:cursor-not-allowed">
+      Start
+    </button>
 
-              </div>
-            </td>
+    <button
+      type="button" (click)="EditCourse(c)"
+      class="px-2 py-1 rounded-md bg-green-600 text-white text-xs font-medium           
+             cursor-pointer">
+      Edit/View
+    </button>
+  </div>
+</td>
+
           </tr>
         </tbody>
       </table>

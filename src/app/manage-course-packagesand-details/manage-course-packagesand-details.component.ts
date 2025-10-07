@@ -23,7 +23,7 @@ export class ManageCoursePackagesandDetailsComponent {
   OldImageName:any;
   IsEditMode:boolean=false;
  coursePackageDetails :any;
- CouseId:any;
+ CourseId:any;
  isLoading = false;
 
 
@@ -32,14 +32,14 @@ export class ManageCoursePackagesandDetailsComponent {
 this.loadDropdowns();
  
 this.route.queryParams.subscribe(params => {
-      this.CouseId  = params['CouseId'];
+      this.CourseId  = params['CourseId'];
       
       this.IsEditMode= this.IsEditMode = params["IsEditMode"]?.toLowerCase() === "true";
          
     });
-    if(this.IsEditMode && this.CouseId >0)
+     if(this.IsEditMode && this.CourseId >0)
     {
-this.getcoursebyid(this.CouseId);
+ this.getcoursebyid(this.CourseId);
 
     }
 
@@ -639,7 +639,7 @@ toTimeInput(time24: string): string {
   if(this.IsEditMode)
   {
 
-  formData.append('CourseId', this.CouseId || '0');  
+  formData.append('CourseId', this.CourseId || '0');  
   }
   formData.append('courseName', this.courseForm.get('courseName')?.value);
   formData.append('courseLevel', this.courseForm.get('courseLevel')?.value);

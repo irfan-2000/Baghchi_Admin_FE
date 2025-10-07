@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { LiveClassesService } from '../../../live-classes.service';
  import { ReactiveFormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-live-classes',
@@ -24,14 +24,14 @@ export class LiveClassesComponent implements OnInit{
   Redirectbaseurl = 'https://b9c5d89afc4c.ngrok-free.app';
 
 
-  loading = false;
-  error: string | null = null;
- ShowClassDetailsFrom = false;
- SelectedLiveClass:any;
- Batches:any;
- Coursepayload:any;
-successmsg:any;
-OngoignClassDetails:any = [];
+    loading = false;
+    error: string | null = null;
+  ShowClassDetailsFrom = false;
+  SelectedLiveClass:any;
+  Batches:any;
+  Coursepayload:any;
+  successmsg:any;
+  OngoignClassDetails:any = [];
 
   // sensible defaults
   defaults = {
@@ -217,7 +217,10 @@ async docallback()
 {
    this.loading = true;
    this.msg= 'please wait';
-   debugger
+   
+
+
+
   if(this.validateForm() != 0)
      {
       alert("Please fill all required fields");
@@ -422,13 +425,14 @@ goToCourseDetails(course: any)
 getOngoingClassDetails()
 {
   try{
-
+ 
     this.Liveclasses.getOngoingClassDetails().subscribe({
       next:(response:any)=>
     {
-      if(response.result)
+      if(response.Result)
       {
         this.OngoignClassDetails = response.Result[0];
+         debugger
       }else{
         this.OngoignClassDetails = null;
       }
@@ -460,9 +464,17 @@ if(this.OngoignClassDetails > 0)
 
 
 
-StartClass(course:any)
-{
-   debugger
+async StartClass(course:any)
+{ 
+ 
+   const response = await firstValueFrom(this.Liveclasses.getOngoingClassDetails())
+      if(response?.Result?.length > 0)
+     {
+      alert("There are some classes already going please end them all before proceeding")
+      return;
+     }
+ 
+
   this.ShowClassDetailsFrom = true;
   this.SelectedLiveClass = course;
   this.Coursepayload = course
@@ -496,6 +508,15 @@ GobackToCourses()
 }
 
 
+
+EditCourse(c:any)
+{
+ 
+window.location.href = '/home/manage-courses?CourseId=' + c.CourseId + '&IsEditMode=true';
+
+
+
+}
 
 }
  

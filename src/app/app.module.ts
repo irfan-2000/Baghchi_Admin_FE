@@ -11,7 +11,7 @@ import { CreateQuizComponent } from './pages/create-quiz/create-quiz.component';
 import { ManageClassBoardSubjectsComponent } from './manage-class-board-subjects/manage-class-board-subjects.component';
 import { ManageCoursePackagesandDetailsComponent } from './manage-course-packagesand-details/manage-course-packagesand-details.component';
 import { NgSelectModule } from '@ng-select/ng-select';
-  
+  import { CommonModule } from '@angular/common';
  
 @NgModule({
   declarations: [
@@ -21,7 +21,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     ManageClassBoardSubjectsComponent,
     ManageCoursePackagesandDetailsComponent,
    ],
-  imports: [ HttpClientModule, FormsModule, ReactiveFormsModule, RouterModule, BrowserModule, AppRoutingModule,NgSelectModule 
+  imports: [ HttpClientModule, FormsModule, ReactiveFormsModule, RouterModule, BrowserModule, AppRoutingModule,NgSelectModule ,CommonModule
   ],
   providers: [
     provideClientHydration(withEventReplay())

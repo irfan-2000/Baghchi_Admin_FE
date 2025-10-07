@@ -51,13 +51,7 @@ export class ClassroomComponent implements OnInit {
         this.meetingDetails = response;
 
         if (this.meetingDetails)
-           {
-         
-            
-
-
-
-
+           { 
           this.joinMeeting();
         }
       }

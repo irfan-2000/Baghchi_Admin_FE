@@ -55,7 +55,7 @@ getOngoingClassDetails()
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.get<any>(`${this.baseurl}api/GetOnGoingClasses`, {
+    return this.http.get<any>(`${this.baseurl}api/zoom/GetOnGoingClasses`, {
       headers, withCredentials: false
     });
 }

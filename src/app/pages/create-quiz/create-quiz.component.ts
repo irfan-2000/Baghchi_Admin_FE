@@ -138,7 +138,7 @@ getAllCourses()
 {
     try 
      {
-        this. Liveclasses.getAllCourses( ).subscribe({
+        this. Liveclasses.getAllCourses().subscribe({
           next: (response: any) =>
         {
           this.AvailableCourses = response.Result;
@@ -178,13 +178,8 @@ getBatchesByCourseid(CourseId:any)
     this.Liveclasses.getBatchesByCourseid(CourseId).subscribe({
       next:(response:any)=>{
     console.log(response);
-    this.Batches = [
-    { BatchId: 1, BatchName: 'Batch A - Morning' },
-    { BatchId: 2, BatchName: 'Batch B - Evening' },
-    { BatchId: 3, BatchName: 'Batch C - Weekend' },
-    { BatchId: 4, BatchName: 'Batch D - Fast Track' }
-  ];
-
+    this.Batches = response.Result;
+ 
   
       },
       error:(error:any) =>{
@@ -218,5 +213,31 @@ getBatchesByCourseid(CourseId:any)
 
 
 
+  toggleCheckAll(event: any)
+   {
+    if(event.currentTarget.checked)
+      {
+      this.selectAllbatches();
+    } else {
+      this.unselectAllbatches();
+    }
+  }
+
+    selectAllbatches() {
+    const batchidcontrol = this.quizForm.get('batchId');
+    if (batchidcontrol) {
+      batchidcontrol.patchValue(this.Batches.map((s:any) => s.BatchId));
+    }
+  }
+
+  unselectAllbatches() 
+  {
+  const batchidcontrol = this.quizForm.get('batchId');
+    if (batchidcontrol)
+    {
+ batchidcontrol.patchValue([]);
+    }
+    
+  }
 
 }

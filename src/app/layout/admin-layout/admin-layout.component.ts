@@ -15,7 +15,7 @@ menuItems = [
   { label: 'Courses', icon: 'fas fa-book', route: '/home/manage-class-board-subjects' },
   { label: 'Manage Courses', icon: 'fas fa-book', route: 'manage-courses' },
   
-   { label: 'Live Sessions', icon: 'fas fa-video', route: '/home/live-classes' },
+   { label: 'Live Courses/ Classes', icon: 'fas fa-video', route: '/home/live-classes' },
   { label: 'Create-Quiz', icon: 'fas fa-user-graduate', route: '/home/create-quiz' }, // adjust if separate student page
  ];
 
