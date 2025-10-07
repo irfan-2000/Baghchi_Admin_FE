@@ -92,7 +92,8 @@ export class ClassroomComponent implements OnInit {
   }
 
   // Join meeting using Zoom Client View
-  async joinMeeting() {
+  async joinMeeting() 
+  {
     if (!this.client) return;
     this.islive = true;
 

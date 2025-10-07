@@ -20,7 +20,9 @@ export class LiveClassesComponent implements OnInit{
   
   result:any;
   defaultTimezone = 'Asia/Kolkata';
-  apiUrl = 'https://localhost:7091/api/CreateLiveSession';
+  Redirecturl = 'https://b9c5d89afc4c.ngrok-free.app/api/zoom/callback';
+  Redirectbaseurl = 'https://b9c5d89afc4c.ngrok-free.app';
+
 
   loading = false;
   error: string | null = null;
@@ -74,12 +76,14 @@ console.log("Form initial values:", this.form.value);  // ✅ print initial form
     return this.form.controls;
   }
 
- onTypeChange() {
+ onTypeChange() 
+ {
   // if switching to instant, clear start time validation; if scheduled, ensure it exists
   if (this.form.value.type === 2)
      {
     this.fc['start_time_local'].addValidators([Validators.required]);
-  } else {
+  } else 
+    {
     this.fc['start_time_local'].clearValidators();
     this.fc['start_time_local'].setValue(
       this.toLocalInputValue(new Date(Date.now() + 5 * 60 * 1000))
@@ -88,17 +92,25 @@ console.log("Form initial values:", this.form.value);  // ✅ print initial form
   this.fc['start_time_local'].updateValueAndValidity();
 }
 
-ngOnInit() {
+ngOnInit()
+ {
   window.addEventListener('message', this.zoomMessageHandler.bind(this), false);
 }
 
 zoomMessageHandler(event: MessageEvent) {
   // Validate origin for security
-  if (event.origin !== 'https://af433f1f8a9c.ngrok-free.app') return;
+   
+  if(event.origin != 'http://localhost:4200')
+  {
+    console.log(event.origin);
+  }
+console.log(event.origin.includes(this.Redirecturl));
+
+  if (event.origin != this.Redirectbaseurl ) return;
 
   const data = event.data;
   console.log('Received from popup:', data);
-
+ 
   if (data.zoomCode)
      {
        
@@ -202,18 +214,28 @@ window.open(url, '_blank');
   }
 
 async docallback()
-{this.loading;
-  this.msg= 'please wait';
+{
+   this.loading = true;
+   this.msg= 'please wait';
+   debugger
+  if(this.validateForm() != 0)
+     {
+      alert("Please fill all required fields");
+      this.loading = false;
+      return;
+     }
+   
    const response = await firstValueFrom(this.Liveclasses.getOngoingClassDetails())
       if(response?.Result?.length > 0)
      {
       alert("There are some classes already going please end them all before proceeding")
+      this.loading = false;
       return;
      }
-    const state = "no stae";
+    const state = "no state";
 
    const clientId = "8hXTyshVThO62dBZohgnuA"; // Zoom Client ID
-  const redirectUri = encodeURIComponent("https://af433f1f8a9c.ngrok-free.app/api/zoom/callback"); 
+  const redirectUri = encodeURIComponent(this.Redirecturl); 
   const responseType = "code";
   const zoomAuthUrl = `https://zoom.us/oauth/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&state=${encodeURIComponent(state)}`;
      window.open(zoomAuthUrl, '_blank');
@@ -278,6 +300,14 @@ validateForm(): any
 if(!this.form.get('batchId')?.value || this.form.get('batchId')?.value.trim() === '' )
 {
   this.ErrorMsg['batch'] = 'Please select a batch';
+  haserror =1;
+}
+
+
+if(this.form.get('teachername')?.value == null || this.form.get('teachername')?.value == '' ||this.form.get('teachername')?.value == undefined
+)
+{
+  this.ErrorMsg['teachername'] = 'Please enter teacher name';
   haserror =1;
 }
 
@@ -362,6 +392,7 @@ getAllCourses()
           next: (response: any) =>
         {
           this.AvailableCourses = response.Result;
+           
              this.AvailableCourses = response.Result.map((c: any) => {
           try {
             c.Description = JSON.parse(c.Description);
@@ -370,10 +401,8 @@ getAllCourses()
           }
           return c;
         });
-
  
-
-          },
+           },
           error: (error: any) => {             
           },
         });

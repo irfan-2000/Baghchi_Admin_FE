@@ -37,7 +37,11 @@ this.route.queryParams.subscribe(params => {
       this.IsEditMode= this.IsEditMode = params["IsEditMode"]?.toLowerCase() === "true";
          
     });
+    if(this.IsEditMode && this.CouseId >0)
+    {
 this.getcoursebyid(this.CouseId);
+
+    }
 
 
   }
