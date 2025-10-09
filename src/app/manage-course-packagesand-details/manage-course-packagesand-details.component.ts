@@ -591,7 +591,7 @@ populate_data()
       batch_boardId: [b.batch_boardId || b.boardId || ''],
       startDate: [b.startDate ? b.startDate.split('T')[0] : ''],
       endDate: [b.endDate ? b.endDate.split('T')[0] : ''],
-          startTime: [b.startTime ? this.toTimeInput(b.startTime) : ''],
+      startTime: [b.startTime ? this.toTimeInput(b.startTime) : ''],
       endTime: [b.endTime ? this.toTimeInput(b.endTime) : '']
     }));
   });
