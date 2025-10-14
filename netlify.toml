@@ -6,3 +6,6 @@ publish = "dist/baghchi-admin-fe/browser"
 package = "@netlify/plugin-angular-universal"
   [plugins.inputs]
   skip = true
+  
+[build.environment]
+NODE_VERSION = "18"
