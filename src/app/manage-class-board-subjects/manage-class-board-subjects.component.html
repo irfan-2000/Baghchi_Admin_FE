@@ -1,274 +1,232 @@
-<!-- tabs.component.html -->
 <div class="w-full">
-  <!-- Tabs -->
-  <div class="flex border-b border-gray-300">
-    <button
-      *ngFor="let tab of tabs; let i = index"
-      (click)="activeTab = i"
-      [class.border-indigo-500]="activeTab === i"
-      [class.text-indigo-600]="activeTab === i"
-      class="px-6 py-3 text-sm font-medium text-gray-600 border-b-2 border-transparent
-             hover:text-indigo-500 hover:border-indigo-300 focus:outline-none transition">
+  <div class="flex items-center mb-4">
+    <h1 class="text-xl font-semibold text-slate-800 tracking-wide">
+      Classes, Boards & Subjects
+    </h1>
+
+  </div>
+
+
+  <!-- Tabs Header -->
+  <div class="flex flex-wrap border-b border-slate-200 bg-white/70 backdrop-blur-md rounded-t-xl shadow-sm">
+    <button *ngFor="let tab of tabs; let i = index" (click)="activeTab = i" class="relative px-6 py-3 text-sm sm:text-base font-medium transition-all duration-300
+             text-slate-600 hover:text-blue-600" [ngClass]="{
+        'text-blue-600 font-semibold': activeTab === i
+      }">
       {{ tab.label }}
+      <span *ngIf="activeTab === i"
+        class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-t"></span>
     </button>
   </div>
 
   <!-- Tab Content -->
   <div class="mt-6">
     <ng-container [ngSwitch]="activeTab">
-      <!-- Manage Classes -->
- <div *ngSwitchCase="0" class="max-w-4xl  space-y-6">
-  <!-- Manage Classes Heading -->
-  <h2 class="text-lg font-semibold text-gray-700">Manage Classes</h2>
 
-  <!-- Form Box -->
-  <div class="bg-white rounded-lg shadow p-6">
-    <form [formGroup]="classForm"   class="flex items-center space-x-4">
-      <!-- Class Name -->
-      <input type="text" formControlName="className" placeholder="Enter class name"
-             class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-
-      <!-- Status Dropdown -->
-      <select formControlName="status"
-              class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-        <option value="" selected>--Select Status--</option>
-        <option value="1">Active</option>
-        <option value="0">Inactive</option>
-      </select>
-
-      <!-- Submit -->
-      <button type="submit" (click)="SubmitClassDetails()"
-              class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-        Submit
-      </button>
-    </form>
-
-    <!-- Error Message -->
-    <div *ngIf="errorMessage"
-         class="mt-4 text-center text-sm text-red-600 font-medium">
-      {{ errorMessage }}
-    </div>
-  </div>
-
-  <!-- Table Box -->
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-md font-medium text-gray-700 mb-4">Class List</h3>
-    <div class="overflow-x-auto">
-      <table class="min-w-full border border-gray-200 divide-y divide-gray-200">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Class Name</th>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          <tr *ngFor="let item of AvailableCourses" class="hover:bg-gray-50">
-            <td class="px-4 py-2 text-sm text-gray-800">{{ item.ClassName }}</td>
-            <td class="px-4 py-2 text-sm">
-             <span
-            [ngClass]="{
-                'bg-green-100 text-green-700': item.Status === 1,
-                'bg-red-100 text-red-700': item.Status === 0
-            }"
-            class="px-2 py-1 rounded text-xs font-medium"
-            >
-            {{ item.Status === 1 ? 'Active' : 'Inactive' }}
-            </span>
-            </td>
-          <td class="px-4 py-2 text-sm space-x-2">
-  <button 
-    class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 cursor-pointer"
-    (click)="EditClassDetails(item,'U')">
-    Edit
-  </button>
-  <button 
-    class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 cursor-pointer"
-    (click)="deleteclass(item.ClassId)">
-    Delete
-  </button>
-</td>
-
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+      <!-- 🏫 Manage Classes -->
+      <div *ngSwitchCase="0" class="max-w-6xl mx-auto space-y-8">
 
 
-<!-- Manage Boards -->
-<div *ngSwitchCase="1" class="max-w-4xl space-y-6">
-  <!-- Heading -->
-  <h2 class="text-lg font-semibold text-gray-700">Manage Boards</h2>
+        <!-- Form Card -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+          <form [formGroup]="classForm" class="flex flex-col sm:flex-row gap-4">
+            <input type="text" formControlName="className" placeholder="Enter class name"
+              class="flex-1 px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
 
-  <!-- Form Box -->
-  <div class="bg-white rounded-lg shadow p-6">
-    <form [formGroup]="boardForm" class="flex items-center space-x-4">
-      <!-- Board Name -->
-      <input type="text" formControlName="boardName" placeholder="Enter board name"
-             class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <select formControlName="status"
+              class="px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="" selected>-- Select Status --</option>
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
 
-      <!-- Status Dropdown -->
-      <select formControlName="status"
-              class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-        <option value="">--Select Status--</option>
-        <option value="1">Active</option>
-        <option value="0">Inactive</option>
-      </select>
+            <button type="submit" (click)="SubmitClassDetails()"
+              class="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg shadow hover:opacity-90 transition">
+              Submit
+            </button>
+          </form>
 
-      <!-- Submit Button -->
-      <button type="submit" (click)="SubmitBoardDetails()"
-              class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-        Submit
-      </button>
-    </form>
+          <div *ngIf="errorMessage" class="mt-4 text-center text-sm text-red-600 font-medium">
+            {{ errorMessage }}
+          </div>
+        </div>
 
-    <!-- Error Message -->
-    <div *ngIf="errorMessage_Board"
-         class="mt-4 text-center text-sm text-red-600 font-medium">
-      {{ errorMessage_Board }}
-    </div>
-  </div>
+        <!-- Table Card -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+          <h3 class="text-lg font-semibold text-slate-800 mb-4">Class List</h3>
 
-  <!-- Table Box -->
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-md font-medium text-gray-700 mb-4">Board List</h3>
-    <div class="overflow-x-auto">
-      <table class="min-w-full border border-gray-200 divide-y divide-gray-200">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Board Name</th>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          <tr *ngFor="let item of AvailableBoards" class="hover:bg-gray-50">
-            <td class="px-4 py-2 text-sm text-gray-800">{{ item.BoardName }}</td>
-            <td class="px-4 py-2 text-sm">
-              <span [ngClass]="{
-                  'bg-green-100 text-green-700': item.Status === 1,
-                  'bg-red-100 text-red-700': item.Status === 0
-                }"
-                class="px-2 py-1 rounded text-xs font-medium">
-                {{ item.Status === 1 ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <td class="px-4 py-2 text-sm space-x-2">
-              <button 
-                class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 cursor-pointer"
-                (click)="EditBoardDetails(item,'U')">
-                Edit
-              </button>
-              <button 
-                class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 cursor-pointer"
-                (click)="DeleteBoardDetails(item.BoardId)">
-                Delete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full border border-slate-200 text-sm rounded-xl overflow-hidden">
+              <thead class="bg-slate-100/80 text-slate-700">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold">Class Name</th>
+                  <th class="px-4 py-3 text-left font-semibold">Status</th>
+                  <th class="px-4 py-3 text-left font-semibold">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr *ngFor="let item of AvailableCourses" class="hover:bg-blue-50/50 transition">
+                  <td class="px-4 py-2">{{ item.ClassName }}</td>
+                  <td class="px-4 py-2">
+                    <span [ngClass]="{
+                        'bg-green-100 text-green-700': item.Status === 1,
+                        'bg-red-100 text-red-700': item.Status === 0
+                      }" class="px-2 py-1 rounded-lg text-xs font-semibold">
+                      {{ item.Status === 1 ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-2 space-x-2">
+                    <button (click)="EditClassDetails(item,'U')"
+                      class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition">
+                      Edit
+                    </button>
+                    <button (click)="deleteclass(item.ClassId)"
+                      class="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
+      </div>
 
-      <!-- Manage Subjects -->
-     <!-- Manage Subjects -->
-<div *ngSwitchCase="2" class="max-w-4xl space-y-6">
-  <!-- Heading -->
-  <h2 class="text-lg font-semibold text-gray-700">Manage Subjects</h2>
+      <!-- 🧾 Manage Boards -->
+      <div *ngSwitchCase="1" class="max-w-6xl mx-auto space-y-8">
+        <!-- <h2 class="text-xl font-semibold text-slate-800">Manage Boards</h2> -->
 
-  <!-- Form Box -->
-<div class="bg-white rounded-lg shadow p-6">
-  <form [formGroup]="subjectForm" class="flex items-center space-x-4">
-    <!-- Subject Name -->
-    <input type="text" formControlName="subjectName" placeholder="Enter subject name"
-           class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 flex-1">
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+          <form [formGroup]="boardForm" class="flex flex-col sm:flex-row gap-4">
+            <input type="text" formControlName="boardName" placeholder="Enter board name"
+              class="flex-1 px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
 
-    <!-- Class Dropdown -->
-    <!-- <select formControlName="classId"
-            class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-      <option value="">--Select class--</option>
-      <option *ngFor="let cls of getClassName(0,'select') || []" [ngValue]="cls.ClassId">
-        {{ cls.ClassName }}
-      </option>
-    </select> -->
+            <select formControlName="status"
+              class="px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">-- Select Status --</option>
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
 
-    <!-- Board Dropdown -->
-    <!-- <select formControlName="boardId"
-            class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-      <option value="">--Select board--</option>
-      <option *ngFor="let bd of getboardName(0,'select') || []" [ngValue]="bd.BoardId">
-        {{ bd.BoardName }}
-      </option>
-    </select> -->
+            <button type="submit" (click)="SubmitBoardDetails()"
+              class="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg shadow hover:opacity-90 transition">
+              Submit
+            </button>
+          </form>
 
-    <!-- Status Dropdown -->
-    <select formControlName="status"
-            class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-      <option value="">--Select Status--</option>
-      <option value="1">Active</option>
-      <option value="0">Inactive</option>
-    </select>
+          <div *ngIf="errorMessage_Board" class="mt-4 text-center text-sm text-red-600 font-medium">
+            {{ errorMessage_Board }}
+          </div>
+        </div>
 
-    <!-- Submit Button -->
-    <button type="submit" (click)="SubmitSubjectDetails()"
-            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-      Submit
-    </button>
-  </form>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+          <h3 class="text-lg font-semibold text-slate-800 mb-4">Board List</h3>
 
-  <!-- Error Message -->
-  <div *ngIf="errorMessage_Subject"
-       class="mt-4 text-center text-sm text-red-600 font-medium">
-    {{ errorMessage_Subject }}
-  </div>
-</div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full border border-slate-200 text-sm rounded-xl overflow-hidden">
+              <thead class="bg-slate-100/80 text-slate-700">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold">Board Name</th>
+                  <th class="px-4 py-3 text-left font-semibold">Status</th>
+                  <th class="px-4 py-3 text-left font-semibold">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr *ngFor="let item of AvailableBoards" class="hover:bg-blue-50/50 transition">
+                  <td class="px-4 py-2">{{ item.BoardName }}</td>
+                  <td class="px-4 py-2">
+                    <span [ngClass]="{
+                        'bg-green-100 text-green-700': item.Status === 1,
+                        'bg-red-100 text-red-700': item.Status === 0
+                      }" class="px-2 py-1 rounded-lg text-xs font-semibold">
+                      {{ item.Status === 1 ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-2 space-x-2">
+                    <button (click)="EditBoardDetails(item,'U')"
+                      class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition">
+                      Edit
+                    </button>
+                    <button (click)="DeleteBoardDetails(item.BoardId)"
+                      class="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
+      <!-- 📚 Manage Subjects -->
+      <div *ngSwitchCase="2" class="max-w-6xl mx-auto space-y-8">
+        <!-- <h2 class="text-xl font-semibold text-slate-800">Manage Subjects</h2> -->
 
-  <!-- Table Box -->
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-md font-medium text-gray-700 mb-4">Subjects List</h3>
-    <div class="overflow-x-auto">
-      <table class="min-w-full border border-gray-200 divide-y divide-gray-200">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Subject Name</th>
-             <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          <tr *ngFor="let item of AvailableSubjects" class="hover:bg-gray-50">
-            <td class="px-4 py-2 text-sm text-gray-800">{{ item.SubjectName }}</td>
-             <td class="px-4 py-2 text-sm">
-              <span [ngClass]="{
-                  'bg-green-100 text-green-700': item.Status === 1,
-                  'bg-red-100 text-red-700': item.Status === 0
-                }"
-                class="px-2 py-1 rounded text-xs font-medium">
-                {{ item.Status === 1 ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <td class="px-4 py-2 text-sm space-x-2">
-              <button class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 cursor-pointer"
-                      (click)="EditSubjectDetails(item,'U')">
-                Edit
-              </button>
-              <button class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 cursor-pointer"
-                      (click)="DeleteSubjectDetails(item.SubjectId)">
-                Delete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+          <form [formGroup]="subjectForm" class="flex flex-col sm:flex-row gap-4">
+            <input type="text" formControlName="subjectName" placeholder="Enter subject name"
+              class="flex-1 px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+
+            <select formControlName="status"
+              class="px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">-- Select Status --</option>
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
+
+            <button type="submit" (click)="SubmitSubjectDetails()"
+              class="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg shadow hover:opacity-90 transition">
+              Submit
+            </button>
+          </form>
+
+          <div *ngIf="errorMessage_Subject" class="mt-4 text-center text-sm text-red-600 font-medium">
+            {{ errorMessage_Subject }}
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100">
+          <h3 class="text-lg font-semibold text-slate-800 mb-4">Subjects List</h3>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full border border-slate-200 text-sm rounded-xl overflow-hidden">
+              <thead class="bg-slate-100/80 text-slate-700">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold">Subject Name</th>
+                  <th class="px-4 py-3 text-left font-semibold">Status</th>
+                  <th class="px-4 py-3 text-left font-semibold">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr *ngFor="let item of AvailableSubjects" class="hover:bg-blue-50/50 transition">
+                  <td class="px-4 py-2">{{ item.SubjectName }}</td>
+                  <td class="px-4 py-2">
+                    <span [ngClass]="{
+                        'bg-green-100 text-green-700': item.Status === 1,
+                        'bg-red-100 text-red-700': item.Status === 0
+                      }" class="px-2 py-1 rounded-lg text-xs font-semibold">
+                      {{ item.Status === 1 ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-2 space-x-2">
+                    <button (click)="EditSubjectDetails(item,'U')"
+                      class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition">
+                      Edit
+                    </button>
+                    <button (click)="DeleteSubjectDetails(item.SubjectId)"
+                      class="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
 
     </ng-container>
   </div>

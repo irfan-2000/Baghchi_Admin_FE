@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClassBoardSubjectService } from '../class-board-subject.service';
 import { response } from 'express';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-manage-class-board-subjects',
@@ -36,7 +37,7 @@ errorMessage: string | null = null;
 
 
 
-  constructor(private fb: FormBuilder,private Class_board_subjectservice:ClassBoardSubjectService )
+  constructor(private fb: FormBuilder,private Class_board_subjectservice:ClassBoardSubjectService,private route: ActivatedRoute )
    {
     this.GetAvailableCourses();
     this.GetAvailableBoards();
@@ -281,8 +282,7 @@ this.Class_board_subjectservice.DeleteboardDetails(id).subscribe({
     }
   });
 }
- 
-
+  
 EditSubjectDetails(item:any,flag:any = '')
 {   
    this.subjectForm.patchValue({
@@ -293,9 +293,7 @@ EditSubjectDetails(item:any,flag:any = '')
       status:item.Status,
       flag: flag})
  
-}
-
-
+} 
 
 SubmitSubjectDetails( )
 {

@@ -4,6 +4,7 @@ import { LiveClassesService } from '../../live-classes.service';
 import { text } from 'stream/consumers';
 import { firstValueFrom } from 'rxjs';
 import { QuizService } from '../../quiz.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-create-quiz',
@@ -13,9 +14,12 @@ import { QuizService } from '../../quiz.service';
 })
 export class CreateQuizComponent {
   quizForm: FormGroup;
+  QuizId:any;
+  IsEditMode: boolean = false;
 
-constructor(private fb: FormBuilder,private Liveclasses:LiveClassesService,private quizservice:QuizService)
+constructor(private fb: FormBuilder,private Liveclasses:LiveClassesService,private quizservice:QuizService,private route: ActivatedRoute)
 {
+   
   this.quizForm = this.fb.group({
       title: ['', Validators.required],
       batchId: [[]]   ,
@@ -25,11 +29,24 @@ constructor(private fb: FormBuilder,private Liveclasses:LiveClassesService,priva
       endDate:['',Validators.required],
       endTime:['',Validators.required],
        duration:['',Validators.required],
-      questions: this.fb.array([])   
+      questions: this.fb.array([])   ,
+      status:[2,Validators.required],
+      quizId: [0]
      });
 
+
+      
+this.route.queryParams.subscribe(params => {
+      this.QuizId  = params['id'];      
+      this.IsEditMode= this.IsEditMode = params["IsEditMode"]?.toLowerCase() === "true";         
+    });
+     if(this.IsEditMode && this.QuizId >0)
+    {
+this.getquizdatabyid('Id',this.QuizId);
+    
+}
   this.getAllCourses();
-  this.populateSampleData();
+   
 }
  get questions(): FormArray
   {
@@ -51,9 +68,7 @@ constructor(private fb: FormBuilder,private Liveclasses:LiveClassesService,priva
     });
     this.questions.push(questionForm);
   }
-
-
-
+ 
   removeQuestion(index: number)
    {
     this.questions.removeAt(index);
@@ -87,7 +102,7 @@ constructor(private fb: FormBuilder,private Liveclasses:LiveClassesService,priva
     return;
   }
 const Pyaload = {
-QuizId:0,
+QuizId: this.quizForm.get('quizId')?.value,
 CourseId: this.quizForm.get('CourseId')?.value,
 BatchId: this.quizForm.get('batchId')?.value,
 Title: this.quizForm.get('title')?.value,
@@ -96,47 +111,99 @@ EndDate: this.quizForm.get('endDate')?.value, //new Date(this.quizForm.get('endD
 Duration: this.quizForm.get('duration')?.value,
 Questions: this.quizForm.get('questions')?.value,
 StartTime: this.quizForm.get('startTime')?.value,
-EndTime: this.quizForm.get('endTime')?.value
+EndTime: this.quizForm.get('endTime')?.value,
+Status:this.quizForm.get('status')?.value
 
-
-}
- debugger
-console.log(this.validateQuiz());
-
-   console.log(this.quizForm.value); 
-   
+} 
    this.quizservice.createQuiz(Pyaload).subscribe({
     next:(response:any) =>
       {
-        console.log('Quiz created successfully:', response);
+        if(response.statuscode == 200)
+        {
+          alert(response.message);
+        }
+        window.location.reload(); 
+
     },
     error:(error:any)=>
     {
       console.error('Error creating quiz:', error);
     }
-    })
-   
-
-
+    }) 
   }
  
 
    validateQuiz(): string | null 
    {
-     
+     debugger
 if(this.quizForm.get('CourseId')?.value == '' ||
- this.quizForm.get('CourseId')?.value == null ||this.quizForm.get('CourseId')?.value == undefined)
+ this.quizForm.get('CourseId')?.value == null || 
+ this.quizForm.get('CourseId')?.value == undefined)
 {
     return `Please select the course`;
 
 }
 
 if(this.quizForm.get('batchId')?.value == '' ||
- this.quizForm.get('batchId')?.value == null ||this.quizForm.get('batchId')?.value == undefined)
+ this.quizForm.get('batchId')?.value == null ||this.quizForm.get('batchId')?.value == undefined ||
+ this.quizForm.get('batchId')?.value.length == 0)
 {
   return `Please select the batch`;
 
 }
+ 
+if(this.quizForm.get('title')?.value == '' || this.quizForm.get('title')?.value == '' ||this.quizForm.get('title')?.value == '')
+{
+  return `Please enter the quiz title`;
+}
+
+if(this.quizForm.get('startDate')?.value == '' || 
+this.quizForm.get('startDate')?.value == null || this.quizForm.get('startDate')?.value == undefined)
+{
+  return `Please select the quiz start date`;
+}
+
+if(this.quizForm.get('endDate')?.value == '' || 
+this.quizForm.get('endDate')?.value == null || this.quizForm.get('endDate')?.value == undefined)
+{
+  return `Please select the quiz  endDate   `;
+}
+ 
+ 
+if(this.quizForm.get('duration')?.value == '' || 
+this.quizForm.get('duration')?.value == null || this.quizForm.get('duration')?.value == undefined || this.quizForm.get('duration')?.value == '00:00:00')
+{
+  return `Please enter the quiz duration`;
+}
+
+if(this.quizForm.get('startTime')?.value == '' || 
+this.quizForm.get('startTime')?.value == null || this.quizForm.get('startTime')?.value == undefined)
+{
+  return `Please select the quiz  start Time   `;
+}
+
+if(this.quizForm.get('endTime')?.value == '' || 
+this.quizForm.get('endTime')?.value == null || this.quizForm.get('endTime')?.value == undefined)
+{
+  return `Please select the quiz  end Time   `;
+}
+
+const start = new Date(this.quizForm.get('startDate')?.value);
+const end = new Date(this.quizForm.get('endDate')?.value);
+
+if (end < start) {
+  return 'Quiz end date must be after start date';
+}
+
+if(this.quizForm.get('status')?.value == '' || this.quizForm.get('endTime')?.value == null || this.quizForm.get('endTime')?.value == undefined || this.quizForm.get('endTime')?.value == 0)
+{
+  return `Please select the quiz status`;
+}
+
+
+
+
+
 
    const questions = this.questions.controls;
 
@@ -242,10 +309,7 @@ getBatchesByCourseid(CourseId:any)
       }
     }
   }
-
-
-
-
+ 
   toggleCheckAll(event: any)
    {
     if(event.currentTarget.checked)
@@ -272,82 +336,75 @@ getBatchesByCourseid(CourseId:any)
     }
     
   }
+ 
+  async populateSampleData(quizData: any) {
+  // Populate batches
+  const response = await firstValueFrom(this.Liveclasses.getBatchesByCourseid(quizData.CourseId));
+  this.Batches = response.Result;
 
+  // Clear existing questions
+  this.questions.clear();
 
-  // ✅ Populate Sample Data
-  async populateSampleData(quizdata: any = '')
-   {
+  // Ensure batch array is consistent with API (BatchId is a list of strings)
+  const batchArray = quizData.BatchId || [];
+ 
+  // Patch main quiz form
+  this.quizForm.patchValue({
+    quizId: quizData.QuizId || 0,
+    CourseId: quizData.CourseId,
+    batchId: batchArray,
+    duration: quizData.Duration,
+    startDate: quizData.StartDate ? quizData.StartDate.split('T')[0] : '',
+    startTime: quizData.StartTime ? quizData.StartTime : '',
+    endDate: quizData.EndDate ? quizData.EndDate.split('T')[0] : '',
+    endTime: quizData.EndTime ? quizData.EndTime : '',
+    title: quizData.Title,
+    status: quizData.Status
+  });
 
-    //const response = await firstValueFrom(this.Liveclasses.getBatchesByCourseid(quizdata.CourseId));
-     //this.Batches = response.Result;
-
-
-    const response = await firstValueFrom(this.Liveclasses.getBatchesByCourseid(11));
-    this.Batches = response.Result;
-     
-    // Ensure form and array are clean before adding
-    this.questions.clear();
-   
-    const batcharray = ['13']
-
-   const startDate = '2025-09-10T09:00:00'; // Example start date-time
-
-    this.quizForm.patchValue({
-      CourseId: 12,
-      batchId:  batcharray,  
-      duration: '00:45:00',
-      startDate:   '2025-09-10',
-      startTime: '09:00',
-      endDate: '2025-10-10',
-      endTime: '09:45',
-      title: 'Physics Basics Quiz'
+  // Populate questions
+  (quizData.Questions || []).forEach((q:any) => {
+    const qGroup = this.fb.group({
+      question_text: [q.Question_text || q.question_text || '', Validators.required],
+      options: this.fb.array((q.Options || q.options || []).map((o:any) =>
+        this.fb.group({
+          text: [o.Text || o.text || '', Validators.required],
+          isCorrect: [o.IsCorrect ?? o.isCorrect ?? false]
+        }))
+      )
     });
-    
-    console.log("this si quiz",this.quizForm.value)
 
-     const sampleQuestions = [
-      {
-        question_text: 'What is the SI unit of force?',
-        options: [
-          { text: 'Newton', isCorrect: true },
-          { text: 'Joule', isCorrect: false },
-          { text: 'Pascal', isCorrect: false },
-          { text: 'Watt', isCorrect: false }
-        ]
-      },
-      {
-        question_text: 'Which law states that F = ma?',
-        options: [
-          { text: 'Newton’s First Law', isCorrect: false },
-          { text: 'Newton’s Second Law', isCorrect: true },
-          { text: 'Newton’s Third Law', isCorrect: false },
-          { text: 'Law of Gravitation', isCorrect: false }
-        ]
-      }
-    ];
+    this.questions.push(qGroup);
+  });
 
-    sampleQuestions.forEach(q => 
-      {
-      const qGroup = this.fb.group({
-        question_text: [q.question_text, Validators.required],
-        options: this.fb.array(q.options.map(o => this.fb.group({
-          text: [o.text],
-          isCorrect: [o.isCorrect]
-        })))
-      });
-      this.questions.push(qGroup);
-    });
-  }
+  console.log('Quiz form after patch:', this.quizForm.value);
+}
 
-
-
-  toTimeInput(time24: string): string
+ 
+toTimeInput(time24: string): string
  {
   if (!time24) return '';
   const [hours, minutes] = time24.split(':');
   return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
 }
 
+
+
+getquizdatabyid(flag:any,id :any)
+{
+   
+  this.quizservice.getQuizById('Id',id).subscribe({
+    next:(response:any)=>
+    {
+      console.log(response);
+ 
+      this.populateSampleData(response);
+    },
+    error:(error:any)=>
+    {
+      console.error('Error fetching quiz:', error);
+    }});
+}
 
 
 

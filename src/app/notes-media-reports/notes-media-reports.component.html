@@ -1,0 +1,125 @@
+<div class="p-6 space-y-4">
+
+  <!-- Filter Buttons -->
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex gap-2">
+      <button (click)="filterType='All'" 
+              [class.bg-purple-500]="filterType==='All'" 
+              [class.text-white]="filterType==='All'"
+              class="px-4 py-2 rounded border hover:bg-purple-500 hover:text-white transition-colors">
+        All
+      </button>
+      <button (click)="filterType='Notes'" 
+              [class.bg-purple-500]="filterType==='Notes'" 
+              [class.text-white]="filterType==='Notes'"
+              class="px-4 py-2 rounded border hover:bg-purple-500 hover:text-white transition-colors">
+        Notes
+      </button>
+      <button (click)="filterType='Videos'" 
+              [class.bg-purple-500]="filterType==='Videos'" 
+              [class.text-white]="filterType==='Videos'"
+              class="px-4 py-2 rounded border hover:bg-purple-500 hover:text-white transition-colors">
+        Videos
+      </button>
+    </div>
+
+    <!-- Placeholder for future dropdown filters -->
+    <div>
+      <!-- Example: class, batch, course dropdowns will come here -->
+    </div>
+
+    <!-- Upload Button -->
+    <button (click)="openUploadPopup()" class="bg-blue-500 text-white px-4 py-2 rounded">
+      Upload
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-200 rounded-lg">
+      <thead class="bg-gray-100">
+        <tr>
+          <th *ngIf="filterType==='Notes' || filterType==='All'" class="px-4 py-2 border">File Name</th>
+          <th *ngIf="filterType==='Notes' || filterType==='All'" class="px-4 py-2 border">Download</th>
+          
+          <th *ngIf="filterType==='Videos' || filterType==='All'" class="px-4 py-2 border">Video Title</th>
+          <th *ngIf="filterType==='Videos' || filterType==='All'" class="px-4 py-2 border">Preview</th>
+        </tr>
+      </thead>
+      <tbody>
+  <!-- Notes Rows -->
+  <ng-container *ngIf="filterType==='Notes' || filterType==='All'">
+    <tr *ngFor="let note of notes">
+      <td class="px-4 py-2 border">{{ note.fileName }}</td>
+      <td class="px-4 py-2 border">
+        <a [href]="note.downloadUrl" target="_blank" class="text-blue-600 underline">Download</a>
+      </td>
+    </tr>
+  </ng-container>
+
+  <!-- Videos Rows -->
+  <ng-container *ngIf="filterType==='Videos' || filterType==='All'">
+    <tr *ngFor="let video of videos">
+      <!-- For 'All' filter, show both title and video in separate columns -->
+      <ng-container *ngIf="filterType==='All'">
+        <td class="px-4 py-2 border">{{ video.title }}</td>
+        <td class="px-4 py-2 border">
+          <video width="150" controls [src]="video.url"></video>
+        </td>
+      </ng-container>
+
+      <!-- For 'Videos' filter, show only relevant columns -->
+      <ng-container *ngIf="filterType==='Videos'">
+        <td class="px-4 py-2 border">{{ video.title }}</td>
+        <td class="px-4 py-2 border">
+          <video width="150" controls [src]="video.url"></video>
+        </td>
+      </ng-container>
+    </tr>
+  </ng-container>
+</tbody>
+
+    </table>
+  </div>
+
+  <!-- Upload Popup Modal -->
+  <div *ngIf="showUploadPopup" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-3xl relative">
+      <button (click)="closeUploadPopup()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">&times;</button>
+
+      <!-- Original Upload HTML goes here -->
+      <div class="p-6 space-y-8">
+        <!-- Notes Upload Section -->
+        <section class="bg-white shadow rounded-lg p-4">
+          <h2 class="text-lg font-semibold mb-3">📄 Study Notes</h2>
+
+          <input type="file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" />
+          <button (click)="uploadNote()" class="bg-blue-500 text-white px-4 py-1 rounded ml-2">Upload</button>
+
+          <div class="mt-4">
+            <h3 class="font-medium">Uploaded Notes</h3>
+            <ul>
+              <li *ngFor="let note of notes" class="border-b py-2 flex justify-between items-center">
+                <span>{{ note.fileName }}</span>
+                <a [href]="note.downloadUrl" target="_blank" class="text-blue-600 underline">Download</a>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Videos Section -->
+        <section class="bg-white shadow rounded-lg p-4">
+          <h2 class="text-lg font-semibold mb-3">🎥 Recorded Sessions</h2>
+
+          <ul>
+            <li *ngFor="let video of videos" class="border-b py-2">
+              <p class="font-medium">{{ video.title }}</p>
+              <video width="100%" controls [src]="video.url"></video>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+</div>

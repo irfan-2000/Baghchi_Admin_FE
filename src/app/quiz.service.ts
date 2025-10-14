@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from './environments/environment';
@@ -18,7 +18,7 @@ private baseurl = environment.baseUrl;
 createQuiz(quizform:any)
 {
   const token = localStorage.getItem('token'); // Or wherever you store your token
-debugger
+ 
 
   const headers = new HttpHeaders({
     'Authorization': `Bearer ${token}`
@@ -30,6 +30,40 @@ debugger
    });
 
 }
+
+
+getQuizById(flag:any,quizId:any)
+{
+ 
+
+  const token = localStorage.getItem('token'); // Or wherever you store your token
+   const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+ let params = new HttpParams(). set('flag',flag).  set('quizId', quizId);
+
+   return this.http.get<any>(`${this.baseurl}api/Getquizdata?_=${unique}`,{
+    params:params,
+     headers,withCredentials:false
+   });
+
+}
+
+getallquizzes()
+{
+  const token = localStorage.getItem('token'); // Or wherever you store your token
+   const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+ 
+   return this.http.get<any>(`${this.baseurl}api/Getallquizzes?_=${unique}`,{
+      headers,withCredentials:false
+   });
+
+}
+
 
 
 }

@@ -12,7 +12,11 @@ import { ManageClassBoardSubjectsComponent } from './manage-class-board-subjects
 import { ManageCoursePackagesandDetailsComponent } from './manage-course-packagesand-details/manage-course-packagesand-details.component';
 import { NgSelectModule } from '@ng-select/ng-select';
   import { CommonModule } from '@angular/common';
- 
+import { QuizhistoryComponent } from './quizhistory/quizhistory.component';
+import { NotesMediaReportsComponent } from './notes-media-reports/notes-media-reports.component';
+import { StudentDetailsComponent } from './student-details/student-details.component';
+ import { ClasseshistoryComponent } from './classeshistory/classeshistory.component';
+  
 @NgModule({
   declarations: [
     AppComponent,
@@ -20,7 +24,11 @@ import { NgSelectModule } from '@ng-select/ng-select';
     CreateQuizComponent,
     ManageClassBoardSubjectsComponent,
     ManageCoursePackagesandDetailsComponent,
-   ],
+    QuizhistoryComponent,
+    NotesMediaReportsComponent,
+    StudentDetailsComponent,
+     ClasseshistoryComponent
+    ],
   imports: [ HttpClientModule, FormsModule, ReactiveFormsModule, RouterModule, BrowserModule, AppRoutingModule,NgSelectModule ,CommonModule
   ],
   providers: [

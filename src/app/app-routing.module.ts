@@ -5,7 +5,11 @@ import { ClassroomComponent } from './pages/live-classes/classroom/classroom.com
 import { CreateQuizComponent } from './pages/create-quiz/create-quiz.component';
 import { ManageClassBoardSubjectsComponent } from './manage-class-board-subjects/manage-class-board-subjects.component';
 import { ManageCoursePackagesandDetailsComponent } from './manage-course-packagesand-details/manage-course-packagesand-details.component';
-
+import { QuizhistoryComponent } from './quizhistory/quizhistory.component';
+import { NotesMediaReportsComponent } from './notes-media-reports/notes-media-reports.component';
+import { StudentDetailsComponent } from './student-details/student-details.component';
+import { ClasseshistoryComponent } from './classeshistory/classeshistory.component';
+ 
 const routes: Routes = [
 
     { path: 'login', component: AdminLayoutComponent },
@@ -21,7 +25,11 @@ const routes: Routes = [
      }, 
      {path:'create-quiz',component:CreateQuizComponent},
       { path:'manage-class-board-subjects',component:ManageClassBoardSubjectsComponent},
-      {path:'manage-courses',component:ManageCoursePackagesandDetailsComponent}
+      {path:'manage-courses',component:ManageCoursePackagesandDetailsComponent},
+      {path:'quiz-history',component:QuizhistoryComponent},
+      {path:'notes-media', component: NotesMediaReportsComponent},
+      {path:'student-details', component: StudentDetailsComponent},
+      {path:'class-history', component: ClasseshistoryComponent},
  
      
       

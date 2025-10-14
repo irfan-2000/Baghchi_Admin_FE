@@ -1,58 +1,76 @@
-<div class="flex h-screen bg-gray-100 font-sans">
+<div class="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100 font-sans text-gray-800">
 
   <!-- Sidebar -->
   <aside
-    class="w-64 bg-white shadow-lg transition-all duration-300 hidden md:flex flex-col"
-    [class.w-16]="isCollapsed">
-    
-    <!-- Logo / Brand -->
-    <div class="flex items-center justify-center h-16 border-b">
-      <span class="text-xl font-bold" *ngIf="!isCollapsed">Admin Panel</span>
-      <span *ngIf="isCollapsed" class="text-xl font-bold">AP</span>
+    class="relative z-20 flex flex-col bg-white/90 backdrop-blur-lg border-r border-slate-200 shadow-lg transition-all duration-300 ease-in-out"
+    [class.w-64]="!isCollapsed"
+    [class.w-20]="isCollapsed">
+
+    <!-- Logo Section -->
+    <div class="flex items-center justify-between h-16 px-5 border-b border-slate-200">
+      <div class="flex items-center space-x-2">
+        <!-- <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-bold text-lg shadow">
+          
+        </div> -->
+        <span *ngIf="!isCollapsed" class="text-lg font-semibold text-slate-800 tracking-wide">Admin Panel</span>
+      </div>
+      <button (click)="toggleSidebar()" class="hidden md:block text-slate-500 hover:text-slate-700">
+        <i class="fas" [class.fa-chevron-left]="!isCollapsed" [class.fa-chevron-right]="isCollapsed"></i>
+      </button>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 mt-4">
+    <nav class="flex-1 overflow-y-auto py-4">
       <ul class="space-y-1">
-        <li *ngFor="let item of menuItems" 
+        <li *ngFor="let item of menuItems"
             [routerLink]="item.route"
-            routerLinkActive="bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-lg rounded-lg"
+            routerLinkActive="bg-gradient-to-r from-blue-600 to-indigo-500 text-white shadow-lg"
             [routerLinkActiveOptions]="{ exact: true }"
-            class="flex items-center p-3 cursor-pointer hover:bg-blue-100 transition-colors duration-200">
-          
-          <i [class]="item.icon + ' text-lg w-6 text-gray-700'" 
-             [ngClass]="{'text-white': isActiveRoute(item.route)}"></i>
-          <span class="ml-3 font-medium" *ngIf="!isCollapsed">{{ item.label }}</span>
+            class="group flex items-center mx-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200 hover:bg-blue-50">
+
+          <i [class]="item.icon + ' text-lg w-6 text-center transition-colors duration-200'"
+             [ngClass]="{
+               'text-blue-600 group-hover:text-blue-700': !isActiveRoute(item.route),
+               'text-white': isActiveRoute(item.route)
+             }"></i>
+
+          <span *ngIf="!isCollapsed" class="ml-3 font-medium tracking-wide"
+                [ngClass]="{
+                  'text-slate-700 group-hover:text-blue-700': !isActiveRoute(item.route),
+                  'text-white': isActiveRoute(item.route)
+                }">{{ item.label }}</span>
         </li>
       </ul>
     </nav>
-    
-    <!-- Optional Footer / Version -->
-    <div class="p-4 border-t text-sm text-gray-500" *ngIf="!isCollapsed">
-      v1.0.0
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-slate-200 text-sm text-slate-500" *ngIf="!isCollapsed">
+      © 2025 • v1.0.0
     </div>
   </aside>
 
   <!-- Main Content -->
-  <div class="flex-1 flex flex-col">
+  <div class="flex-1 flex flex-col min-w-0">
 
     <!-- Top Bar -->
-    <header class="flex justify-between items-center bg-white shadow px-6 h-16">
-      <button (click)="toggleSidebar()" class="md:hidden text-gray-700 hover:text-gray-900">
+    <header class="flex justify-between items-center h-16 bg-white shadow-md px-6 border-b border-slate-200 sticky top-0 z-10">
+      <button (click)="toggleSidebar()" class="md:hidden text-slate-600 hover:text-slate-800">
         <i class="fas fa-bars text-lg"></i>
       </button>
 
-      <h1 class="text-xl font-semibold text-gray-800">Admin Panel</h1>
+      <h1 class="text-lg sm:text-xl font-semibold text-slate-800 tracking-wide"></h1>
 
       <div class="flex items-center space-x-3">
-        <span class="font-medium text-gray-700">Dr. Bagchi</span>
-        <img src="" alt="Admin Avatar" class="w-10 h-10 rounded-full border border-gray-200">
+        <span class="hidden sm:block font-medium text-slate-700">Dr. Bagchi</span>
+        <img src="./user.jpg" alt="Admin Avatar" class="w-10 h-10 rounded-full border border-slate-200 shadow-sm object-cover">
       </div>
     </header>
 
     <!-- Page Content -->
-    <main class="flex-1 p-6 overflow-y-auto">
-      <router-outlet></router-outlet>
+    <main class="flex-1 overflow-y-auto p-6 bg-slate-50">
+      <div class="max-w-7xl mx-auto">
+        <router-outlet></router-outlet>
+      </div>
     </main>
 
   </div>

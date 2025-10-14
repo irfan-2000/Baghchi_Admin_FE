@@ -1,0 +1,92 @@
+<div class="max-w-6xl space-y-6">
+  <!-- Heading -->
+  <h2 class="text-lg font-semibold text-gray-700">Manage Quizzes</h2>
+
+  <!-- Table Box -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-md font-medium text-gray-700 mb-4">Quiz List</h3>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-200 divide-y divide-gray-200">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Quiz Title</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Course</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Duration</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Start</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">End</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Action</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-200">
+          <tr *ngFor="let quiz of quizzes" class="hover:bg-gray-50">
+            <!-- Title -->
+            <td class="px-4 py-2 text-sm text-gray-800">{{ quiz.Title }}</td>
+
+            <!-- Course -->
+            <td class="px-4 py-2 text-sm text-gray-800">{{ quiz.CourseId }}</td>
+
+            <!-- Duration -->
+            <td class="px-4 py-2 text-sm text-gray-800">
+              {{ quiz.Duration }}
+            </td>
+
+            <!-- Start Date & Time -->
+            <td class="px-4 py-2 text-sm text-gray-800">
+              {{ quiz.StartDate | date:'mediumDate' }}<br>
+              <span class="text-gray-500 text-xs">{{ quiz.StartTime }}</span>
+            </td>
+
+            <!-- End Date & Time -->
+            <td class="px-4 py-2 text-sm text-gray-800">
+              {{ quiz.EndDate | date:'mediumDate' }}<br>
+              <span class="text-gray-500 text-xs">{{ quiz.EndTime }}</span>
+            </td>
+
+            <!-- Status -->
+            <td class="px-4 py-2 text-sm">
+  <span
+    [ngClass]="{
+      'bg-green-100 text-green-700': quiz.Status === 1,
+      'bg-gray-100 text-gray-700': quiz.Status === 2,
+      'bg-blue-100 text-blue-700': quiz.Status === 3
+    }"
+    class="px-2 py-1 rounded text-xs font-medium"
+  >
+    {{ quiz.Status === 1 ? 'Active' : quiz.Status === 2 ? 'Inactive' : 'Completed' }}
+  </span>
+</td>
+
+
+            <!-- Action -->
+            <td class="px-4 py-2 text-sm space-x-2">
+              <button 
+                class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 transition cursor-pointer"
+                (click)="gotoEditQuiz(quiz.QuizId)"
+                >
+                Edit
+              </button>
+              <button 
+                class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 transition cursor-pointer"
+                (click)="ReleaseResult(quiz.QuizId)"
+                >
+                Release Result
+              </button>
+
+
+
+            </td>
+          </tr>
+
+          <tr *ngIf="quizzes?.length === 0">
+            <td colspan="7" class="text-center text-gray-500 py-4 text-sm">
+              No quizzes found.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

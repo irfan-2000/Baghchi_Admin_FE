@@ -1,0 +1,53 @@
+  <h1 class="text-2xl font-semibold text-slate-800 tracking-wide mb-3">
+    Create / Manage Quiz
+  </h1>
+<div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden max-w-6xl   ">
+ 
+  <div class="overflow-x-auto">
+    <table class="min-w-full table-auto text-sm border border-slate-200 rounded-xl overflow-hidden">
+      <thead class="bg-slate-100 text-slate-700 font-semibold">
+        <tr>
+          <th class="px-4 py-3 text-left">ID</th>
+          <th class="px-4 py-3 text-left">Topic</th>
+          <th class="px-4 py-3 text-left">Start Time</th>
+          <th class="px-4 py-3 text-left">End Time</th>
+          <th class="px-4 py-3 text-left">Duration</th>
+          <th class="px-4 py-3 text-left">Status</th>
+          <th class="px-4 py-3 text-left">Class Type</th>
+          <th class="px-4 py-3 text-left">Teacher</th>
+          <th class="px-4 py-3 text-left">Batch</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200">
+        <tr *ngFor="let item of classHistory" class="hover:bg-blue-50/50 transition">
+          <td class="px-4 py-2">{{ item.LiveSessionId }}</td>
+          <td class="px-4 py-2">{{ item.Topic }}</td>
+          <td class="px-4 py-2">{{ item.StartTime | date:'medium' }}</td>
+          <td class="px-4 py-2">{{ item.EndTime ? (item.EndTime | date:'medium') : '—' }}</td>
+          <td class="px-4 py-2">{{ item.Duration || '-' }}</td>
+          <td class="px-4 py-2">
+            <span
+              [ngClass]="{
+                'bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold': item.Status === 'Live',
+                'bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold': item.Status === 'Scheduled',
+                'bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold': item.Status === 'Ended'
+              }">
+              {{ item.Status }}
+            </span>
+          </td>
+          <td class="px-4 py-2">{{ item.ClassType }}</td>
+          <td class="px-4 py-2">{{ item.TeacherName }}</td>
+          <td class="px-4 py-2">{{ item.BatchName }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No Data -->
+  <ng-container *ngIf="!classHistory || classHistory.length === 0">
+    <div class="text-center text-gray-500 py-6 text-sm">
+      No class history found.
+    </div>
+  </ng-container>
+
+</div>

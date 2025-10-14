@@ -54,17 +54,17 @@ this.route.queryParams.subscribe(params => {
 
   initForm() {
   this.courseForm = this.fb.group({
-      courseName: ['test coursename', Validators.required],
+      courseName: ['', Validators.required],
       classId: ['', Validators.required],
       boardId: ['', Validators.required],
       subjectId: [[]],
-      price: [120, Validators.required],
+      price: [0, Validators.required],
       oldPrice: [0],
-      courseLevel: ['Advacned'],
+      courseLevel: [''],
       courseImage: [''],
-        duration: ['3 months'],    
-      shortDescription: ['test short description'],
-      overview: ['test overview'],
+        duration: [''],    
+      shortDescription: [''],
+      overview: [''],
       highlights: this.fb.array([]),
       requirements: this.fb.array([]),
       objectives: this.fb.array([]),

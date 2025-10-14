@@ -24,6 +24,7 @@
     "@ng-select/ng-select": "^14.9.0",
     "@tailwindcss/postcss": "^4.1.13",
     "@zoom/meetingsdk": "^4.0.5",
+    "baghchi-admin-fe": "file:",
     "express": "^4.18.2",
     "ng-whiteboard": "^4.2.3",
     "postcss": "^8.5.6",

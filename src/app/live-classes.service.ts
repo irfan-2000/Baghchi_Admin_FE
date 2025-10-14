@@ -137,4 +137,20 @@ GetMeetingDetails(meeting:any)
   );
 }
 
+
+
+GetClassHistory()
+{
+  const token = localStorage.getItem('token'); // Or wherever you store your token
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<any>(`${this.baseurl}api/zoom/GetClassHistory`, {
+      headers, withCredentials: false
+    });
+}
+
+
 }

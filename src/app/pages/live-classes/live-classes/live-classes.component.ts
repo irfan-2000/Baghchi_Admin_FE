@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { LiveClassesService } from '../../../live-classes.service';
  import { ReactiveFormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { CommonModule } from '@angular/common';
+ import { StudentService } from '../../../student.service';
 
 @Component({
   selector: 'app-live-classes',
@@ -32,6 +32,7 @@ export class LiveClassesComponent implements OnInit{
   Coursepayload:any;
   successmsg:any;
   OngoignClassDetails:any = [];
+  Listofstudents:any;
 
   // sensible defaults
   defaults = {
@@ -48,11 +49,12 @@ export class LiveClassesComponent implements OnInit{
     approval_type: 0
   }; 
   
-  constructor(private fb: FormBuilder, private http: HttpClient,private Liveclasses:LiveClassesService,private router:Router) 
+  constructor(private fb: FormBuilder, private http: HttpClient,private Liveclasses:LiveClassesService,private router:Router,private studentService:StudentService) 
   {
-
+ 
        this.getAllCourses();
       this.getOngoingClassDetails();
+      this.getAllStudents();
    this.form = this.fb.group({
     topic: [this.defaults.topic, [Validators.required, Validators.maxLength(200)]],
     type: [this.defaults.type, [Validators.required]],
@@ -66,7 +68,10 @@ export class LiveClassesComponent implements OnInit{
     mute_upon_entry: [this.defaults.mute_upon_entry],
     approval_type: [this.defaults.approval_type],
     batchId: ['', [Validators.required]],
-    teachername:['',Validators.required]
+    teachername:['',Validators.required],
+    specialClassType:[''],
+   studentIds: [[]],        // array of student ids
+
   });
 console.log("Form initial values:", this.form.value);  // ✅ print initial form values
 
@@ -97,20 +102,17 @@ ngOnInit()
   window.addEventListener('message', this.zoomMessageHandler.bind(this), false);
 }
 
-zoomMessageHandler(event: MessageEvent) {
-  // Validate origin for security
+zoomMessageHandler(event: MessageEvent) 
+{ 
    
   if(event.origin != 'http://localhost:4200')
   {
-    console.log(event.origin);
-  }
-console.log(event.origin.includes(this.Redirecturl));
-
+   }
+ 
   if (event.origin != this.Redirectbaseurl ) return;
 
   const data = event.data;
-  console.log('Received from popup:', data);
- 
+  
   if (data.zoomCode)
      {
        
@@ -130,9 +132,7 @@ async   SubmitMeeting(Zoomcode:any = '')
 if(!Zoomcode)
 {   alert("Required zoom code");
   return;
-}
-
-
+} 
     this.ErrorMsg = []; // reset
       this.error = null;
       this.successmsg = null;
@@ -173,8 +173,10 @@ if(!Zoomcode)
         batchId :v.batchId,
         CourseId : this.Coursepayload.CourseId ,
         teachername:v.teachername,
-        zoomcode:Zoomcode
-    };
+        zoomcode:Zoomcode, 
+        specialClassType:v.specialClassType ?? '',
+        studentIds:v.studentIds
+    }; 
 
    this.loading = true;
   const state = JSON.stringify({ payload});
@@ -306,6 +308,24 @@ if(!this.form.get('batchId')?.value || this.form.get('batchId')?.value.trim() ==
   haserror =1;
 }
 
+if(this.ShowspecialClassDetailsFrom)
+{
+if(this.form.get('specialClassType')?.value == '' || this.form.get('specialClassType')?.value == null || this.form.get('specialClassType')?.value == undefined)
+{
+  this.ErrorMsg['specialClassType'] = 'Please select a specialClassType';
+  haserror =1;
+}
+if (this.form.get('specialClassType')?.value === 'specificStudents')
+{
+  const studentIds = this.form.get('studentIds')?.value;
+  
+  if (!studentIds || (Array.isArray(studentIds) && studentIds.length === 0)) {
+    this.ErrorMsg['studentIds'] = 'Please select at least one student';
+    haserror = 1;
+  }
+}
+
+} 
 
 if(this.form.get('teachername')?.value == null || this.form.get('teachername')?.value == '' ||this.form.get('teachername')?.value == undefined
 )
@@ -432,7 +452,7 @@ getOngoingClassDetails()
       if(response.Result)
       {
         this.OngoignClassDetails = response.Result[0];
-         debugger
+          
       }else{
         this.OngoignClassDetails = null;
       }
@@ -473,6 +493,8 @@ async StartClass(course:any)
       alert("There are some classes already going please end them all before proceeding")
       return;
      }
+     
+     debugger
  
 
   this.ShowClassDetailsFrom = true;
@@ -506,9 +528,7 @@ GobackToCourses()
 {
   window.location.reload();
 }
-
-
-
+ 
 EditCourse(c:any)
 {
  
@@ -517,7 +537,79 @@ window.location.href = '/home/manage-courses?CourseId=' + c.CourseId + '&IsEditM
 
 
 }
+ShowspecialClassDetailsFrom :any =false;
 
+async startspecialclass(course:any)
+{
+  this.ShowspecialClassDetailsFrom  = true;
+  this.ShowClassDetailsFrom = false;
+   const response = await firstValueFrom(this.Liveclasses.getOngoingClassDetails())
+      if(response?.Result?.length > 0)
+     {
+      alert("There are some classes already going please end them all before proceeding")
+      return;
+     } 
+     debugger
+  this.ShowClassDetailsFrom = true;
+  this.SelectedLiveClass = course;
+  this.Coursepayload = course
+  this.getBatchesByCourseid(course.CourseId); 
+}
+
+
+onSpecialClassTypeChange()
+ {
+  if (this.form.value.specialClassType !== 'specificStudents')
+     {
+    this.form.get('studentIds')?.setValue([]); // clear selection if switching to full batch
+  }
 }
  
 
+getAllStudents()
+{
+this.studentService.getAllStudents().subscribe({
+next:(data:any)=>
+{
+this.Listofstudents = data.filter((s: any) => s.Status ==1);
+     },
+error:(error:any)=>
+{
+  console.log(error);
+}}) 
+}
+
+
+ 
+  toggleCheckAll(event: any)
+   {
+    if(event.currentTarget.checked)
+      {
+      this.selectAllbatches();
+    } else {
+      this.unselectAllbatches();
+    }
+  }
+
+    selectAllbatches()
+     {
+    const studentidcontrol = this.form.get('studentIds');
+    if (studentidcontrol) {
+      debugger
+      studentidcontrol.patchValue(this.Listofstudents.map((s:any) => s.StudentId));
+    }
+  }
+
+  unselectAllbatches() 
+  {
+  const studentidcontrol = this.form.get('studentIds');
+    if (studentidcontrol)
+    {
+ studentidcontrol.patchValue([]);
+    }    
+  }
+
+
+
+
+}
