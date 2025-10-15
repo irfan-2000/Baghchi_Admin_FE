@@ -9,4 +9,4 @@
 
 # Optional: Environment variables
 [build.environment]
-  NODE_VERSION = "22.20.0
+  NODE_VERSION = "22.20.0"
