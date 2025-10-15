@@ -1,12 +1,1 @@
-[build]
-  command = "ng build --configuration production"
-  publish = "dist/baghchi-admin-fe"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# Optional: Environment variables
-[build.environment]
-  NODE_VERSION = "22.20.0"
