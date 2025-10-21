@@ -31,7 +31,15 @@ constructor(private fb: FormBuilder,private Liveclasses:LiveClassesService,priva
        duration:['',Validators.required],
       questions: this.fb.array([])   ,
       status:[2,Validators.required],
-      quizId: [0]
+      quizId: [0],
+  totalQuestions: [0, [Validators.required, Validators.min(1)]],
+  marksPerQuestion: [1, [Validators.required, Validators.min(0)]],
+  allowNegative: [false],
+  negativeMarking: [{ value: 0, disabled: true }], // auto-enabled if AllowNegative = true
+ totalMarks: [{ value: 0, disabled: true }],
+  subjects: ['', Validators.required],
+  allowSkip: [true],
+  shuffleQuestions: [false]
      });
 
 
@@ -46,8 +54,34 @@ this.getquizdatabyid('Id',this.QuizId);
     
 }
   this.getAllCourses();
-   
+  
+  
+
+// Enable/disable NegativeMarking field dynamically
+this.quizForm.get('allowNegative')?.valueChanges.subscribe((allow: boolean) => {
+  const negCtrl = this.quizForm.get('negativeMarking');
+  if (allow) {
+    negCtrl?.enable();
+  } else {
+    negCtrl?.disable();
+    negCtrl?.setValue(0);
+  }
+});
+
+// Auto-calculate total marks
+this.quizForm.get('totalQuestions')?.valueChanges.subscribe(() => this.updateTotalMarks());
+this.quizForm.get('marksPerQuestion')?.valueChanges.subscribe(() => this.updateTotalMarks());
+ 
+
 }
+
+updateTotalMarks(): void {
+  const total = (this.quizForm.get('totalQuestions')?.value || 0) *
+                (this.quizForm.get('marksPerQuestion')?.value || 0);
+  this.quizForm.get('totalMarks')?.setValue(total);
+}
+
+
  get questions(): FormArray
   {
      
@@ -101,6 +135,9 @@ this.getquizdatabyid('Id',this.QuizId);
     this.Errormsg = errormsg;
     return;
   }
+console.log(this.quizForm.value);
+ 
+
 const Pyaload = {
 QuizId: this.quizForm.get('quizId')?.value,
 CourseId: this.quizForm.get('CourseId')?.value,
@@ -112,9 +149,19 @@ Duration: this.quizForm.get('duration')?.value,
 Questions: this.quizForm.get('questions')?.value,
 StartTime: this.quizForm.get('startTime')?.value,
 EndTime: this.quizForm.get('endTime')?.value,
-Status:this.quizForm.get('status')?.value
+Status:this.quizForm.get('status')?.value,
+  TotalQuestions: this.quizForm.get('totalQuestions')?.value,
+  MarksPerQuestion: this.quizForm.get('marksPerQuestion')?.value,
+  AllowNegative: this.quizForm.get('allowNegative')?.value,
+  ShuffleQuestions: this.quizForm.get('shuffleQuestions')?.value,
+  TotalMarks: this.quizForm.get('totalMarks')?.value,
+  Subjects: this.quizForm.get('subjects')?.value,
+  AllowSkip: this.quizForm.get('allowSkip')?.value,
+  Negativemarks:this.quizForm.get('negativeMarking')?.value 
 
 } 
+
+debugger
    this.quizservice.createQuiz(Pyaload).subscribe({
     next:(response:any) =>
       {
@@ -201,7 +248,56 @@ if(this.quizForm.get('status')?.value == '' || this.quizForm.get('endTime')?.val
 }
 
 
+if(this.quizForm.get('totalQuestions')?.value == '' || this.quizForm.get('totalQuestions')?.value == null || this.quizForm.get('totalQuestions')?.value == undefined || this.quizForm.get('totalQuestions')?.value == 0)
+{
+  return `Please enter total number of questions`;
+}
 
+if(this.quizForm.get('marksPerQuestion')?.value == '' || this.quizForm.get('marksPerQuestion')?.value == null || this.quizForm.get('marksPerQuestion')?.value == undefined || this.quizForm.get('marksPerQuestion')?.value == 0)
+{
+  return `Please enter marks per question`;
+}
+
+const allownegative = this.quizForm.get('allowNegative')?.value;
+
+if (allownegative === '' || allownegative === null || allownegative === undefined || (allownegative !== true && allownegative !== false)) {
+  return `AllowNegative can't be undefined`;
+}
+
+if(allownegative)
+{
+
+  if(this.quizForm.get('negativeMarking')?.value == 0 )
+  {
+    return `Negative marks are required else uncheck the allow negative marking`;
+  }
+}
+
+
+debugger
+const val = this.quizForm.get('shuffleQuestions')?.value;
+
+if (val === '' || val === null || val === undefined || (val !== true && val !== false)) {
+  return `shuffleQuestions can't be undefined`;
+}
+
+if(this.quizForm.get('totalMarks')?.value == '' || this.quizForm.get('totalMarks')?.value == null || this.quizForm.get('totalMarks')?.value == undefined || this.quizForm.get('totalMarks')?.value == 0)
+{
+   return `TotalMarks can't be undefined or 0`;
+}
+
+
+if(this.quizForm.get('subjects')?.value == '' || this.quizForm.get('subjects')?.value == null || this.quizForm.get('subjects')?.value == undefined )
+{
+   return `subjects is required `;
+}
+
+if(this.quizForm.get('allowSkip')?.value == '' || this.quizForm.get('allowSkip')?.value == null || this.quizForm.get('allowSkip')?.value == undefined )
+{ if(this.quizForm.get('shuffleQuestions')?.value != true  || this.quizForm.get('shuffleQuestions')?.value != false )
+  {
+ return `allowSkip can't be undefined `;  
+}  
+}
 
 
 
@@ -405,6 +501,8 @@ getquizdatabyid(flag:any,id :any)
       console.error('Error fetching quiz:', error);
     }});
 }
+
+
 
 
 

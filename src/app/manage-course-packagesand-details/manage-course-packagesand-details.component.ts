@@ -44,11 +44,53 @@ this.route.queryParams.subscribe(params => {
     }
 
 
+    this.coursePackageDetails = {
+  Item1: {
+    CourseName: "Physics Mastery",
+    CourseLevel: "Intermediate",
+    OldPrice: 5000,
+    Price: 4000,
+    Status: 1,
+    BoardId: 2,
+    ClassId: 1,
+    SubjectId: [1,2],teacher:'irfan',
+    PaymentType: "both",
+    CourseImageName: "physics_mastery.png",
+    Requirements: ["Prior math knowledge"],
+    Objectives: ["Learn motion and energy principles", "Master conceptual understanding"],
+    Batches: [
+      {
+        batchName: "Afternoon Batch",
+        classId: 1,
+        subjectId: 1,
+        boardId: 2,
+        startDate: "2025-12-05T00:00:00",
+        endDate: "2026-03-05T00:00:00",
+        startTime: "14:00:00",
+        endTime: "15:30:00"
+      }
+    ],
+    Installments: [
+      { InstallmentNumber: 1, Amount: 2000, DueDaysFromStart: 0, Remarks: "First installment" },
+      { InstallmentNumber: 2, Amount: 2000, DueDaysFromStart: 45, Remarks: "Second installment" }
+    ]
+  },
+
+  Item2: {
+    ShortDescription: "A detailed Physics course focusing on motion, laws, and energy.",
+    Overview: "This course helps students prepare for advanced physics topics through interactive learning.",
+    Duration: "4 months",
+    Level: "Intermediate",
+    Highlights: ["Hands-on experiments", "Assignments", "Performance reports"]
+  }
+};
+
   }
 
   ngOnInit(): void {
     this.initForm();
   
+this.populate_data();
 
   }
 
@@ -71,7 +113,8 @@ this.route.queryParams.subscribe(params => {
        batches: this.fb.array([]) ,
          paymentType: [''],
       installments: this.fb.array([]),
-      status: [1, Validators.required]
+      status: [1, Validators.required],
+      teacher:['',Validators.required]
     });
   }
 
@@ -464,7 +507,7 @@ if(this.courseForm.get('paymentType')?.value=='' ||
 }
 
 
-if(this.courseForm.get('paymentType')?.value == 'installments')
+if(this.courseForm.get('paymentType')?.value == 'installments' || this.courseForm.get('paymentType')?.value == 'both')
 {
 
 let Noofinstallments = this.courseForm.get('installments')?.value.length;
@@ -538,9 +581,10 @@ populate_data()
     highlights: item2.Highlights || [],
 
     batches: item1.Batches || [],
-    installments: item1.Installments || []
+    installments: item1.Installments || [],
+    teacher:item1.teacher
   };
-
+ 
   this.courseForm.patchValue({
     courseName: course.courseName || '',
     classId: course.classId || '',
@@ -555,6 +599,7 @@ populate_data()
     overview: course.overview || '',
     paymentType: course.paymentType || '',
     status: course.status ?? 1,
+    teacher:course.teacher
   });
 
   // --- Highlights
@@ -595,6 +640,7 @@ populate_data()
       endTime: [b.endTime ? this.toTimeInput(b.endTime) : '']
     }));
   });
+
 this.courseForm.get('paymentType')?.setValue(course.paymentType || '');
 
   // --- Installments
@@ -654,7 +700,7 @@ toTimeInput(time24: string): string {
   formData.append('paymentType', this.courseForm.get('paymentType')?.value);
   formData.append('status', this.courseForm.get('status')?.value);
   formData.append('IsEditing',this.IsEditMode.toString());
-  
+  formData.append('teacher',this.courseForm.get('teacher')?.value);
  if (!this.Selectedfile && !this.IsEditMode)
    {
     alert("please select course image");
@@ -707,7 +753,8 @@ this.coursepackages.submitCourseDetails(formData).subscribe({
      {
       this.isLoading= false;
     console.log(err);
-    alert("Error submitting course details: " + err.message);
+    alert("Error submitting course details:");
+
   }
 });
 
@@ -721,7 +768,7 @@ getcoursebyid(courseid:any)
      next : (response: any) =>
        {
         this.coursePackageDetails = response;
-             this.populate_data( );
+     this.populate_data( );
         console.log(response)
      },
     error: (err: any) => {
