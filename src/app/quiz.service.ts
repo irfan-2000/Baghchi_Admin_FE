@@ -66,4 +66,33 @@ getallquizzes()
 
 
 
+
+
+UploadandParseWordFile(file: any) {
+
+  const formData = new FormData();
+  formData.append("file", file);    
+
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.post<any>(
+    `${this.baseurl}api/upload-questions`,
+    formData,
+    { headers, withCredentials: false }
+  );
+}
+
+
+
+
+
+
+
+
+
+
 }

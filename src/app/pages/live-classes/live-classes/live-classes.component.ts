@@ -20,12 +20,12 @@ export class LiveClassesComponent implements OnInit{
   
   result:any;
   defaultTimezone = 'Asia/Kolkata';
-  Redirecturl = 'https://b9c5d89afc4c.ngrok-free.app/api/zoom/callback';
-  Redirectbaseurl = 'https://b9c5d89afc4c.ngrok-free.app';
+  Redirecturl = 'https://83ee03faa761.ngrok-free.app/api/zoom/callback';
+  Redirectbaseurl = 'https://83ee03faa761.ngrok-free.app';
 
 
-    loading = false;
-    error: string | null = null;
+  loading = false;
+  error: string | null = null;
   ShowClassDetailsFrom = false;
   SelectedLiveClass:any;
   Batches:any;

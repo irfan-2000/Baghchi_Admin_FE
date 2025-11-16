@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LiveClassesService } from '../../live-classes.service';
 import { text } from 'stream/consumers';
@@ -16,6 +16,7 @@ export class CreateQuizComponent {
   quizForm: FormGroup;
   QuizId:any;
   IsEditMode: boolean = false;
+  errorMessage:any ='';
 
 constructor(private fb: FormBuilder,private Liveclasses:LiveClassesService,private quizservice:QuizService,private route: ActivatedRoute)
 {
@@ -34,9 +35,9 @@ constructor(private fb: FormBuilder,private Liveclasses:LiveClassesService,priva
       quizId: [0],
   totalQuestions: [0, [Validators.required, Validators.min(1)]],
   marksPerQuestion: [1, [Validators.required, Validators.min(0)]],
-  allowNegative: [false],
+  allowNegative: [true],
   negativeMarking: [{ value: 0, disabled: true }], // auto-enabled if AllowNegative = true
- totalMarks: [{ value: 0, disabled: true }],
+ totalMarks: [{ value: 0 }],
   subjects: ['', Validators.required],
   allowSkip: [true],
   shuffleQuestions: [false]
@@ -75,10 +76,11 @@ this.quizForm.get('marksPerQuestion')?.valueChanges.subscribe(() => this.updateT
 
 }
 
-updateTotalMarks(): void {
-  const total = (this.quizForm.get('totalQuestions')?.value || 0) *
-                (this.quizForm.get('marksPerQuestion')?.value || 0);
-  this.quizForm.get('totalMarks')?.setValue(total);
+updateTotalMarks(): void 
+{
+ // const total = (this.quizForm.get('totalQuestions')?.value || 0) *
+                //(this.quizForm.get('marksPerQuestion')?.value || 0);
+  //this.quizForm.get('totalMarks')?.setValue(total);
 }
 
 
@@ -127,7 +129,7 @@ updateTotalMarks(): void {
   Errormsg:any = '';
  submitQuiz() 
  {
-
+this.Errormsg  = '';
   let errormsg = this.validateQuiz();
   if(errormsg != null)
   {
@@ -160,11 +162,17 @@ Status:this.quizForm.get('status')?.value,
   Negativemarks:this.quizForm.get('negativeMarking')?.value 
 
 } 
+const loadingElement = document.getElementById('loadingText_submit');
+loadingElement!.classList.remove('hidden');
+const btn = document.getElementById("Final_button") as HTMLButtonElement;
+btn.disabled = true;
 
-debugger
-   this.quizservice.createQuiz(Pyaload).subscribe({
+this.quizservice.createQuiz(Pyaload).subscribe({
     next:(response:any) =>
       {
+        loadingElement!.classList.add('hidden');
+        btn.disabled = false;
+
         if(response.statuscode == 200)
         {
           alert(response.message);
@@ -174,6 +182,10 @@ debugger
     },
     error:(error:any)=>
     {
+     loadingElement!.classList.add('hidden');
+      btn.disabled = false;
+
+      this.Errormsg = error.error.Message;
       console.error('Error creating quiz:', error);
     }
     }) 
@@ -255,7 +267,7 @@ if(this.quizForm.get('totalQuestions')?.value == '' || this.quizForm.get('totalQ
 
 if(this.quizForm.get('marksPerQuestion')?.value == '' || this.quizForm.get('marksPerQuestion')?.value == null || this.quizForm.get('marksPerQuestion')?.value == undefined || this.quizForm.get('marksPerQuestion')?.value == 0)
 {
-  return `Please enter marks per question`;
+ // return `Please enter marks per question`;
 }
 
 const allownegative = this.quizForm.get('allowNegative')?.value;
@@ -269,7 +281,7 @@ if(allownegative)
 
   if(this.quizForm.get('negativeMarking')?.value == 0 )
   {
-    return `Negative marks are required else uncheck the allow negative marking`;
+   // return `Negative marks are required else uncheck the allow negative marking`;
   }
 }
 
@@ -295,7 +307,7 @@ if(this.quizForm.get('subjects')?.value == '' || this.quizForm.get('subjects')?.
 if(this.quizForm.get('allowSkip')?.value == '' || this.quizForm.get('allowSkip')?.value == null || this.quizForm.get('allowSkip')?.value == undefined )
 { if(this.quizForm.get('shuffleQuestions')?.value != true  || this.quizForm.get('shuffleQuestions')?.value != false )
   {
- return `allowSkip can't be undefined `;  
+ //return `allowSkip can't be undefined `;  
 }  
 }
 
@@ -303,28 +315,28 @@ if(this.quizForm.get('allowSkip')?.value == '' || this.quizForm.get('allowSkip')
 
    const questions = this.questions.controls;
 
-    for (let i = 0; i < questions.length; i++) 
-     {
-      const q = questions[i].value;
+    // for (let i = 0; i < questions.length; i++) 
+    //  {
+    //   const q = questions[i].value;
 
-       if (!q.question_text || q.question_text.trim() === '') 
-        {
-        return `Question ${i + 1} is missing text.`;
-      }
+    //    if (!q.question_text || q.question_text.trim() === '') 
+    //     {
+    //     return `Question ${i + 1} is missing text.`;
+    //   }
 
-       for (let j = 0; j < q.options.length; j++)
-         {
-        if (!q.options[j].text || q.options[j].text.trim() === '') {
-          return `Option ${j + 1} of Question ${i + 1} is missing.`;
-        }
-      }
+    //    for (let j = 0; j < q.options.length; j++)
+    //      {
+    //     if (!q.options[j].text || q.options[j].text.trim() === '') {
+    //       return `Option ${j + 1} of Question ${i + 1} is missing.`;
+    //     }
+    //   }
 
-       const hasCorrect = q.options.some((opt: any) => opt.isCorrect);
-      if (!hasCorrect) 
-        {
-        return `Question ${i + 1} does not have a correct answer selected.`;
-      }
-    }
+    //    const hasCorrect = q.options.some((opt: any) => opt.isCorrect);
+    //   if (!hasCorrect) 
+    //     {
+    //     return `Question ${i + 1} does not have a correct answer selected.`;
+    //   }
+    // }
 
     return null;  
   }
@@ -433,7 +445,8 @@ getBatchesByCourseid(CourseId:any)
     
   }
  
-  async populateSampleData(quizData: any) {
+  async populateSampleData(quizData: any) 
+  {
   // Populate batches
   const response = await firstValueFrom(this.Liveclasses.getBatchesByCourseid(quizData.CourseId));
   this.Batches = response.Result;
@@ -459,7 +472,8 @@ getBatchesByCourseid(CourseId:any)
   });
 
   // Populate questions
-  (quizData.Questions || []).forEach((q:any) => {
+  (quizData.Questions || []).forEach((q:any) => 
+    {
     const qGroup = this.fb.group({
       question_text: [q.Question_text || q.question_text || '', Validators.required],
       options: this.fb.array((q.Options || q.options || []).map((o:any) =>
@@ -491,10 +505,11 @@ getquizdatabyid(flag:any,id :any)
    
   this.quizservice.getQuizById('Id',id).subscribe({
     next:(response:any)=>
-    {
+    {debugger
+      this.questions_wordfile =  response.Questions;
       console.log(response);
  
-      this.populateSampleData(response);
+      //this.populateSampleData(response);
     },
     error:(error:any)=>
     {
@@ -503,6 +518,176 @@ getquizdatabyid(flag:any,id :any)
 }
 
 
+
+popupVisible: boolean = false;
+  selectedQuestion: any = null;
+
+  // Hardcoded JSON data
+  // questions_wordfile = [
+  //   {
+  //     "QuestionId": 1,
+  //     "QuestionText": "Identify the structure labeled X in the diagram of a hibiscus plant.",
+  //     "ImagePaths": ["https://localhost:7091/QuestionImages/6296c3fa0596.png","https://localhost:7091/QuestionImages/f8831c4623bd.png"],
+  //     "OptionA": "Root",
+  //     "OptionB": "Stem",
+  //     "OptionC": "Leaf",
+  //     "OptionD": "Flower",
+  //     "CorrectAnswer": "D",
+  //     "IsNumerical": "0",
+  //     "NumericalAnswer": "345.5",
+  //     "PositiveMarks": 4,
+  //     "NegativeMarks": 0
+  //   },
+  //   {
+  //     "QuestionId": 2,
+  //     "QuestionText": "Which of the following is not a mammal?",
+  //     "ImagePaths": [],
+  //     "OptionA": "Whale",
+  //     "OptionB": "Bat",
+  //     "OptionC": "Crocodile",
+  //     "OptionD": "Dolphin",
+  //     "CorrectAnswer": "C",
+  //     "IsNumerical": "0",
+  //     "NumericalAnswer": "4.55",
+  //     "PositiveMarks": 4,
+  //     "NegativeMarks": 0
+  //   },
+  //   {
+  //     "QuestionId": 3,
+  //     "QuestionText": "Observe the two images of hibiscus and rose. Identify which flower has fused petals.",
+  //     "ImagePaths": ["https://localhost:7091/QuestionImages/4d3d78cf04d7.png"],
+  //     "OptionA": "Hibiscus",
+  //     "OptionB": "Rose",
+  //     "OptionC": "Both",
+  //     "OptionD": "None",
+  //     "CorrectAnswer": "A",
+  //     "IsNumerical": "0",
+  //     "NumericalAnswer": "4.554",
+  //     "PositiveMarks": 4,
+  //     "NegativeMarks": 1
+  //   },
+  //   {
+  //     "QuestionId": 4,
+  //     "QuestionText": "The diagram shows two types of roots. Identify the taproot system.",
+  //     "ImagePaths": [],
+  //     "OptionA": "Image A",
+  //     "OptionB": "Image B",
+  //     "OptionC": "Both",
+  //     "OptionD": "None",
+  //     "CorrectAnswer": "A",
+  //     "IsNumerical": "0",
+  //     "NumericalAnswer": "4.5",
+  //     "PositiveMarks": 4,
+  //     "NegativeMarks": 3
+  //   },
+  //   {
+  //     "QuestionId": 5,
+  //     "QuestionText": "What part of the plant is mainly responsible for photosynthesis?",
+  //     "ImagePaths": [],
+  //     "OptionA": "Leaf",
+  //     "OptionB": "Stem",
+  //     "OptionC": "Flower",
+  //     "OptionD": "Root",
+  //     "CorrectAnswer": "D",
+  //     "IsNumerical": "0",
+  //     "NumericalAnswer": "345",
+  //     "PositiveMarks": 4,
+  //     "NegativeMarks": 0
+  //   },
+  //   {
+  //     "QuestionId": 6,
+  //     "QuestionText": "Cault the distance by observing the image",
+  //     "ImagePaths": [
+  //       "https://localhost:7091/QuestionImages/a5d6d9ad5f33.png"
+  //     ],
+  //     "OptionA": "",
+  //     "OptionB": "",
+  //     "OptionC": "",
+  //     "OptionD": "",
+  //     "CorrectAnswer": "",
+  //     "IsNumerical": "1",
+  //     "NumericalAnswer": "45.6",
+  //     "PositiveMarks": 3,
+  //     "NegativeMarks": 0
+  //   }
+  // ];
+
+  questions_wordfile: any[] = [];
+  // Open popup
+  openPopup(question: any) {
+    
+  }
+
+  // Close popup
+  closePopup() {
+    this.popupVisible = false;
+    this.selectedQuestion = null;
+  }
+
+isCorrect(option: string, question: any): boolean {
+    return option === question.CorrectAnswer;
+  }
+  // Full path for images (replace with your actual folder)
+  getImagePath(img: string) {
+    return `https://localhost:7091/media/QuestionImages/${img}`;
+  }
+
+
+ondocFileSelected(event:any)
+{ 
+  const file = event.target.files[0];
+
+  const fileNameElement = document.getElementById('selectedFileName');
+  const loadingElement = document.getElementById('loadingText');
+
+  if (file) 
+    {
+    fileNameElement!.textContent = file.name;
+    loadingElement!.classList.remove('hidden');
+    this.UploadandParseWordFile(event)
+  } else 
+    {
+    fileNameElement!.textContent = "No file chosen";
+  }
+
+}
+
+UploadandParseWordFile(event:any)
+{ const file = event.target.files[0];
+    const loadingElement = document.getElementById('loadingText');
+ this.errorMessage = '' 
+  if (!file) {
+    alert('Please select a Word file to upload.');
+    return;
+  }else{
+      
+  this.quizservice.UploadandParseWordFile(file).subscribe({
+    next:(response:any)=>
+    {
+      debugger
+      console.log(response);
+ 
+      if(response.Message == "Parsed successfully")
+      {
+        this.questions_wordfile = response.Questions;
+            loadingElement!.classList.add('hidden');
+
+        debugger
+      }
+    //  this.populateSampleData(response);
+    },
+    error:(error:any)=>
+    {
+      this.errorMessage = error.error.Message + 'Please corrrect the errors in the Word file and re-upload.';
+      loadingElement!.classList.add('hidden');
+      console.error('Error fetching quiz:', error);
+    }});
+
+
+
+  }
+
+}
 
 
 

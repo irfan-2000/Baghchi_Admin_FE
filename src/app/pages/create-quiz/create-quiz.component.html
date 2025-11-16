@@ -2,6 +2,7 @@
   <!-- Main Card Header -->
   <h1 class="text-2xl font-semibold text-slate-800 tracking-wide mb-3">
     Create / Manage Quiz
+         
   </h1>
 
   <!-- Main Quiz Form Card -->
@@ -113,30 +114,30 @@
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Total Questions</label>
       <input type="number" formControlName="totalQuestions"
-        class="w-full border rounded-md px-3 py-2" />
+        class="w-full border rounded-md px-3 py-2"   />
     </div>
 
-    <div>
+    <!-- <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Marks Per Question</label>
       <input type="number" formControlName="marksPerQuestion"
-        class="w-full border rounded-md px-3 py-2" />
-    </div>
-
+        class="w-full border rounded-md px-3 py-2" readonly />
+    </div> -->
+<!-- 
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Negative Marking</label>
       <input type="number" step="0.01" formControlName="negativeMarking"  min="0"
         class="w-full border rounded-md px-3 py-2" />
-    </div>
+    </div> -->
 
     <div class="flex items-center">
-      <input type="checkbox" formControlName="allowNegative" class="mr-2 h-4 w-4" />
+      <input type="checkbox" formControlName="allowNegative" class="mr-2 h-4 w-4"  readonly/>
       <label class="text-sm font-medium text-gray-700">Allow Negative Marking</label>
     </div>
 
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Total Marks</label>
-      <input type="number" formControlName="totalMarks" readonly
-        class="w-full border rounded-md px-3 py-2 bg-gray-100" />
+      <input type="number" formControlName="totalMarks"  
+        class="w-full border rounded-md px-3 py-2" />
     </div>
 
     <div>
@@ -215,8 +216,79 @@
     </div>
 
     <!-- Add Question Button -->
-    <button type="button" (click)="addQuestion()"
-      class="w-max mx-auto mt-8 bg-indigo-600 hover:bg-indigo-700 text-white text-base font-semibold py-2 px-6 rounded-lg shadow transition">+ Add Question</button>
+    <!-- <button type="button" (click)="addQuestion()"
+      class="w-max mx-auto mt-8 bg-indigo-600 hover:bg-indigo-700 
+      text-white text-base font-semibold py-2 px-6 rounded-lg shadow transition">+ Add Question</button> -->
+
+<!-- 
+    <button type="button" (click)=" openPopup('')"
+      class="w-max mx-auto mt-8 bg-indigo-600 hover:bg-indigo-700 
+      text-white text-base font-semibold py-2 px-6 rounded-lg shadow transition">+ Add Question</button> -->
+<div class="side-panel p-4">
+
+  <!-- Buttons Row -->
+  <div class="flex items-center gap-4">
+
+    <!-- Upload Quiz Button + File Name -->
+    <div class="flex flex-col">
+
+      <div class="flex items-center gap-3">
+        <!-- Upload Button -->
+        <label 
+          class="w-max bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg shadow cursor-pointer transition"
+        >
+          Upload Quiz
+          <input 
+            type="file"
+            (change)="ondocFileSelected($event)"
+            accept=".doc,.docx,.pdf"
+            class="hidden"
+          />
+        </label>
+
+        <!-- Filename Display -->
+        <span id="selectedFileName" class="text-gray-700 text-sm font-medium">
+          No file chosen
+        </span>
+      </div>
+
+      <!-- Loading Text -->
+      <span 
+        id="loadingText"
+        class="text-sm text-gray-600 font-medium mt-1 animate-pulse hidden"
+      >
+        Loading... please wait
+      </span>
+
+      <!-- Error Message -->
+<span
+  *ngIf="errorMessage"
+  id="errorText"
+  class="text-sm text-red-600 font-medium mt-1 animate-pulse"
+>
+  {{ errorMessage }}
+</span>
+
+
+    </div>
+
+    <!-- View Questions Button -->
+    <button *ngIf="questions_wordfile.length > 0"
+      type="button"
+      (click)="popupVisible = true"
+      class="w-max bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow transition"
+    >
+      View Questions
+    </button>
+
+  </div>
+
+</div>
+
+
+ <!-- <button (click)="popupVisible = true">View All</button> -->
+
+
 
     <!-- Error Message -->
 <span class="text-sm text-red-600 font-bold mt-4 block text-center" *ngIf="Errormsg">{{ Errormsg }}</span>
@@ -225,7 +297,92 @@
     <div class="border-t-2 border-gray-200 mt-8 mb-6"></div>
 
     <!-- Submit Button -->
-    <button type="button" (click)="submitQuiz()"
-      class="w-max mx-auto bg-green-600 hover:bg-green-700 text-white text-lg font-bold py-2 px-10 rounded-xl shadow-md transition uppercase cursor-pointer">Submit Quiz</button>
+     
+       <span 
+        id="loadingText_submit"
+        class="text-sm text-gray-600 font-medium mt-1 animate-pulse hidden w-max mx-auto px-6 py-2"
+      >
+        Loading... please wait
+      </span>
+  
+    <button type="button" (click)="submitQuiz()" id="Final_button"
+      class="w-max mx-auto px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 cursor-pointer text-lg font-bold py-2 px-10 rounded-xl shadow-md transition uppercase cursor-pointer">Submit Quiz</button>
+
+    </div>
+
+
+<!-- Main Wrapper -->
+<div class="question-popup-wrapper">
+
+  
+
+  <!-- Popup -->
+ <!-- Popup Overlay -->
+<div class="popup-overlay" *ngIf="popupVisible">
+  <div class="popup-box flex flex-col">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b pb-3 mb-4">
+      <h3 class="text-xl font-semibold text-indigo-700 tracking-wide">All Questions</h3>
+<button class="close-btn-modern" (click)="popupVisible = false" aria-label="Close">
+  <svg height="22" width="22" viewBox="0 0 22 22" fill="none">
+    <circle cx="11" cy="11" r="10" fill="#F3F4F6" />
+    <line x1="7" y1="7" x2="15" y2="15" stroke="#7F1D1D" stroke-width="2" stroke-linecap="round"/>
+    <line x1="15" y1="7" x2="7" y2="15" stroke="#7F1D1D" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+    </div>
+
+    <!-- Questions Container -->
+    <div class="overflow-y-auto flex-1 space-y-8 py-2">
+      <div *ngFor="let question of questions_wordfile" class="bg-gray-50 rounded-xl shadow p-4 flex flex-col gap-2 hover:shadow-lg transition">
+        <!-- Question Title and ID -->
+        <div class="flex items-center gap-2">
+          <span class="text-lg font-medium text-indigo-600">{{ question.QuestionId }}.</span>
+          <span class="text-base font-semibold text-gray-900">{{ question.QuestionText }}</span>
+        </div>
+
+        <!-- Images If Any -->
+        <div *ngIf="question.ImagePaths.length" class="flex flex-wrap gap-4 mt-2">
+          <div class="rounded-lg overflow-hidden border shadow" *ngFor="let img of question.ImagePaths">
+            <img [src]="getImagePath(img)" alt="Question Image" class="w-32 h-32 object-cover" />
+          </div>
+        </div>
+
+        <!-- MCQ Options -->
+        <div *ngIf="question.IsNumerical === '0'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-3">
+          <div *ngFor="let opt of ['A','B','C','D']; let i = index"
+               class="flex items-center px-3 py-2 rounded-lg transition text-sm"
+               [ngClass]="{'border-2 border-green-500 bg-green-50': isCorrect(opt, question), 'bg-gray-100': !isCorrect(opt, question)}">
+            <span class="font-bold mr-1">{{ opt }}.</span>
+            <span>
+              {{
+                opt === 'A' ? question.OptionA 
+                : opt === 'B' ? question.OptionB 
+                : opt === 'C' ? question.OptionC 
+                : question.OptionD
+              }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Numerical Answer -->
+        <div *ngIf="question.IsNumerical === '1'" class="p-3 rounded-md bg-blue-50 border-l-4 border-blue-400 mt-2">
+          <span class="font-medium text-blue-700">Answer:</span>
+          <span class="ml-1 font-semibold text-blue-900">{{ question.NumericalAnswer }}</span>
+        </div>
+
+        <!-- Marks -->
+        <div class="flex items-center gap-6 mt-2 text-sm">
+          <span class="flex items-center gap-1 text-green-700 font-bold">+{{ question.PositiveMarks }}</span>
+          <span class="flex items-center gap-1 text-red-500 font-bold">-{{ question.NegativeMarks }}</span>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
+
+
+</div>
+
+
 </div>
