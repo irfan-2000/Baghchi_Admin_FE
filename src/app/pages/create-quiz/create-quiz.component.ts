@@ -682,9 +682,7 @@ UploadandParseWordFile(event:any)
       loadingElement!.classList.add('hidden');
       console.error('Error fetching quiz:', error);
     }});
-
-
-
+ 
   }
 
 }

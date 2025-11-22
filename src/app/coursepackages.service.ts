@@ -46,4 +46,26 @@ const token = localStorage.getItem('token'); // Or wherever you store your token
 
 
 
+
+UploadandParseWordFile(file: any)
+ {
+
+  const formData = new FormData();
+  formData.append("file", file);    
+
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.post<any>(
+    `${this.baseurl}api/UploadCourseContent`,
+    formData,
+    { headers, withCredentials: false }
+  );
+}
+
+
+
 }

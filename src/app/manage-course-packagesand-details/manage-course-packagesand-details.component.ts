@@ -4,6 +4,7 @@ import { ClassBoardSubjectService } from '../class-board-subject.service';
 import { error } from 'console';
 import { CoursepackagesService } from '../coursepackages.service';
 import { ActivatedRoute } from '@angular/router';
+import { response } from 'express';
 
 @Component({
   selector: 'app-manage-course-packagesand-details',
@@ -37,8 +38,10 @@ this.route.queryParams.subscribe(params => {
       this.IsEditMode= this.IsEditMode = params["IsEditMode"]?.toLowerCase() === "true";
          
     });
+     
      if(this.IsEditMode && this.CourseId >0)
     {
+      
  this.getcoursebyid(this.CourseId);
 
     }
@@ -54,7 +57,7 @@ this.route.queryParams.subscribe(params => {
     BoardId: 2,
     ClassId: 1,
     SubjectId: [1,2],teacher:'irfan',
-    PaymentType: "both",
+    PaymentType: "standard",
     CourseImageName: "physics_mastery.png",
     Requirements: ["Prior math knowledge"],
     Objectives: ["Learn motion and energy principles", "Master conceptual understanding"],
@@ -79,7 +82,7 @@ this.route.queryParams.subscribe(params => {
   Item2: {
     ShortDescription: "A detailed Physics course focusing on motion, laws, and energy.",
     Overview: "This course helps students prepare for advanced physics topics through interactive learning.",
-    Duration: "4 months",
+    Duration: "42 months",
     Level: "Intermediate",
     Highlights: ["Hands-on experiments", "Assignments", "Performance reports"]
   }
@@ -87,10 +90,11 @@ this.route.queryParams.subscribe(params => {
 
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void 
+  {
     this.initForm();
   
-this.populate_data();
+//this.populate_data();
 
   }
 
@@ -111,10 +115,16 @@ this.populate_data();
       requirements: this.fb.array([]),
       objectives: this.fb.array([]),
        batches: this.fb.array([]) ,
-         paymentType: [''],
+      paymentType: [null],
       installments: this.fb.array([]),
       status: [1, Validators.required],
-      teacher:['',Validators.required]
+      teacher:['',Validators.required],
+      standard_paymentMode:[''],
+      totalPrice:[''],
+        monthlyAmount: [''],
+  quarterlyAmount: [''],
+  halfYearlyAmount: [''],
+  yearlyAmount: ['']
     });
   }
 
@@ -259,6 +269,8 @@ addInstallment() {
     DueDaysFromStart: [''],
     Remarks: ['']
   }));
+
+
 }
 
 removeInstallment(index: number) 
@@ -554,37 +566,42 @@ return errorcount;
 
 populate_data() 
 {
-   
+    
   if (!this.coursePackageDetails) return;
 
   const item1 = this.coursePackageDetails.Item1 || {};
   const item2 = this.coursePackageDetails.Item2 || {};
  
   // Merge both objects for easier mapping
-  const course = {
-    courseName: item1.CourseName,
-    shortDescription: item2.ShortDescription,
-    overview: item2.Overview,
-    courseLevel: item1.CourseLevel || item2.Level,
-    duration: item2.Duration,
-    oldPrice: item1.OldPrice,
-    price: item1.Price,
-    status: item1.Status,
-    boardId: item1.BoardId,
-    classId: item1.ClassId,
-    subjectId: item1.SubjectId || [],
-    paymentType: item1.PaymentType,
-    courseImage: item1.CourseImageName,
-
-    requirements: item1.Requirements || [],
-    objectives: item1.Objectives || [],
-    highlights: item2.Highlights || [],
-
-    batches: item1.Batches || [],
-    installments: item1.Installments || [],
-    teacher:item1.teacher
-  };
+ let course: any = {};
  
+course.courseName = item1.CourseName;        // update courseName
+course.shortDescription = item2.ShortDescription;
+course.overview = item2.Overview;
+course.courseLevel = item1.CourseLevel || item2.Level;
+course.duration = item2.Duration;
+course.oldPrice = item1.OldPrice;
+course.price = item1.Price;
+course.status = item1.Status;
+course.boardId = item1.BoardId;
+course.classId = item1.ClassId;
+course.subjectId = item1.SubjectId || [];
+course.paymentType = item1.PaymentType;
+debugger
+course.courseImage = item1.CourseImageName;
+
+course.requirements = item1.Requirements || [];
+course.objectives = item1.Objectives || [];
+course.highlights = item2.Highlights || [];
+
+course.batches = item1.Batches || [];
+course.installments = item1.Installments || [];
+
+// Update teacher like this:
+course.teacher = item1.teacher;   // or any new value you want
+
+
+
   this.courseForm.patchValue({
     courseName: course.courseName || '',
     classId: course.classId || '',
@@ -654,6 +671,10 @@ this.courseForm.get('paymentType')?.setValue(course.paymentType || '');
       Remarks: [inst.Remarks]
     }));
   });
+
+this.coursecontent_wordfile = this.coursePackageDetails.Item3;
+debugger
+
 } 
 
 
@@ -752,8 +773,8 @@ this.coursepackages.submitCourseDetails(formData).subscribe({
   error: (err: any) =>
      {
       this.isLoading= false;
-    console.log(err);
-    alert("Error submitting course details:");
+    console.log(err.error.Message);
+    alert("Error submitting course details:" + err.error.Message);
 
   }
 });
@@ -768,6 +789,7 @@ getcoursebyid(courseid:any)
      next : (response: any) =>
        {
         this.coursePackageDetails = response;
+        debugger
      this.populate_data( );
         console.log(response)
      },
@@ -790,12 +812,80 @@ viewImage()
 }
 
 
+coursecontent_wordfile:any
+popupVisible:boolean =false;
+
+ondocFileSelected(event:any)
+{ 
+  const file = event.target.files[0];
+
+  const fileNameElement = document.getElementById('selectedFileName');
+  const loadingElement = document.getElementById('loadingText');
+
+  if (file) 
+    {
+    fileNameElement!.textContent = file.name;
+    loadingElement!.classList.remove('hidden');
+    this.UploadandParseWordFile(event)
+  } else 
+    {
+    fileNameElement!.textContent = "No file chosen";
+  }
+
+}
+
+UploadandParseWordFile(event:any)
+{ 
+  const file = event.target.files[0];
+  const loadingElement = document.getElementById('loadingText');
+ this.errorMessage = '' 
+  if (!file) {
+    alert('Please select a Word file to upload.');
+    return;
+  }else{
+      
+  this.coursepackages.UploadandParseWordFile(file).subscribe({
+    next:(response:any)=>
+    {
+       console.log(response);
+ 
+      if(response.Message == "Course content parsed successfully")
+      {
+          this.coursecontent_wordfile = response.Data;
+            loadingElement!.classList.add('hidden');
+            console.log(this.coursecontent_wordfile);
+       }
+    //  this.populateSampleData(response);
+    },
+    error:(error:any)=>
+    {
+      this.errorMessage = error.error.Message + 'Please corrrect the errors in the Word file and re-upload.';
+      loadingElement!.classList.add('hidden');
+      console.error('Error fetching quiz:', error);
+    }});
+ 
+  }
+
+}
 
 
 
+toggleModule(i: number) 
+{
+  this.coursecontent_wordfile[i].open = !this.coursecontent_wordfile[i].open;
+}
 
 
+    openLessons: any = {};
 
+  toggleLesson(ci: number, li: number) {
+    const key = `${ci}-${li}`;
+    this.openLessons[key] = !this.openLessons[key];
+  }
 
+  isLessonOpen(ci: number, li: number) {
+    return !!this.openLessons[`${ci}-${li}`];
+  }
+  
 
 }

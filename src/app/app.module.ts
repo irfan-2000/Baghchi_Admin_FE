@@ -16,6 +16,7 @@ import { QuizhistoryComponent } from './quizhistory/quizhistory.component';
 import { NotesMediaReportsComponent } from './notes-media-reports/notes-media-reports.component';
 import { StudentDetailsComponent } from './student-details/student-details.component';
  import { ClasseshistoryComponent } from './classeshistory/classeshistory.component';
+import { ManageCoursePackagesandDetails2Component } from './manage-course-packagesand-details2/manage-course-packagesand-details2.component';
   
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { StudentDetailsComponent } from './student-details/student-details.compo
     QuizhistoryComponent,
     NotesMediaReportsComponent,
     StudentDetailsComponent,
-     ClasseshistoryComponent
+     ClasseshistoryComponent,
+     ManageCoursePackagesandDetails2Component
     ],
   imports: [ HttpClientModule, FormsModule, ReactiveFormsModule, RouterModule, BrowserModule, AppRoutingModule,NgSelectModule ,CommonModule
   ],
