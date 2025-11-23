@@ -1,1 +1,353 @@
-<p>manage-course-packagesand-details2 works!</p>
+<div class="max-w-6xl p-4 bg-gray-50">
+  <h2 class="text-2xl font-bold text-gray-800 mb-4">Create / Manage Course - Section 1</h2>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <form [formGroup]="courseInfoForm" class="space-y-8">
+
+      <!-- Course Info -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-1 gap-y-4">
+
+        <!-- Course Name (Full Width) -->
+        <div class="md:col-span-2">
+          <label class="block text-gray-700 font-medium mb-1">Course Name</label>
+          <input type="text" formControlName="courseName"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <!-- Course Level -->
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Course Level</label>
+          <input type="text" formControlName="courseLevel"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <!-- Teacher Name -->
+        <div class="flex justify-end">
+          <div class="w-[70%]">
+            <label class="block text-gray-700 font-medium mb-1">Teacher Name</label>
+            <input type="text" formControlName="teacher"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Class / Board / Subjects -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Class -->
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Class</label>
+          <select formControlName="classId"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md">
+            <option value="">-- Select Class --</option>
+            <option *ngFor="let cls of availableClasses" [ngValue]="cls.ClassId">{{ cls.ClassName }}</option>
+          </select>
+        </div>
+
+        <!-- Board -->
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Board</label>
+          <select formControlName="boardId"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md">
+            <option value="">-- Select Board --</option>
+            <option *ngFor="let bd of availableBoards" [ngValue]="bd.BoardId">{{ bd.BoardName }}</option>
+          </select>
+        </div>
+
+        <!-- Subjects -->
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Subjects</label>
+          <ng-select [items]="availableSubjects" bindLabel="SubjectName"
+                     bindValue="SubjectId" formControlName="subjectId" [multiple]="true"
+                     [closeOnSelect]="false" placeholder="--Select Subjects--" 
+                     class="flex-1 min-w-[220px] px-2 py-1 border border-gray-300 rounded-md focus:ring-2 
+                     focus:ring-indigo-500 focus:border-indigo-500" [clearable]="true" appendTo="body">
+            
+            <ng-template ng-header-tmp let-items="items"> 
+              <div class="flex items-center gap-2 px-2 py-1 border-b bg-gray-50 z-50"> 
+                <input type="checkbox" [checked]="courseForm.get('subjectId')?.value?.length === availableSubjects.length" (change)="toggleCheckAll($event)" /> 
+                <span class="text-sm font-medium"> 
+                  {{ courseForm.get('subjectId')?.value?.length === availableSubjects.length ? 'Deselect' : 'Select' }} All 
+                </span> 
+              </div>
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item" let-item$="item$"> 
+              <div class="flex items-center gap-2 px-2 py-1 hover:bg-indigo-50 rounded-md"> 
+                <input type="checkbox" [checked]="item$.selected" class="accent-indigo-600"/> 
+                <span>{{ item.SubjectName }}</span>
+              </div> 
+            </ng-template>
+
+          </ng-select>
+        </div>
+      </div>
+
+      <!-- Price -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Price</label>
+          <input type="number" formControlName="price"
+                 class="w-full px-3 py-2 border rounded-md">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Old Price</label>
+          <input type="number" formControlName="oldPrice"
+                 class="w-full px-3 py-2 border rounded-md">
+        </div>
+      </div>
+
+      <!-- Duration & Image -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Duration</label>
+          <input type="text" formControlName="duration" placeholder="e.g. 3 Months"
+                 class="w-full px-3 py-2 border rounded-md">
+        </div>
+
+        <div class="flex flex-col space-y-3">
+          <label class="block text-gray-700 font-medium mb-1">Course Image</label>
+
+          <div class="flex items-center space-x-3">
+            <label
+              for="courseImage"
+              class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-md cursor-pointer hover:bg-indigo-700"
+            >
+              Upload Image
+              <input id="courseImage" type="file" (change)="Onfilechange($event)" class="hidden" />
+            </label>
+            <span class="text-gray-700" *ngIf="Selectedfile">{{ Selectedfile.name }}</span>
+          </div>
+
+          <button type="button" (click)="viewImage()"
+                  *ngIf="coursePackageDetails?.Item1?.ImagewithPath"
+                  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+            View Image
+          </button>
+        </div>
+      </div>
+
+      <!-- Text Areas -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Short Description</label>
+        <textarea formControlName="shortDescription"
+                  class="w-full px-3 py-2 border rounded-md"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Overview</label>
+        <textarea formControlName="overview"
+                  class="w-full px-3 py-2 border rounded-md"></textarea>
+      </div>
+
+      <!-- Highlights -->
+      <div formArrayName="highlights" class="space-y-2">
+        <label class="block text-gray-700 font-medium">Highlights</label>
+        <div *ngFor="let highlight of highlights.controls; let i = index" [formGroupName]="i" class="flex gap-2">
+          <input type="text" formControlName="text"
+                 class="flex-1 px-3 py-2 border rounded-md">
+          <button type="button" (click)="removeHighlight(i)"
+                  class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Remove</button>
+        </div>
+        <button type="button" (click)="addHighlight()"
+                class="mt-2 px-4 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">+ Add Highlight</button>
+      </div>
+
+      <!-- Requirements -->
+      <div formArrayName="requirements" class="space-y-2">
+        <label class="block text-gray-700 font-medium">Requirements</label>
+        <div *ngFor="let req of requirements.controls; let i = index" [formGroupName]="i" class="flex gap-2">
+          <input type="text" formControlName="text"
+                 class="flex-1 px-3 py-2 border rounded-md">
+          <button type="button" (click)="removeRequirement(i)"
+                  class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Remove</button>
+        </div>
+        <button type="button" (click)="addRequirement()"
+                class="mt-2 px-4 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">+ Add Requirement</button>
+      </div>
+
+      <!-- Objectives -->
+      <div formArrayName="objectives" class="space-y-2">
+        <label class="block text-gray-700 font-medium">Objectives</label>
+        <div *ngFor="let obj of objectives.controls; let i = index" [formGroupName]="i" class="flex gap-2">
+          <input type="text" formControlName="text"
+                 class="flex-1 px-3 py-2 border rounded-md">
+          <button type="button" (click)="removeobjective(i)"
+                  class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Remove</button>
+        </div>
+        <button type="button" (click)="addObjective()"
+                class="mt-2 px-4 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">+ Add Objective</button>
+      </div>
+
+
+
+<div class="side-panel p-4">
+
+  <!-- Buttons Row -->
+  <div class="flex items-center gap-4">
+
+    <!-- Upload Quiz Button + File Name -->
+    <div class="flex flex-col">
+
+      <div class="flex items-center gap-3">
+        <!-- Upload Button -->
+        <label 
+          class="w-max bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg shadow cursor-pointer transition"
+        >
+          Upload course content
+          <input 
+            type="file"
+            (change)="ondocFileSelected($event)"
+            accept=".doc,.docx,.pdf"
+            class="hidden"
+          />
+        </label>
+
+        <!-- Filename Display -->
+        <span id="selectedFileName" class="text-gray-700 text-sm font-medium">
+          No file chosen
+        </span>
+      </div>
+
+      <!-- Loading Text -->
+      <span 
+        id="loadingText"
+        class="text-sm text-gray-600 font-medium mt-1 animate-pulse hidden"
+      >
+        Loading... please wait
+      </span>
+
+      <!-- Error Message -->
+<span
+  *ngIf="errorMessage"
+  id="errorText"
+  class="text-sm text-red-600 font-medium mt-1 animate-pulse"
+>
+  {{ errorMessage }}
+</span>
+
+
+    </div>
+
+    <!-- View Questions Button -->
+    <button *ngIf="coursecontent_wordfile?.length > 0"
+      type="button"
+      (click)="popupVisible = true"
+      class="w-max bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow transition"
+    >
+      View content
+    </button>
+
+  </div>
+
+</div>
+
+      <!-- Status -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Status(Visibility to student)</label>
+        <select formControlName="status"
+                class="px-3 py-2 border rounded-md w-48">
+          <option value="">--Select Status--</option>
+          <option value="1">Active</option>
+          <option value="0">Inactive</option>
+        </select>
+      </div>
+
+
+
+
+
+      <!-- Submit Button for Section 1 -->
+    <div class="flex flex-col items-center space-y-2">
+  <!-- Button centered -->
+    <span *ngIf="CourseInfoErrorMsg" class="text-red-600 text-sm">
+    {{ CourseInfoErrorMsg }}
+  </span>
+  <button type="button" (click)="submitCourseInfoSection()"
+          class="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 cursor-pointer">
+    Submit Course Info
+  </button>
+
+  <!-- Conditional error message -->
+ 
+</div>
+
+
+    </form>
+  </div>
+
+
+    <!-- Main Wrapper -->
+<div class="question-popup-wrapper">
+ 
+  <!-- Popup -->
+ <!-- Popup Overlay -->
+<div class="popup-overlay" *ngIf="popupVisible">
+  <div class="popup-box flex flex-col">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b pb-3 mb-4">
+      <h3 class="text-xl font-semibold text-indigo-700 tracking-wide">All Questions</h3>
+<button class="close-btn-modern" (click)="popupVisible = false" aria-label="Close">
+  <svg height="22" width="22" viewBox="0 0 22 22" fill="none">
+    <circle cx="11" cy="11" r="10" fill="#F3F4F6" />
+    <line x1="7" y1="7" x2="15" y2="15" stroke="#7F1D1D" stroke-width="2" stroke-linecap="round"/>
+    <line x1="15" y1="7" x2="7" y2="15" stroke="#7F1D1D" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+    </div>
+
+    <!-- Questions Container -->
+    <div class="overflow-y-auto flex-1 space-y-8 py-2">
+         <section class="bg-white rounded-2xl shadow-lg p-6">
+  <h2 class="text-xl font-bold text-indigo-900 mb-2">Course Content</h2>
+  <p class="text-sm text-gray-600 mb-4">
+    A structured breakdown of chapters, lessons, and topics.
+  </p>
+
+  <div class="mt-4 divide-y divide-indigo-50">
+    <div *ngFor="let ch of coursecontent_wordfile; let ci = index" class="py-4">
+
+     
+
+      <!-- Lessons -->
+      <div class="mt-2 rounded-lg border border-indigo-50 divide-y">
+ 
+          <button (click)="toggleLesson(ci, ci)"
+            class="w-full flex items-center px-3 py-2 text-left hover:bg-indigo-50 group transition">
+
+            <span class="font-medium text-gray-900">Module {{ch.ModuleNo}}:{{ ch.ModuleName }}</span>
+
+            <svg class="ml-auto w-5 h-5 text-indigo-400 transition-transform"
+              [ngClass]="{ 'rotate-180': isLessonOpen(ci, ci) }"
+              fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+
+          </button>
+
+          <!-- Topics -->
+         <div *ngIf="isLessonOpen(ci, ci)" class="px-5 pb-3 pt-2 text-sm text-gray-700">
+          <ul class="list-disc pl-5 space-y-1">
+            <li *ngFor="let t of ch.Topics.split('|')">
+              {{ t }}
+            </li>
+          </ul>
+        </div>
+
+
+        
+      </div>
+
+    </div>
+  </div>
+</section>
+
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+</div>

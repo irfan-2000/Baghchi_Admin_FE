@@ -34,7 +34,7 @@ const token = localStorage.getItem('token'); // Or wherever you store your token
   }); 
   const unique = Math.random();  
 
-  let params = new HttpParams().set('id',id.toString());
+  let params = new HttpParams().set('id',id.toString()).set('FromAdmin','1');
 
 
   return this.http.get<any>(`${this.baseurl}api/GetCoursebyId?_=${unique}`,
@@ -66,6 +66,21 @@ UploadandParseWordFile(file: any)
   );
 }
 
+
+submitCourseInfoDetails(formData:any)
+{
+ const token = localStorage.getItem('token'); // Or wherever you store your token
+ 
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+  return this.http.post<any>(`${this.baseurl}api/submitCourseInfoDetails?_=${unique}`, formData,
+    {
+    headers,withCredentials: false
+  });
+
+}
 
 
 }

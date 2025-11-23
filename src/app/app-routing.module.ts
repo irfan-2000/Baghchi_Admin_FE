@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { ClassroomComponent } from './pages/live-classes/classroom/classroom.component';
@@ -9,6 +9,7 @@ import { QuizhistoryComponent } from './quizhistory/quizhistory.component';
 import { NotesMediaReportsComponent } from './notes-media-reports/notes-media-reports.component';
 import { StudentDetailsComponent } from './student-details/student-details.component';
 import { ClasseshistoryComponent } from './classeshistory/classeshistory.component';
+import { ManageCoursePackagesandDetails2Component } from './manage-course-packagesand-details2/manage-course-packagesand-details2.component';
  
 const routes: Routes = [
 
@@ -30,7 +31,7 @@ const routes: Routes = [
       {path:'notes-media', component: NotesMediaReportsComponent},
       {path:'student-details', component: StudentDetailsComponent},
       {path:'class-history', component: ClasseshistoryComponent},
- 
+      {path:'manage-courses2',component:ManageCoursePackagesandDetails2Component}
      
       
     ]
