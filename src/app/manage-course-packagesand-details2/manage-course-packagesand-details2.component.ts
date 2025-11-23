@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
  import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClassBoardSubjectService } from '../class-board-subject.service';
-import { error } from 'console';
-import { CoursepackagesService } from '../coursepackages.service';
-import { ActivatedRoute } from '@angular/router';
-import { response } from 'express';
-
+ import { CoursepackagesService } from '../coursepackages.service';
+import { ActivatedRoute, Router } from '@angular/router';
+ 
 @Component({
   selector: 'app-manage-course-packagesand-details2',
   standalone: false,
@@ -27,8 +25,10 @@ courseForm!: FormGroup;
  isLoading = false;
   CourseInfoErrorMsg :any = '';
 courseInfoForm:any;
+batchErrorMsg:any = '';
+  batchForm!: FormGroup;
 
-  constructor(private fb: FormBuilder,private Class_board_subjectservice:ClassBoardSubjectService,private coursepackages:CoursepackagesService,private route: ActivatedRoute) 
+  constructor(private fb: FormBuilder,private Class_board_subjectservice:ClassBoardSubjectService,private coursepackages:CoursepackagesService,private route: ActivatedRoute,private router: Router) 
   {
 this.loadDropdowns();
  
@@ -67,11 +67,17 @@ this.route.queryParams.subscribe(params => {
 });
 
 
+this.batchForm = this.fb.group({
+      batches: this.fb.array([])   // Initial empty array
+    });
+
+    this.addBatch(); // Add the first batch by default
+
   }
 
   ngOnInit(): void 
   {
-    this.initForm();
+  //  this.initForm();
   
 //this.populate_data();
 
@@ -216,12 +222,17 @@ this.objectives.removeAt(index);
   }
 
 
- get batches(): FormArray {
-    return this.courseForm.get('batches') as FormArray;
+  
+    get   batches(): FormArray {
+       
+    return this.batchForm.get('batches') as FormArray;
+    
   }
 
-  addBatch() {
+  addBatch()
+   {
     const batchGroup = this.fb.group({
+      batchId: [0],   // ✔ required for SP logic1
       batchName: ['', Validators.required],
       batch_classId: ['', Validators.required],
       batch_subjectId: ['', Validators.required],
@@ -234,16 +245,21 @@ this.objectives.removeAt(index);
     this.batches.push(batchGroup);
   }
 
-  removeBatch(index: number) {
+   removeBatch(index: number): void {
+    if (this.batches.length === 1) {
+      this.batchErrorMsg = 'At least one batch is required';
+      return;
+    }
+    this.batchErrorMsg = '';
     this.batches.removeAt(index);
   }
+
 get installments() {
   return this.courseForm.get('installments') as FormArray;
 }
 
 addInstallment() {
     const instArray = this.courseForm.get('installments') as FormArray;
-
   this.installments.push(this.fb.group({ 
     InstallmentNumber: instArray.length + 1,  // auto increment
      Amount: [''],
@@ -568,7 +584,7 @@ course.boardId = item1.BoardId;
 course.classId = item1.ClassId;
 course.subjectId = item1.SubjectId || [];
 course.paymentType = item1.PaymentType;
-debugger
+
 course.courseImage = item1.CourseImageName;
 
 course.requirements = item1.Requirements || [];
@@ -625,19 +641,7 @@ course.teacher = item1.teacher;   // or any new value you want
   });
 
   // --- Batches
-  this.batches.clear();
-  (course.batches || []).forEach((b: any) => {
-    this.batches.push(this.fb.group({
-      batchName: [b.batchName || ''],
-      batch_classId: [b.batch_classId || b.classId || ''],
-      batch_subjectId: [b.batch_subjectId || b.subjectId || ''],
-      batch_boardId: [b.batch_boardId || b.boardId || ''],
-      startDate: [b.startDate ? b.startDate.split('T')[0] : ''],
-      endDate: [b.endDate ? b.endDate.split('T')[0] : ''],
-      startTime: [b.startTime ? this.toTimeInput(b.startTime) : ''],
-      endTime: [b.endTime ? this.toTimeInput(b.endTime) : '']
-    }));
-  });
+
 
 this.courseForm.get('paymentType')?.setValue(course.paymentType || '');
 
@@ -850,8 +854,9 @@ getcoursebyid(courseid:any)
      next : (response: any) =>
        {
         this.coursePackageDetails = response;
-        
+       
      this.popultecourseInfo( );
+     this.populateBatchData(response.Item1.Batches);
         console.log(response)
      },
     error: (err: any) => {
@@ -1040,7 +1045,8 @@ this.coursepackages.submitCourseInfoDetails(formData).subscribe({
  } 
 
 
-ValidateCourseInfo(): any {
+ValidateCourseInfo(): any
+ {
   let errorcount = 0;
   this.CourseInfoErrorMsg = '';
 
@@ -1131,18 +1137,207 @@ ValidateCourseInfo(): any {
   return errorcount;
 }
 
+AddNewCourse() {
+  window.location.href = '/home/manage-courses2';
+}
+
+submitbatches()
+{
+  console.log(this.validateBatches() > 0);
+  console.log("batches new",this.batchForm.value);
+ 
+if(this.CourseId <= 0 || this.CourseId == null || this.CourseId == undefined)
+{
+  alert("CourseId not found");
+}
+
+  let formData = new FormData(); 
+  
+  formData.append('batches', JSON.stringify(this.batchForm.get('batches')?.value));
+  formData.append('CourseId',  this.CourseId.toString());
+debugger
+this.coursepackages.SaveBatchDetails(formData).subscribe({
+  next: (response: any) => 
+    {
+       
+    if (response && response.statuscode == '200') 
+      {  
+        this.isLoading = false;
+
+        alert(response.message); 
+     }
+  },
+  error: (err: any) =>
+     {
+      this.isLoading= false;
+    console.log(err.error.Message);
+    alert("Error submitting course details:" + err.error.Message);
+
+  }
+});
+}
 
 
+ validateBatches() 
+ {
 
+  let errorcount = 0;
+  this.batchErrorMsg = '';
 
+  if (
+    this.batchForm.get('batches')?.value == '' ||
+    this.batchForm.get('batches')?.value == null ||
+    this.batchForm.get('batches')?.value == undefined ||
+    this.batchForm.get('batches')?.value.length == 0
+  ) {
+    this.batchErrorMsg += "Atleast 1 batch is required.\n";
+    errorcount++;
+    return errorcount;
+  }
 
+  let Noofbatches = this.batchForm.get('batches')?.value.length;
 
+  for (let i = 0; i < Noofbatches; i++) {
 
+    if (
+      this.batchForm.get('batches')?.value[i].batchName == '' ||
+      this.batchForm.get('batches')?.value[i].batchName == null ||
+      this.batchForm.get('batches')?.value[i].batchName == undefined
+    ) {
+      this.batchErrorMsg += "Batch Name is required for batch " + (i + 1) + ".\n";
+      errorcount++;
+      return errorcount;
+    }
 
+    if (
+      this.batchForm.get('batches')?.value[i].batch_classId == '' ||
+      this.batchForm.get('batches')?.value[i].batch_classId == null ||
+      this.batchForm.get('batches')?.value[i].batch_classId == undefined ||
+      this.batchForm.get('batches')?.value[i].batch_classId <= 0
+    ) {
+      this.batchErrorMsg += "Class is required for batch " + (i + 1) + ".\n";
+      errorcount++;
+      return errorcount;
+    }
 
+    if (
+      this.batchForm.get('batches')?.value[i].batch_subjectId == '' ||
+      this.batchForm.get('batches')?.value[i].batch_subjectId == null ||
+      this.batchForm.get('batches')?.value[i].batch_subjectId == undefined ||
+      this.batchForm.get('batches')?.value[i].batch_subjectId <= 0
+    ) {
+      this.batchErrorMsg += "Subject Name is required for batch " + (i + 1) + ".\n";
+      errorcount++;
+      return errorcount;
+    }
 
+    if (
+      this.batchForm.get('batches')?.value[i].batch_boardId == '' ||
+      this.batchForm.get('batches')?.value[i].batch_boardId == null ||
+      this.batchForm.get('batches')?.value[i].batch_boardId == undefined ||
+      this.batchForm.get('batches')?.value[i].batch_boardId <= 0
+    ) {
+      this.batchErrorMsg += "Batch board is required for batch " + (i + 1) + ".\n";
+      errorcount++;
+      return errorcount;
+    }
 
+    if (
+      this.batchForm.get('batches')?.value[i].startDate == '' ||
+      this.batchForm.get('batches')?.value[i].startDate == null ||
+      this.batchForm.get('batches')?.value[i].startDate == undefined ||
+      this.batchForm.get('batches')?.value[i].startDate <= 0
+    ) {
+      this.batchErrorMsg += "start Date is required for batch " + (i + 1) + ".\n";
+      errorcount++;
+      return errorcount;
+    }
 
+    if (
+      this.batchForm.get('batches')?.value[i].endDate == '' ||
+      this.batchForm.get('batches')?.value[i].endDate == null ||
+      this.batchForm.get('batches')?.value[i].endDate == undefined ||
+      this.batchForm.get('batches')?.value[i].endDate <= 0
+    ) {
+      this.batchErrorMsg += "end Date is required for batch " + (i + 1) + ".\n";
+      errorcount++;
+      return errorcount;
+    }
+
+    if (
+      this.batchForm.get('batches')?.value[i].startTime == '' ||
+      this.batchForm.get('batches')?.value[i].startTime == null ||
+      this.batchForm.get('batches')?.value[i].startTime == undefined ||
+      this.batchForm.get('batches')?.value[i].startTime <= 0
+    ) {
+      this.batchErrorMsg += "start Time is required for batch " + (i + 1) + ".\n";
+      errorcount++;
+      return errorcount;
+    }
+
+    if (
+      this.batchForm.get('batches')?.value[i].endTime == '' ||
+      this.batchForm.get('batches')?.value[i].endTime == null ||
+      this.batchForm.get('batches')?.value[i].endTime == undefined ||
+      this.batchForm.get('batches')?.value[i].endTime <= 0
+    ) {
+      this.batchErrorMsg += "end Time is required for batch " + (i + 1) + ".\n";
+      errorcount++;
+      return errorcount;
+    }
+  }
+      return errorcount;
+
+}
+
+// ...existing code... 
+populateBatchData(batches: any[]) {
+  const batchArray = this.batchForm.get('batches') as FormArray;
+  if (!batchArray) return;
+
+  batchArray.clear();
+
+  if (!batches || batches.length === 0) {
+    // keep one empty batch if you want — currently do nothing
+    return;
+  }
+
+  batches.forEach((b: any) => 
+    {
+       
+    let data: any = {};
+
+// Assign each property individually
+data.batchId = b. batchId?? b.batchId ?? b.batch_id ?? 0;
+data.batchName = b.BatchName ?? b.batchName ?? '';
+data.batch_classId = b.batch_classId ?? b.batch_classId ?? '';
+data.batch_subjectId = b.batch_subjectId ?? b.batch_subjectId ?? '';
+data.batch_boardId = b.batch_boardId ?? b.batch_boardId ?? '';
+
+data.startDate = b.startDate  ? ('' + b.startDate).split('T')[0]  : null;
+
+data.endDate = b.endDate  ? ('' + b.endDate).split('T')[0]  : null;
+
+data.startTime = b.startTime
+  ? this.toTimeInput(b.startTime)  : null;
+
+data.endTime = b.endTime  ? this.toTimeInput(b.endTime)  : null;
+ 
+    const group = this.fb.group({
+      batchId: [data.batchId],
+      batchName: [data.batchName, Validators.required],
+      batch_classId: [data.batch_classId, Validators.required],
+      batch_subjectId: [data.batch_subjectId, Validators.required],
+      batch_boardId: [data.batch_boardId, Validators.required],
+      startDate: [data.startDate, Validators.required],
+      endDate: [data.endDate, Validators.required],
+      startTime: [data.startTime, Validators.required],
+      endTime: [data.endTime, Validators.required]
+    });
+
+    batchArray.push(group);
+  });
+} 
 
 
 }
