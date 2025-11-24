@@ -27,6 +27,9 @@ courseForm!: FormGroup;
 courseInfoForm:any;
 batchErrorMsg:any = '';
   batchForm!: FormGroup;
+    paymentForm: FormGroup;
+  paymentErrorMsg: any = '';
+
 
   constructor(private fb: FormBuilder,private Class_board_subjectservice:ClassBoardSubjectService,private coursepackages:CoursepackagesService,private route: ActivatedRoute,private router: Router) 
   {
@@ -72,6 +75,26 @@ this.batchForm = this.fb.group({
     });
 
     this.addBatch(); // Add the first batch by default
+
+
+this.paymentForm = this.fb.group({
+
+      // 1️⃣ Payment Type
+      paymentType: ['', Validators.required], // fixed | subscription
+
+      // 2️⃣ FIXED PAYMENT FIELDS
+      fixed_paymentMode: [''],  // oneTime | installments | both
+      totalPrice: [''],
+
+      installments: this.fb.array([]),
+
+      // 3️⃣ SUBSCRIPTION FIELDS
+      monthlyAmount: [''],
+      quarterlyAmount: [''],
+      halfYearlyAmount: [''],
+      yearlyAmount: ['']
+    });
+
 
   }
 
@@ -254,29 +277,7 @@ this.objectives.removeAt(index);
     this.batches.removeAt(index);
   }
 
-get installments() {
-  return this.courseForm.get('installments') as FormArray;
-}
-
-addInstallment() {
-    const instArray = this.courseForm.get('installments') as FormArray;
-  this.installments.push(this.fb.group({ 
-    InstallmentNumber: instArray.length + 1,  // auto increment
-     Amount: [''],
-    DueDaysFromStart: [''],
-    Remarks: ['']
-  }));
-
-
-}
-
-removeInstallment(index: number) 
-{
-   const instArray = this.courseForm.get('installments') as FormArray;
-  instArray.removeAt(index);
-   instArray.controls.forEach((ctrl, idx) => ctrl.patchValue({ InstallmentNumber: idx + 1 }));
-}
-
+   
 fileName: string | null = null;
 
  
@@ -1338,6 +1339,137 @@ data.endTime = b.endTime  ? this.toTimeInput(b.endTime)  : null;
     batchArray.push(group);
   });
 } 
+
+
+  get installments(): FormArray 
+  {
+    return this.paymentForm.get('installments') as FormArray;
+  }
+
+    addInstallment()
+     {
+    const index = this.installments.length + 1;
+
+    const instGroup = this.fb.group({
+      installmentNumber: [index, Validators.required],
+      amount: ['', Validators.required],
+      dueDaysFromStart: ['', Validators.required],
+      remarks: ['']
+    });
+
+    this.installments.push(instGroup);
+  }
+  removeInstallment(i: number) {
+    this.installments.removeAt(i);
+    this.reorderInstallmentNumbers();
+  }
+
+  reorderInstallmentNumbers() {
+    this.installments.controls.forEach((ctrl, i) => {
+      ctrl.get('installmentNumber')?.setValue(i + 1);
+    });
+  }
+
+submitFixedPayment()
+ {
+    this.paymentErrorMsg = '';
+
+
+    this.validateFixedandInstallments();
+ 
+
+    const payload = {
+      paymentType: this.paymentForm.value.paymentType,
+      fixed_paymentMode: this.paymentForm.value.fixed_paymentMode,
+      totalPrice: this.paymentForm.value.totalPrice,
+      installments: this.paymentForm.value.installments
+    };
+
+    console.log("Fixed Payment Data:", payload);
+  }
+
+    submitSubscriptionPayment()
+     {
+    this.paymentErrorMsg = '';
+
+    if (this.paymentForm.invalid)
+       {
+      this.paymentErrorMsg = 'Please fill all required subscription fields.';
+      return;
+    }
+
+    const payload = {
+      paymentType: this.paymentForm.value.paymentType,
+      monthlyAmount: this.paymentForm.value.monthlyAmount,
+      quarterlyAmount: this.paymentForm.value.quarterlyAmount,
+      halfYearlyAmount: this.paymentForm.value.halfYearlyAmount,
+      yearlyAmount: this.paymentForm.value.yearlyAmount
+    };
+
+    console.log("Subscription Payment Data:", payload);
+  }
+
+
+
+validateFixedandInstallments()
+  {
+    
+    let  errorcount=0;
+this.paymentErrorMsg  = '';
+ 
+debugger
+if(this.paymentForm.get('paymentType')?.value=='' ||  this.paymentForm.get('paymentType')?.value==null || this.paymentForm.get('paymentType')?.value==undefined  )
+{
+  this.paymentErrorMsg +="payment Type is required.\n";
+   errorcount++;
+  return errorcount;
+}
+
+ if(this.paymentForm.get('paymentType')?.value=='fixed' )
+{
+if(this.paymentForm.get('totalPrice')?.value =='' ||  this.paymentForm.get('totalPrice')?.value ==null ||  this.paymentForm.get('totalPrice')?.value ==undefined ||  this.paymentForm.get('totalPrice')?.value <=0)
+  {
+  this.paymentErrorMsg +="Total Price is required and cant be 0 .\n";
+  errorcount++;
+  return errorcount;
+  }   
+}
+
+debugger
+if(this.paymentForm.get('fixed_paymentMode')?.value == 'installments' || this.paymentForm.get('fixed_paymentMode')?.value == 'both')
+{
+
+   const installments = this.paymentForm.get('installments')?.value;
+
+    if (!installments || installments.length === 0) 
+      {
+      this.paymentErrorMsg += "At least 1 installment is required.\n";
+       errorcount++;
+       return errorcount;
+
+    }
+
+  installments.forEach((inst: any, i: number) => {
+      
+      // Validate Amount
+      if (        inst.amount === '' ||inst.amount === null || inst.amount === undefined ||     inst.amount <= 0      ) {
+        this.paymentErrorMsg += `Installment ${i + 1}: Amount is required and must be greater than 0.\n`;
+        errorcount++;
+      }
+
+      // Validate Due Days
+      if (inst.dueDaysFromStart === '' || inst.dueDaysFromStart === null ||      inst.dueDaysFromStart === undefined  ) {
+        this.paymentErrorMsg += `Installment ${i + 1}: Due Days From Start is required.\n`;
+                errorcount++;
+      }
+    });
+
+  }
+
+     return errorcount;
+
+}
+ 
 
 
 }

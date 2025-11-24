@@ -442,3 +442,158 @@ Add New Course  </button>
   </button>
 
 </div>
+
+
+
+ <div class="p-4 border rounded-md shadow-sm space-y-6" [formGroup]="paymentForm">
+
+  <!-- ERROR MESSAGE -->
+  <div *ngIf="paymentErrorMsg" class="p-3 bg-red-100 text-red-700 rounded">
+    {{ paymentErrorMsg }}
+  </div>
+
+  <!-- 1️⃣ PAYMENT TYPE -->
+  <div>
+    <h3 class="text-lg font-semibold text-gray-700 mb-2">Select Payment Type</h3>
+
+    <div class="flex gap-6">
+      <label class="flex items-center gap-2">
+        <input type="radio" formControlName="paymentType" value="fixed">
+        Fixed Payment
+      </label>
+
+      <label class="flex items-center gap-2">
+        <input type="radio" formControlName="paymentType" value="subscription">
+        Subscription Payment
+      </label>
+    </div>
+  </div>
+
+  <!-- ============================================= -->
+  <!-- 2️⃣ FIXED PAYMENT UI -->
+  <!-- ============================================= -->
+  <div *ngIf="paymentForm.get('paymentType')?.value === 'fixed'" class="space-y-4">
+
+    <!-- Payment Mode -->
+    <div>
+      <label class="block font-medium mb-1">Payment Mode</label>
+      <select formControlName="fixed_paymentMode"
+              class="px-3 py-2 border rounded-md w-full max-w-sm">
+        <option value="">--Select Payment Mode--</option>
+        <option value="oneTime">Full (One-Time Payment)</option>
+        <option value="installments">Installments</option>
+        <option value="both">Both</option>
+      </select>
+    </div>
+
+    <!-- Total Price -->
+    <div>
+      <label class="block font-medium mb-1">Total Price</label>
+      <input type="number" formControlName="totalPrice"
+             placeholder="Enter total price"
+             class="px-3 py-2 border rounded-md w-40">
+    </div>
+
+    <!-- INSTALLMENTS -->
+    <div *ngIf="
+            paymentForm.get('fixed_paymentMode')?.value === 'installments' ||
+            paymentForm.get('fixed_paymentMode')?.value === 'both'
+          " 
+         class="mt-4 p-4 bg-gray-50 border rounded space-y-3">
+
+      <h4 class="font-semibold">Installments</h4>
+
+      <div formArrayName="installments" class="space-y-3">
+        <div *ngFor="let inst of installments.controls; let i = index"
+             [formGroupName]="i"
+             class="p-4 border rounded flex flex-wrap gap-4">
+
+          <input type="number" formControlName="installmentNumber" readonly
+                 class="w-32 px-3 py-2 border rounded">
+
+          <input type="number" formControlName="amount"
+                 placeholder="Amount"
+                 class="w-40 px-3 py-2 border rounded">
+
+          <input type="number" formControlName="dueDaysFromStart"
+                 placeholder="Due Days From Start"
+                 class="w-48 px-3 py-2 border rounded">
+
+          <input type="text" formControlName="remarks"
+                 placeholder="Remarks"
+                 class="flex-1 px-3 py-2 border rounded">
+
+          <button type="button"
+                  (click)="removeInstallment(i)"
+                  class="px-3 py-2 bg-red-600 text-white rounded">
+            Remove
+          </button>
+
+        </div>
+      </div>
+
+      <button type="button"
+              (click)="addInstallment()"
+              class="mt-2 px-4 py-2 bg-blue-600 text-white rounded">
+        + Add Installment
+      </button>
+    </div>
+
+    <button type="button"
+            (click)="submitFixedPayment()"
+            class="px-5 py-2 bg-green-600 text-white rounded">
+      Save Fixed Payment
+    </button>
+
+  </div>
+
+  <!-- ============================================= -->
+  <!-- 3️⃣ SUBSCRIPTION PAYMENT UI -->
+  <!-- ============================================= -->
+  <div *ngIf="paymentForm.get('paymentType')?.value === 'subscription'"
+       class="p-4 border rounded bg-gray-50 space-y-4">
+
+    <h4 class="font-semibold">Subscription Pricing</h4>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div>
+        <label class="font-medium">Monthly</label>
+        <input type="number" formControlName="monthlyAmount"
+               placeholder="Monthly price"
+               class="px-3 py-2 border rounded w-2/3">
+      </div>
+
+      <div>
+        <label class="font-medium">Quarterly</label>
+        <input type="number" formControlName="quarterlyAmount"
+               placeholder="Quarterly price"
+               class="px-3 py-2 border rounded w-2/3">
+      </div>
+
+      <div>
+        <label class="font-medium">Half-Yearly</label>
+        <input type="number" formControlName="halfYearlyAmount"
+               placeholder="Half-Yearly price"
+               class="px-3 py-2 border rounded w-2/3">
+      </div>
+
+      <div>
+        <label class="font-medium">Yearly</label>
+        <input type="number" formControlName="yearlyAmount"
+               placeholder="Yearly price"
+               class="px-3 py-2 border rounded w-2/3">
+      </div>
+
+    </div>
+
+    <button type="button"
+            (click)="submitSubscriptionPayment()"
+            class="px-5 py-2 bg-green-600 text-white rounded">
+      Save Subscription Payment
+    </button>
+
+  </div>
+
+</div>
+
