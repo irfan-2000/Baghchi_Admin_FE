@@ -80,6 +80,7 @@ this.batchForm = this.fb.group({
 this.paymentForm = this.fb.group({
 
       // 1️⃣ Payment Type
+      coursePaymentId:[0],
       paymentType: ['', Validators.required], // fixed | subscription
 
       // 2️⃣ FIXED PAYMENT FIELDS
@@ -94,8 +95,7 @@ this.paymentForm = this.fb.group({
       halfYearlyAmount: [''],
       yearlyAmount: ['']
     });
-
-
+this.getCoursePayments();
   }
 
   ngOnInit(): void 
@@ -659,7 +659,7 @@ this.courseForm.get('paymentType')?.setValue(course.paymentType || '');
   });
 
 this.coursecontent_wordfile = this.coursePackageDetails.Item3;
-debugger
+ 
 
 } 
 
@@ -695,7 +695,7 @@ course.highlights = item2.Highlights || [];
 course.teacher = item1.Teacher;   // or any new value you want
 
 
-debugger
+ 
   this.courseInfoForm.patchValue({
     courseName: course.courseName || '',
     classId: course.classId || '',
@@ -740,7 +740,7 @@ debugger
     
 
 this.coursecontent_wordfile = this.coursePackageDetails.Item3;
-debugger
+ 
 
 }
 
@@ -997,7 +997,7 @@ if(this.ValidateCourseInfo() >0)
    }else{
         formData.append('courseImage', this.Selectedfile);
    }
-debugger
+ 
    if(this.IsEditMode)
    {
 formData.append('CourseContent', JSON.stringify(this.coursecontent_wordfile));
@@ -1156,7 +1156,7 @@ if(this.CourseId <= 0 || this.CourseId == null || this.CourseId == undefined)
   
   formData.append('batches', JSON.stringify(this.batchForm.get('batches')?.value));
   formData.append('CourseId',  this.CourseId.toString());
-debugger
+ 
 this.coursepackages.SaveBatchDetails(formData).subscribe({
   next: (response: any) => 
     {
@@ -1379,8 +1379,10 @@ submitFixedPayment()
     this.validateFixedandInstallments();
  
 
-    const payload = {
+    const payload = 
+    {
       courseId:this.CourseId,
+      coursePaymentId:this.paymentForm.value.coursePaymentId,
       paymentType: this.paymentForm.value.paymentType,
       fixed_paymentMode: this.paymentForm.value.fixed_paymentMode,
       totalPrice: this.paymentForm.value.totalPrice.toString(),
@@ -1388,7 +1390,7 @@ submitFixedPayment()
       NoOfInstallments: this.paymentForm.value.installments.length
     };
 
-debugger
+ 
     this.coursepackages.SubmitPaymentTypeOfCourse(payload).subscribe({
   next: (response: any) => 
     {
@@ -1423,17 +1425,37 @@ debugger
     {
       return;
     }
-
-    const payload = 
+const payload = {
+  courseId:this.CourseId,  
+      coursePaymentId:this.paymentForm.value.coursePaymentId,
+  paymentType: this.paymentForm.value.paymentType,
+  monthlyAmount: this.paymentForm.value.monthlyAmount ? this.paymentForm.value.monthlyAmount : 0,
+  quarterlyAmount: this.paymentForm.value.quarterlyAmount ? this.paymentForm.value.quarterlyAmount : 0,
+  halfYearlyAmount: this.paymentForm.value.halfYearlyAmount ? this.paymentForm.value.halfYearlyAmount : 0,
+  yearlyAmount: this.paymentForm.value.yearlyAmount ? this.paymentForm.value.yearlyAmount : 0
+};
+ 
+ 
+    this.coursepackages.SubmitPaymentTypeOfCourse(payload).subscribe({
+  next: (response: any) => 
     {
-      paymentType: this.paymentForm.value.paymentType,
-      monthlyAmount: this.paymentForm.value.monthlyAmount,
-      quarterlyAmount: this.paymentForm.value.quarterlyAmount,
-      halfYearlyAmount: this.paymentForm.value.halfYearlyAmount,
-      yearlyAmount: this.paymentForm.value.yearlyAmount
-    };
+       
+    if (response && response.statuscode == '200') 
+      {  
+        this.isLoading = false;
 
-    console.log("Subscription Payment Data:", payload);
+        alert(response.message); 
+     }
+  },
+  error: (err: any) =>
+     {
+
+      this.isLoading= false;
+     alert("Error submitting course details:" + err.error. ErrorMessage);
+
+  }
+});
+
   }
 
 
@@ -1557,8 +1579,80 @@ validatesubscriptionfields() {
   return errorcount;
 }
 
+getCoursePayments() {
 
+  this.coursepackages.getCoursePayments(this.CourseId).subscribe({
+    next: (response: any) => {
 
+      debugger;
+
+      if (!response || !response.Result) {
+        console.warn("No course payment data found");
+        return;
+      }
+
+      const result = response.Result;
+      console.log("course payment details", result);
+
+      // Always patch common fields
+      this.paymentForm.patchValue({
+        coursePaymentId: result.coursePaymentId || 0,
+        paymentType: result.paymentType || '',
+        fixed_paymentMode: result.fixed_paymentMode || '',
+        totalPrice: result.totalPrice || 0
+      });
+
+      // -------------------------------------------------------------------
+      // FIXED PAYMENT TYPE
+      // -------------------------------------------------------------------
+      if (result.paymentType === 'fixed') {
+
+        // Load installments only if payment mode is installments or both
+        if (result.fixed_paymentMode === 'installments' || 
+            result.fixed_paymentMode === 'both') {
+
+          this.installments.clear();
+
+          const instList = result.installments || [];
+
+          for (let i = 0; i < instList.length; i++) {
+            const inst = instList[i];
+
+            // Breakpoint friendly
+            this.installments.push(
+              this.fb.group({
+                installmentid: [inst.installmentid],
+                installmentNumber: [inst.installmentNumber],
+                amount: [inst.amount],
+                dueDaysFromStart: [inst.dueDaysFromStart],
+                remarks: [inst.remarks]
+              })
+            );
+          }
+        }
+      }
+
+      // -------------------------------------------------------------------
+      // SUBSCRIPTION PAYMENT TYPE
+      // -------------------------------------------------------------------
+      if (result.paymentType === 'subscription') {
+
+        this.paymentForm.patchValue({
+          monthlyAmount: result.monthlyAmount || 0,
+          quarterlyAmount: result.quarterlyAmount || 0,
+          halfYearlyAmount: result.halfYearlyAmount || 0,
+          yearlyAmount: result.yearlyAmount || 0
+        });
+      }
+
+    },
+    error: (err: any) => {
+      this.isLoading = false;
+      alert("Error submitting course details: " + (err.error?.ErrorMessage || err.message));
+    }
+  });
+
+}
 
 
  

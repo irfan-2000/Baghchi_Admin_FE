@@ -117,4 +117,23 @@ SubmitPaymentTypeOfCourse(Payload:any)
 
 
 
+getCoursePayments(CourseId:any)
+{  
+ const token = localStorage.getItem('token'); // Or wherever you store your token
+ let params = new HttpParams().set('CourseId',CourseId.toString());
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+  return this.http.get<any>(`${this.baseurl}api/GetCoursePaymentType?_=${unique}`,
+    {
+    headers,withCredentials: false,
+    params:params
+  });
+
+
+}
+
+
 }
