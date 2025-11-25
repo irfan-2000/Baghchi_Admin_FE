@@ -99,4 +99,22 @@ SaveBatchDetails(formData:any)
 }
 
 
+SubmitPaymentTypeOfCourse(Payload:any)
+{
+  debugger
+ const token = localStorage.getItem('token'); // Or wherever you store your token
+ 
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+  return this.http.post<any>(`${this.baseurl}api/SubmitPaymentTypeOfCourse?_=${unique}`, Payload,
+    {
+    headers,withCredentials: false
+  });
+
+}
+
+
+
 }

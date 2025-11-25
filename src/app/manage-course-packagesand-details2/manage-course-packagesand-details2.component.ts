@@ -1351,6 +1351,7 @@ data.endTime = b.endTime  ? this.toTimeInput(b.endTime)  : null;
     const index = this.installments.length + 1;
 
     const instGroup = this.fb.group({
+      installmentid: [0],
       installmentNumber: [index, Validators.required],
       amount: ['', Validators.required],
       dueDaysFromStart: ['', Validators.required],
@@ -1379,26 +1380,52 @@ submitFixedPayment()
  
 
     const payload = {
+      courseId:this.CourseId,
       paymentType: this.paymentForm.value.paymentType,
       fixed_paymentMode: this.paymentForm.value.fixed_paymentMode,
-      totalPrice: this.paymentForm.value.totalPrice,
-      installments: this.paymentForm.value.installments
+      totalPrice: this.paymentForm.value.totalPrice.toString(),
+      installments: this.paymentForm.value.installments,
+      NoOfInstallments: this.paymentForm.value.installments.length
     };
+
+debugger
+    this.coursepackages.SubmitPaymentTypeOfCourse(payload).subscribe({
+  next: (response: any) => 
+    {
+       
+    if (response && response.statuscode == '200') 
+      {  
+        this.isLoading = false;
+
+        alert(response.message); 
+     }
+  },
+  error: (err: any) =>
+     {
+
+      this.isLoading= false;
+     alert("Error submitting course details:" + err.error. ErrorMessage);
+
+  }
+});
+
+
+
 
     console.log("Fixed Payment Data:", payload);
   }
 
-    submitSubscriptionPayment()
+ submitSubscriptionPayment()
      {
     this.paymentErrorMsg = '';
 
-    if (this.paymentForm.invalid)
-       {
-      this.paymentErrorMsg = 'Please fill all required subscription fields.';
+    if(this.validatesubscriptionfields() >0)
+    {
       return;
     }
 
-    const payload = {
+    const payload = 
+    {
       paymentType: this.paymentForm.value.paymentType,
       monthlyAmount: this.paymentForm.value.monthlyAmount,
       quarterlyAmount: this.paymentForm.value.quarterlyAmount,
@@ -1417,7 +1444,7 @@ validateFixedandInstallments()
     let  errorcount=0;
 this.paymentErrorMsg  = '';
  
-debugger
+ 
 if(this.paymentForm.get('paymentType')?.value=='' ||  this.paymentForm.get('paymentType')?.value==null || this.paymentForm.get('paymentType')?.value==undefined  )
 {
   this.paymentErrorMsg +="payment Type is required.\n";
@@ -1435,7 +1462,7 @@ if(this.paymentForm.get('totalPrice')?.value =='' ||  this.paymentForm.get('tota
   }   
 }
 
-debugger
+ 
 if(this.paymentForm.get('fixed_paymentMode')?.value == 'installments' || this.paymentForm.get('fixed_paymentMode')?.value == 'both')
 {
 
@@ -1470,6 +1497,75 @@ if(this.paymentForm.get('fixed_paymentMode')?.value == 'installments' || this.pa
 
 }
  
+
+validatesubscriptionfields() {
+
+  let errorcount = 0;
+  this.paymentErrorMsg = '';
+
+  if (
+    this.paymentForm.get('paymentType')?.value == '' ||
+    this.paymentForm.get('paymentType')?.value == null ||
+    this.paymentForm.get('paymentType')?.value == undefined
+  ) {
+    this.paymentErrorMsg += "payment Type is required.\n";
+    errorcount++;
+    return errorcount;
+  }
+
+  // "subscription"
+  if (this.paymentForm.get('paymentType')?.value == 'subscription') {
+
+    if (
+      this.paymentForm.get('monthlyAmount')?.value == '' ||
+      this.paymentForm.get('monthlyAmount')?.value == null ||
+      this.paymentForm.get('monthlyAmount')?.value == undefined ||
+      this.paymentForm.get('monthlyAmount')?.value <= 0
+    ) {
+
+      if (
+        this.paymentForm.get('quarterlyAmount')?.value == '' ||
+        this.paymentForm.get('quarterlyAmount')?.value == null ||
+        this.paymentForm.get('quarterlyAmount')?.value == undefined ||
+        this.paymentForm.get('quarterlyAmount')?.value <= 0
+      ) {
+
+        if (
+          this.paymentForm.get('halfYearlyAmount')?.value == '' ||
+          this.paymentForm.get('halfYearlyAmount')?.value == null ||
+          this.paymentForm.get('halfYearlyAmount')?.value == undefined ||
+          this.paymentForm.get('halfYearlyAmount')?.value <= 0
+        ) {
+
+          if (
+            this.paymentForm.get('yearlyAmount')?.value == '' ||
+            this.paymentForm.get('yearlyAmount')?.value == null ||
+            this.paymentForm.get('yearlyAmount')?.value == undefined ||
+            this.paymentForm.get('yearlyAmount')?.value <= 0
+          ) {
+
+            this.paymentErrorMsg +=
+              "Atleast one subscription amount is required and cant be 0 .\n";
+            errorcount++;
+            return errorcount;
+          }
+        }
+      }
+    }
+  }
+
+  return errorcount;
+}
+
+
+
+
+
+ 
+
+
+
+
 
 
 }
