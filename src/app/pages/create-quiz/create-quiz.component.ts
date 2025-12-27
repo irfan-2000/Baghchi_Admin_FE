@@ -624,9 +624,19 @@ popupVisible: boolean = false;
     this.selectedQuestion = null;
   }
 
-isCorrect(option: string, question: any): boolean {
-    return option === question.CorrectAnswer;
-  }
+// In your component.ts
+isCorrect(opt: string, question: any): boolean 
+{
+  console.log("Hitted");
+  if (!question.CorrectAnswers || question.CorrectAnswers.length === 0) return false;
+
+  // Normalize all answers (trim + uppercase)
+  const normalized = question.CorrectAnswers.map((a:any) => a.trim().toUpperCase());
+
+  // Check if current option is in the list
+  return normalized.includes(opt.toUpperCase());
+}
+
   // Full path for images (replace with your actual folder)
   getImagePath(img: string) {
     return `https://localhost:7091/media/QuestionImages/${img}`;

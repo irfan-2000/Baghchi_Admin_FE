@@ -3,19 +3,19 @@
  <h1 class="text-xl font-semibold text-slate-800 tracking-wide">
       Start Live Class
     </h1>
-  <div *ngIf="OngoignClassDetails != null"  class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded shadow flex items-center space-x-4 max-w-[40rem] w-auto mx-auto">
+  <div *ngIf="OngoingClassDetails != null"  class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded shadow flex items-center space-x-4 max-w-[40rem] w-auto mx-auto">
   <div class="flex flex-col space-y-1">
     <h3 class="text-sm font-semibold text-blue-800 truncate">
-      Ongoing Class: {{ OngoignClassDetails?.Topic }}
+      Ongoing Class: {{ OngoingClassDetails?.Topic }}
     </h3>
     <p class="text-xs text-blue-700 truncate">
-      Teacher: {{ OngoignClassDetails?.Teachername }} | Batch: {{ OngoignClassDetails?.Batchname }} of class {{ OngoignClassDetails?.Classname }}
+      Teacher: {{ OngoingClassDetails?.Teachername }} | Batch: {{ OngoingClassDetails?.Batchname }} of class {{ OngoingClassDetails?.Classname }} and stream key {{OngoingClassDetails?.Streamkey}}
     </p>
   </div>
-  <div class="ml-21"> <!-- add left margin to create space before button -->
-   <button  
+  <div class="ml-21">  
+   <button  (click)="ConfirmEndOngoingclass(OngoingClassDetails?.LiveSessionId)"
   class="px-4 py-2 rounded-md bg-green-600 text-white font-medium text-sm cursor-pointer">
-  Join Class
+  End Class
 </button>
 
   </div>
@@ -80,7 +80,7 @@
   <div class="flex justify-center gap-2">
     <button
       (click)="StartClass(c)"
-      [disabled]="OngoignClassDetails != null"
+      [disabled]="OngoingClassDetails != null"
       type="button"
       class="mt-2 px-4 py-1 rounded-md bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed">
       Start
@@ -95,7 +95,7 @@
 
     <button
       (click)="startspecialclass(c)"
-      [disabled]="OngoignClassDetails != null"
+      [disabled]="OngoingClassDetails != null"
       type="button"
       class="mt-2 px-4 py-1 rounded-md bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed">
       Start Special
@@ -266,15 +266,58 @@
       <!-- Approval -->
       <div class="space-y-1">
         <label class="block text-sm font-medium text-gray-700">Approval Type</label>
-        <select formControlName="approval_type"
+        <select formControlName="approval_type"  
                 class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900
                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
           <option [value]="0">Automatically Approve</option>
-          <option [value]="1">Manually Approve</option>
-          <option [value]="2">No Registration Required</option>
+          <!-- <option [value]="1">Manually Approve</option>
+          <option [value]="2">No Registration Required</option> -->
         </select>
         <span class="text-sm text-red-600" *ngIf="ErrorMsg['approval_type']">{{ ErrorMsg['approval_type'] }}</span>
       </div>
+
+
+      <div class="space-y-1">
+  <label class="block text-sm font-medium text-gray-700">
+    Enter Meeting title key*
+  </label>
+
+  <div class="flex gap-2 items-center">
+    <input
+      type="text"
+      formControlName="streamkey"
+      placeholder="e.g., Maths Class"
+      [readonly]="IskeyGenerated"
+      class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900 
+             placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500
+             focus:border-indigo-500 disabled:bg-gray-100"
+    />
+
+    <button
+      type="button"
+      (click)="generateKey()"
+      class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 cursor-pointer
+             rounded-md hover:bg-indigo-700"
+    >
+      Generate
+    </button>
+  </div>
+
+  <!-- Error Message -->
+          <span class="text-sm text-red-600" *ngIf="ErrorMsg['streamkey']">{{ ErrorMsg['streamkey'] }}</span>
+
+
+  <!-- Success Message -->
+  <span class="text-sm text-green-600" *ngIf="IskeyGenerated">
+    ✔ Copy this key
+  </span>
+</div>
+
+            
+
+
+
+
     </div>
 
   
@@ -282,7 +325,7 @@
     <div class="px-4 sm:px-6 py-3 border-t border-gray-100 flex items-center gap-3">
  <button
   type="submit"
-   (click)="docallback()" [disabled]="loading"
+   (click)="docallback()" [disabled]="loading || OngoingClassDetails"
   class="cursor-pointer px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium
          hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
          disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600">
@@ -524,6 +567,9 @@
         </select>
         <span class="text-sm text-red-600" *ngIf="ErrorMsg['approval_type']">{{ ErrorMsg['approval_type'] }}</span>
       </div>
+
+
+
     </div>
 
   

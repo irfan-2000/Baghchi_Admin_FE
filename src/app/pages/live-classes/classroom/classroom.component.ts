@@ -26,7 +26,11 @@ export class ClassroomComponent implements OnInit {
     private route: ActivatedRoute,
     private ngZone: NgZone,
     private Liveclasses: LiveClassesService
-  ) {}
+  ) {
+
+
+    
+  }
 
 
    
@@ -34,6 +38,7 @@ export class ClassroomComponent implements OnInit {
   async ngOnInit() 
   {
     // Load Zoom Client SDK dynamically
+    debugger
     if (typeof window !== 'undefined') {
       const { default: ZoomMtgEmbedded } = await import('@zoom/meetingsdk/embedded');
       this.client = ZoomMtgEmbedded.createClient();
@@ -58,7 +63,48 @@ export class ClassroomComponent implements OnInit {
     });
   }
 
-  // Trigger Zoom OAuth flow for creating a meeting
+ 
+
+      // Join meeting using Zoom Client View
+      async joinMeeting() 
+      {
+        if (!this.client) return;
+        this.islive = true;
+
+        const meetingSDKElement = document.getElementById("meetingSDKElement");
+        if (!meetingSDKElement) {
+          console.error("❌ meetingSDKElement not found in DOM");
+          return;
+        }
+
+        this.ngZone.runOutsideAngular(async () => {
+          try {
+            // 1️⃣ Initialize SDK
+            await this.client.init({
+              zoomAppRoot: meetingSDKElement,
+              language: "en-US",
+              patchJsMedia: true
+            });
+
+            // 2️⃣ Join the meeting
+            await this.client.join({
+              signature: this.meetingDetails.Signature, // Host signature
+              meetingNumber: this.MeetingId,
+              password: this.meetingDetails.MeetingPassword,
+              userName: this.meetingDetails.TeacherName,
+              zak: this.meetingDetails.ZakToken // Host ZAK token
+            });
+    
+            this.startWhiteboard();
+            console.log("✅ Successfully joined meeting!");
+          } catch (err) {
+            console.error("❌ Zoom init/join failed", err);
+          }
+        });
+      }
+
+
+   // Trigger Zoom OAuth flow for creating a meeting
   startClass(): void {
     const clientId = "YOUR_ZOOM_CLIENT_ID"; // replace with your Zoom client ID
     const redirectUri = encodeURIComponent("YOUR_REDIRECT_URI"); 
@@ -84,45 +130,6 @@ export class ClassroomComponent implements OnInit {
     const zoomAuthUrl = `https://zoom.us/oauth/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&state=${encodeURIComponent(state)}`;
     window.location.href = zoomAuthUrl;
   }
-
-  // Join meeting using Zoom Client View
-  async joinMeeting() 
-  {
-    if (!this.client) return;
-    this.islive = true;
-
-    const meetingSDKElement = document.getElementById("meetingSDKElement");
-    if (!meetingSDKElement) {
-      console.error("❌ meetingSDKElement not found in DOM");
-      return;
-    }
-
-    this.ngZone.runOutsideAngular(async () => {
-      try {
-        // 1️⃣ Initialize SDK
-        await this.client.init({
-          zoomAppRoot: meetingSDKElement,
-          language: "en-US",
-          patchJsMedia: true
-        });
-
-        // 2️⃣ Join the meeting
-        await this.client.join({
-          signature: this.meetingDetails.Signature, // Host signature
-          meetingNumber: this.MeetingId,
-          password: this.meetingDetails.MeetingPassword,
-          userName: this.meetingDetails.TeacherName,
-          zak: this.meetingDetails.ZakToken // Host ZAK token
-        });
- 
-        this.startWhiteboard();
-        console.log("✅ Successfully joined meeting!");
-      } catch (err) {
-        console.error("❌ Zoom init/join failed", err);
-      }
-    });
-  }
-  
   startWhiteboard() {
   try {
 
@@ -146,13 +153,7 @@ if(whiteboardContainer)
     console.error("❌ Whiteboard failed to start", error);
   }
 }
-
-
  
- 
-
-
-
   // Fetch meeting details from backend
   async GetMeetingDetails(meetingid: any) {
     this.Liveclasses.GetMeetingDetails(meetingid).subscribe({
@@ -164,4 +165,6 @@ if(whiteboardContainer)
       }
     });
   }
+
+
 }

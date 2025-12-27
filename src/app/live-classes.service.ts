@@ -33,17 +33,15 @@ export class LiveClassesService {
   CreateMeeting(  payload: any) 
     {
  const token = localStorage.getItem('token'); // Or wherever you store your token
-
-
   const headers = new HttpHeaders({
     'Authorization': `Bearer ${token}`
   }); 
   const unique = Math.random();  
- 
-   return this.http.post<any>(`${this.baseurl}api/zoom/CreateLiveClass?_=${unique}`,payload,{
+    return this.http.post<any>(`${this.baseurl}api/zoom/CreateLiveClass?_=${unique}`,payload,{
      headers,withCredentials:false
    });
-     }
+ 
+  }
   
 
 
@@ -150,6 +148,23 @@ GetClassHistory()
     return this.http.get<any>(`${this.baseurl}api/zoom/GetClassHistory`, {
       headers, withCredentials: false
     });
+}
+EndOngoingclass(Livesessionid: any) {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  // Send Livesessionid as query parameter
+  const params = new HttpParams().set('Livesessionid', Livesessionid);
+
+  // Pass headers & params as options, NOT in the body
+  return this.http.post<any>(
+    `${this.baseurl}api/zoom/EndOngoingclass`,
+    {},           // empty body
+    { headers, params }  // options
+  );
 }
 
 

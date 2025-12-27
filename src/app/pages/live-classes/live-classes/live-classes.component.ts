@@ -20,8 +20,8 @@ export class LiveClassesComponent implements OnInit{
   
   result:any;
   defaultTimezone = 'Asia/Kolkata';
-  Redirecturl = 'https://83ee03faa761.ngrok-free.app/api/zoom/callback';
-  Redirectbaseurl = 'https://83ee03faa761.ngrok-free.app';
+  Redirecturl = 'https://68a765f1b30d.ngrok-free.app/api/zoom/callback';
+  Redirectbaseurl = 'https://68a765f1b30d.ngrok-free.app';
 
 
   loading = false;
@@ -31,7 +31,7 @@ export class LiveClassesComponent implements OnInit{
   Batches:any;
   Coursepayload:any;
   successmsg:any;
-  OngoignClassDetails:any = [];
+  OngoingClassDetails:any = [];
   Listofstudents:any;
 
   // sensible defaults
@@ -48,6 +48,8 @@ export class LiveClassesComponent implements OnInit{
     mute_upon_entry: true,
     approval_type: 0
   }; 
+
+  IskeyGenerated:boolean = false;
   
   constructor(private fb: FormBuilder, private http: HttpClient,private Liveclasses:LiveClassesService,private router:Router,private studentService:StudentService) 
   {
@@ -70,7 +72,8 @@ export class LiveClassesComponent implements OnInit{
     batchId: ['', [Validators.required]],
     teachername:['',Validators.required],
     specialClassType:[''],
-   studentIds: [[]],        // array of student ids
+   studentIds: [[]], 
+   streamkey:['',Validators.required]       // array of student ids
 
   });
 console.log("Form initial values:", this.form.value);  // ✅ print initial form values
@@ -182,7 +185,7 @@ if(!Zoomcode)
   const state = JSON.stringify({ payload});
         this.msg = ' Creating meeting… please wait!! Do not Refresh or close'
   this.Liveclasses.CreateMeeting(payload).subscribe({
-next:(response:any) =>{
+    next:(response:any) =>{
 
    
  if(response.StatusCode == 200)
@@ -230,20 +233,21 @@ async docallback()
       return;
      }
    
-   const response = await firstValueFrom(this.Liveclasses.getOngoingClassDetails())
-      if(response?.Result?.length > 0)
-     {
-      alert("There are some classes already going please end them all before proceeding")
-      this.loading = false;
-      return;
-     }
-    const state = "no state";
+  //  const response = await firstValueFrom(this.Liveclasses.getOngoingClassDetails())
+  //     if(response?.Result?.length > 0)
+  //    {
+  //     alert("There are some classes already going please end them all before proceeding")
+  //     this.loading = false;
+  //     return;
+  //    }
+  //   const state = "no state";
 
-   const clientId = "8hXTyshVThO62dBZohgnuA"; // Zoom Client ID
-  const redirectUri = encodeURIComponent(this.Redirecturl); 
-  const responseType = "code";
-  const zoomAuthUrl = `https://zoom.us/oauth/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&state=${encodeURIComponent(state)}`;
-     window.open(zoomAuthUrl, '_blank');
+  //  const clientId = "8hXTyshVThO62dBZohgnuA"; // Zoom Client ID
+  // const redirectUri = encodeURIComponent(this.Redirecturl); 
+  // const responseType = "code";
+  // const zoomAuthUrl = `https://zoom.us/oauth/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&state=${encodeURIComponent(state)}`;
+  //    window.open(zoomAuthUrl, '_blank');
+  this.SubmitMeeting_obs();
  
 }
 
@@ -400,6 +404,18 @@ if(this.form.get('teachername')?.value == null || this.form.get('teachername')?.
       haserror =1;
   }
 
+debugger
+   if (this.form.get('streamkey')?.value ==  null ||this.form.get('streamkey')?.value ==  '' || this.form.get('streamkey')?.value === undefined) {
+    this.ErrorMsg['streamkey'] = 'Please generate the stream keys';
+      haserror =1;
+  }
+  if(!this.IskeyGenerated)
+  {
+     this.ErrorMsg['streamkey'] = 'Please generate the stream keys';
+      haserror =1;
+  }
+
+
 return haserror;
 }
 
@@ -451,10 +467,10 @@ getOngoingClassDetails()
     {
       if(response.Result)
       {
-        this.OngoignClassDetails = response.Result[0];
+        this.OngoingClassDetails = response.Result[0];
           
       }else{
-        this.OngoignClassDetails = null;
+        this.OngoingClassDetails = null;
       }
        
       
@@ -475,7 +491,7 @@ async DoActionBasedon_getOngoingClassDetails_response()
 {
   await this.getOngoingClassDetails();
 
-if(this.OngoignClassDetails > 0)
+if(this.OngoingClassDetails > 0)
 {
   return
 }
@@ -494,7 +510,7 @@ async StartClass(course:any)
       return;
      }
      
-     debugger
+      
  
 
   this.ShowClassDetailsFrom = true;
@@ -581,7 +597,7 @@ error:(error:any)=>
 
 
  
-  toggleCheckAll(event: any)
+ toggleCheckAll(event: any)
    {
     if(event.currentTarget.checked)
       {
@@ -608,6 +624,146 @@ error:(error:any)=>
  studentidcontrol.patchValue([]);
     }    
   }
+
+  JoinOngoingclass()
+  {
+
+    
+const url = this.router.serializeUrl(
+  this.router.createUrlTree(['/classroom'], {
+    queryParams: {
+      meetingid: this.OngoingClassDetails.ZoomMeetingId,
+      zoom: 'success',
+      courseId: this.OngoingClassDetails.CourseId,
+      type:'resume',
+    }
+  })
+);
+ 
+ window.open(url, '_blank');
+  }
+
+
+ 
+generateKey() 
+{
+if(this.form.get('streamkey')?.value == '' || this.form.get('streamkey')?.value == 'undefined' || this.form.get('streamkey')?.value== null)
+{
+  return;
+}
+  const randomKey = this.form.get('streamkey')?.value +'-' + Math.floor(100000 + Math.random() * 900000);
+
+  this.form.get('streamkey')?.setValue(randomKey);
+  this.IskeyGenerated = true;
+}
+
+
+async   SubmitMeeting_obs( )
+   { 
+      
+ 
+    this.ErrorMsg = []; // reset
+      this.error = null;
+      this.successmsg = '';
+    if(this.validateForm() != 0)
+     {
+      return;
+     }
+
+    //  const response = await firstValueFrom(this.Liveclasses.getOngoingClassDetails())
+    //   if(response?.Result?.length > 0)
+    //  {
+    //   alert("There are some classes already going please end them all before proceeding")
+    //   return;
+    //  }
+ 
+ 
+    // Build request body to POST (even if backend currently ignores body, this is future-proof)
+    const v = this.form.value;
+
+    // Convert local datetime to UTC ISO string required by Zoom (yyyy-MM-ddTHH:mm:ssZ)
+    const startUtcISO =
+      v.type === 2 && v.start_time_local
+        ? this.toUtcZoomISO(v.start_time_local as string, v.timezone!)
+        : undefined;
+
+const payload = {
+  topic: v.topic,
+  streamkey: v.streamkey,   // ✅ ADD THIS
+  type: v.type,
+  start_time: startUtcISO,
+  duration: v.duration && v.duration > 0 ? v.duration : 30,
+  timezone: v.timezone,
+  agenda: v.agenda,
+  host_video: v.host_video,
+  participant_video: v.participant_video,
+  join_before_host: v.join_before_host,
+  mute_upon_entry: v.mute_upon_entry,
+  approval_type: v.approval_type,
+  batchId: v.batchId,
+  CourseId: this.Coursepayload.CourseId,
+  teachername: v.teachername,
+   specialClassType: v.specialClassType ?? '',
+  studentIds: v.studentIds
+};
+
+
+this.loading = true;
+  const state = JSON.stringify({ payload});
+        this.msg = ' Creating meeting… please wait!! Do not Refresh or close'
+  this.Liveclasses.CreateMeeting(payload).subscribe
+  ({
+    next:(response:any) =>{
+ 
+    if(response.StatusCode == 200)
+    {this.msg  = ''
+      this.successmsg = "Class data has been saved you can paste the key in obs and start to stream"
+    } 
+ 
+ 
+},error:(error:any) =>{
+  console.log(error);
+  this.loading = false;
+  alert("error creating a class");
+}
+
+  })
+ 
+ 
+  }
+
+ConfirmEndOngoingclass(livesessionid:any)
+{
+  if(confirm("Are u sure you want to end class"))
+  {
+   this.EndOngoingClass(livesessionid); 
+  }else{
+    return;
+  }
+}
+
+ 
+
+EndOngoingClass(liveSessionId: any)
+ {
+  this.Liveclasses.EndOngoingclass(liveSessionId).subscribe({
+    next: (data: any) => {
+      if (data?.StatusCode === 200) {
+        // Class ended successfully
+        alert("class has been ended");
+       this.getOngoingClassDetails();
+        // You can add UI updates here, e.g., refresh list or show toast
+      } else {
+        // Handle unexpected StatusCode
+        console.warn('Failed to end live class', data);
+      }
+    },
+    error: (err) => {
+      console.error('Error ending live class', err);
+    }
+  });
+}
+
 
 
 

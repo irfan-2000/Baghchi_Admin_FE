@@ -17,6 +17,7 @@ import { NotesMediaReportsComponent } from './notes-media-reports/notes-media-re
 import { StudentDetailsComponent } from './student-details/student-details.component';
  import { ClasseshistoryComponent } from './classeshistory/classeshistory.component';
 import { ManageCoursePackagesandDetails2Component } from './manage-course-packagesand-details2/manage-course-packagesand-details2.component';
+import { ChatroomComponent } from './chatroom/chatroom.component';
   
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { ManageCoursePackagesandDetails2Component } from './manage-course-packag
     NotesMediaReportsComponent,
     StudentDetailsComponent,
      ClasseshistoryComponent,
-     ManageCoursePackagesandDetails2Component
+     ManageCoursePackagesandDetails2Component,
+     ChatroomComponent
     ],
   imports: [ HttpClientModule, FormsModule, ReactiveFormsModule, RouterModule, BrowserModule, AppRoutingModule,NgSelectModule ,CommonModule
   ],

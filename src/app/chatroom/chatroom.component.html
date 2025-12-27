@@ -1,0 +1,18 @@
+<div class="teacher-box">
+
+  <h2>Live Class – Teacher Panel</h2>
+
+  <div class="speaker-box">
+    <strong>Current Speaker:</strong>
+    <span *ngIf="currentSpeaker; else noOne">{{ currentSpeaker }}</span>
+    <ng-template #noOne>
+      <span>No one is speaking</span>
+    </ng-template>
+  </div>
+
+  <div class="status">
+    Listening to all student audio...
+  </div>
+  <button class="cursor-pointer btn btn-primary" (click)="enableAudio()">Enable Audio's</button>
+
+</div>

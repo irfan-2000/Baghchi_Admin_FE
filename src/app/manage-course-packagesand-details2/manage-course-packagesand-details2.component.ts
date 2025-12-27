@@ -35,7 +35,8 @@ batchErrorMsg:any = '';
   {
 this.loadDropdowns();
  
-this.route.queryParams.subscribe(params => {
+this.route.queryParams.subscribe(params =>
+   {
       this.CourseId  = params['CourseId'];
       
       this.IsEditMode= this.IsEditMode = params["IsEditMode"]?.toLowerCase() === "true";
@@ -46,6 +47,7 @@ this.route.queryParams.subscribe(params => {
     {
       
  this.getcoursebyid(this.CourseId);
+ this.getCoursePayments();
 
     }
 
@@ -95,7 +97,7 @@ this.paymentForm = this.fb.group({
       halfYearlyAmount: [''],
       yearlyAmount: ['']
     });
-this.getCoursePayments();
+
   }
 
   ngOnInit(): void 
@@ -693,8 +695,7 @@ course.objectives = item1.Objectives || [];
 course.highlights = item2.Highlights || [];
  
 course.teacher = item1.Teacher;   // or any new value you want
-
-
+ 
  
   this.courseInfoForm.patchValue({
     courseName: course.courseName || '',
@@ -712,7 +713,7 @@ course.teacher = item1.Teacher;   // or any new value you want
     status: course.status ?? 1,
     teacher:course.teacher
   });
-
+ 
   // --- Highlights
   this.highlights.clear();
   (course.highlights || []).forEach((h: string) => {
@@ -1026,6 +1027,15 @@ formData.append('objectives', objectivesJson);
 this.coursepackages.submitCourseInfoDetails(formData).subscribe({
   next: (response: any) => 
     {
+      if(response.Result && Number(response.Result) >0)
+        {
+          this.CourseId = response.Result;
+        this.IsEditMode = true;
+ 
+          ///home/manage-courses2?CourseId=27&IsEditMode=true
+
+          window.location.href = '/home/manage-courses?CourseId=' + this.CourseId + '&IsEditMode=true';
+      } 
        
     if (response && response.statuscode == '200') 
       {  
@@ -1159,13 +1169,13 @@ if(this.CourseId <= 0 || this.CourseId == null || this.CourseId == undefined)
  
 this.coursepackages.SaveBatchDetails(formData).subscribe({
   next: (response: any) => 
-    {
-       
+    {       
     if (response && response.statuscode == '200') 
       {  
         this.isLoading = false;
 
         alert(response.message); 
+        window.location.reload();
      }
   },
   error: (err: any) =>
@@ -1400,6 +1410,7 @@ submitFixedPayment()
         this.isLoading = false;
 
         alert(response.message); 
+        window.location.reload();
      }
   },
   error: (err: any) =>
@@ -1445,6 +1456,7 @@ const payload = {
         this.isLoading = false;
 
         alert(response.message); 
+        window.location.reload();
      }
   },
   error: (err: any) =>
@@ -1584,8 +1596,7 @@ getCoursePayments() {
   this.coursepackages.getCoursePayments(this.CourseId).subscribe({
     next: (response: any) => {
 
-      debugger;
-
+ 
       if (!response || !response.Result) {
         console.warn("No course payment data found");
         return;
