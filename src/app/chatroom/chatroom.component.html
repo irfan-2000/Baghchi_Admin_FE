@@ -1,18 +1,72 @@
-<div class="teacher-box">
-
-  <h2>Live Class – Teacher Panel</h2>
-
-  <div class="speaker-box">
-    <strong>Current Speaker:</strong>
-    <span *ngIf="currentSpeaker; else noOne">{{ currentSpeaker }}</span>
-    <ng-template #noOne>
-      <span>No one is speaking</span>
-    </ng-template>
+<div class="h-screen w-full bg-[#202124] flex flex-col font-sans text-white">
+  
+  <div class="h-16 flex items-center justify-between px-6 bg-[#202124] border-b border-gray-800">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center font-bold">L</div>
+      <h1 class="text-lg font-medium">Classroom Admin — class_2025</h1>
+    </div>
+    
+    <div class="flex gap-4">
+      <button (click)="muteAllStudents()" class="px-4 py-2 bg-red-600/20 text-red-400 border border-red-600/30 rounded-lg hover:bg-red-600/30 transition text-sm font-semibold">
+        Mute All Students
+      </button>
+      <button (click)="unmuteAllStudents()" 
+            class="px-4 py-2 bg-blue-600/20 text-blue-400 border border-blue-600/30 rounded-lg hover:bg-blue-600/30 transition text-sm font-semibold">
+      Unmute All
+    </button>
+    
+      <button (click)="toggleListening()" 
+              [ngClass]="isListening ? 'bg-green-600 text-white' : 'bg-white text-black'"
+              class="px-6 py-2 rounded-lg font-bold text-sm transition shadow-lg">
+        {{ isListening ? '● Audio is Listening' : 'Start Listening Audio' }}
+      </button>
+    </div>
   </div>
 
-  <div class="status">
-    Listening to all student audio...
-  </div>
-  <button class="cursor-pointer btn btn-primary" (click)="enableAudio()">Enable Audio's</button>
+  <div class="flex-1 flex justify-center overflow-hidden p-6">
+    <div class="w-4/5 h-full flex flex-col gap-6">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pr-2 custom-scrollbar">
+        
+        <div *ngFor="let p of participants" 
+             [ngClass]="{'border-green-500 ring-4 ring-green-500/20': p.isSpeaking}"
+             class="relative bg-[#3c4043] rounded-xl p-6 flex flex-col items-center justify-center border-2 border-transparent transition-all duration-300 shadow-xl">
+          
+          <div *ngIf="p.isSpeaking" class="absolute top-3 right-3 flex gap-1">
+            <span class="w-1 h-3 bg-green-500 animate-bounce"></span>
+            <span class="w-1 h-5 bg-green-500 animate-bounce [animation-delay:-0.2s]"></span>
+            <span class="w-1 h-3 bg-green-500 animate-bounce [animation-delay:-0.4s]"></span>
+          </div>
 
+          <div class="w-20 h-20 bg-indigo-500 rounded-full flex items-center justify-center text-3xl font-bold mb-4 uppercase">
+             {{ p.name ? p.name[0] : p.identity[0] }}
+          </div>
+
+          <h3 class="font-medium text-lg text-center truncate w-full">
+            {{ p.name || 'Anonymous Student' }}
+          </h3>
+          <p class="text-gray-400 text-xs mt-1">{{ p.identity }}</p>
+
+          <div class="mt-4 flex gap-2">
+            <button (click)="muteStudent(p)" class="p-2 bg-black/20 hover:bg-red-600/40 rounded-full transition group" title="Mute Student">
+              <span class="text-sm">🎤 Off</span>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="participants.length === 0" class="col-span-full h-64 flex flex-col items-center justify-center text-gray-500 border-2 border-dashed border-gray-700 rounded-xl">
+          <p class="text-xl">Waiting for students to join...</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="h-14 px-6 bg-[#202124] flex items-center justify-between text-sm text-gray-400">
+    <div>Total Students: {{ participants.length }}</div>
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+      Secure Live Server
+    </div>
+  </div>
 </div>
