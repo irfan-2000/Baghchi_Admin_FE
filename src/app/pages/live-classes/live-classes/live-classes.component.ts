@@ -716,8 +716,14 @@ this.loading = true;
     next:(response:any) =>{
  
     if(response.StatusCode == 200)
-    {this.msg  = ''
+    { 
+      this.msg  = ''
       this.successmsg = "Class data has been saved you can paste the key in obs and start to stream"
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+
     } 
  
  
@@ -748,7 +754,8 @@ EndOngoingClass(liveSessionId: any)
  {
   this.Liveclasses.EndOngoingclass(liveSessionId).subscribe({
     next: (data: any) => {
-      if (data?.StatusCode === 200) {
+      if (data?.statuscode == '200') 
+        {
         // Class ended successfully
         alert("class has been ended");
        this.getOngoingClassDetails();
@@ -762,6 +769,23 @@ EndOngoingClass(liveSessionId: any)
       console.error('Error ending live class', err);
     }
   });
+}
+
+OpenChatroom() 
+{
+  debugger
+  const url = this.router.serializeUrl(
+    this.router.createUrlTree(['/chat'], {
+      queryParams: {
+        courseId: this.OngoingClassDetails.CourseId,
+        Batchname: this.OngoingClassDetails.BatchId,
+        chatroom_id: this.OngoingClassDetails.Chatroom_id,
+        teacher: this.OngoingClassDetails.Teachername
+      }
+    })
+  );
+
+  window.open(url, '_blank');
 }
 
 

@@ -7,6 +7,8 @@ import {
   Track
 } from "livekit-client";
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute, Route } from '@angular/router';
+import { environment } from '../environments/environment.prod';
 
 @Component({
   selector: 'app-chatroom',
@@ -14,28 +16,46 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './chatroom.component.html',
   styleUrl: './chatroom.component.css'
 })
-export class ChatroomComponent implements OnInit, OnDestroy {
+export class ChatroomComponent implements OnInit, OnDestroy 
+{ 
+private baseurl = environment.userurl;
+
   room!: Room;
   currentSpeaker: string = '';
   chatMessages: string[] = [];
   messageInput = '';
   participants: RemoteParticipant[] = [];
   isListening: boolean = false;
+
+  CourseId:any;
+  Batchname:any;
+  Chatroom_id:any
+  Teacher:any
   
   public canPlayAudio = true; // Used to show/hide a "Resume Audio" button in HTML
 
-  constructor(private http: HttpClient, private ngZone: NgZone) {}
+  constructor(private http: HttpClient, private ngZone: NgZone,private route:ActivatedRoute) 
+  {
+      this.route.queryParams.subscribe(params => {
+        this.CourseId = params['courseId'],
+        this.Batchname = params['Batchname'],
+        this.Chatroom_id = params['chatroom_id'],
+        this.Teacher = params['teacher']
+  });
+  }
 
-  ngOnInit(): void {
+  ngOnInit(): void 
+  {
     // Run outside Angular to fix NG0506 Hydration stability error
     this.ngZone.runOutsideAngular(() => {
       this.startTeacherRoom();
     });
   }
-  async startTeacherRoom() {
+  async startTeacherRoom()
+   { 
     const response = await this.http.post<{ token: string }>(
-      'http://localhost:8080/api/guest/token',
-      { identity: 'teacher_01', room: 'class_2025' }
+     `${this.baseurl}api/guest/token`,
+      { identity: this.Teacher, room: this.Chatroom_id }
     ).toPromise();
 
     this.room = new Room({ adaptiveStream: true, dynacast: true });
@@ -80,9 +100,11 @@ this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) =>
       });
     });
 
-    await this.room.connect('ws://localhost:7880', response!.token);
+    await this.room.connect('wss://livekit.race-elearn.com', response!.token);
     console.log('✅ Admin connected');
     this.updateParticipants();
+
+
   }
 
   updateParticipants() {
@@ -153,11 +175,11 @@ this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) =>
 async muteStudentForcefully(p: any)
  {
   const body = {
-    roomName: 'class_2025',
+    roomName: this.Chatroom_id,
     identity: p.identity
   };
 
-  this.http.post('http://localhost:8080/api/guest/lock-mic', body).subscribe({
+  this.http.post( `${this.baseurl}api/guest/lock-mic`, body).subscribe({
     next: () => {
       console.log(`Successfully locked mic for ${p.identity}`);
       // The student's UI will update automatically via ParticipantMetadataChanged
@@ -170,11 +192,11 @@ async muteStudentForcefully(p: any)
 setStudentMic(participant: any, shouldAllow: boolean) {
   const endpoint = shouldAllow ? 'unlock-mic' : 'lock-mic';
   const payload = {
-    roomName: 'class_2025',
+    roomName: this.Chatroom_id,
     identity: participant.identity
   };
 
-  this.http.post(`http://localhost:8080/api/guest/${endpoint}`, payload)
+  this.http.post( `${this.baseurl}api/guest/${endpoint}` , payload)
     .subscribe({
       next: () => console.log(`Successfully ${shouldAllow ? 'unlocked' : 'locked'} mic for ${participant.identity}`),
       error: (err) => console.error("API Error:", err)

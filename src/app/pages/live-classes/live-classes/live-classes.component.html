@@ -3,20 +3,54 @@
  <h1 class="text-xl font-semibold text-slate-800 tracking-wide">
       Start Live Class
     </h1>
-  <div *ngIf="OngoingClassDetails != null"  class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded shadow flex items-center space-x-4 max-w-[40rem] w-auto mx-auto">
-  <div class="flex flex-col space-y-1">
-    <h3 class="text-sm font-semibold text-blue-800 truncate">
-      Ongoing Class: {{ OngoingClassDetails?.Topic }}
+<div *ngIf="OngoingClassDetails"
+     class="mx-auto max-w-xl w-full
+            bg-blue-50 border border-blue-200
+            rounded-xl shadow-sm
+            px-4 py-3
+            flex items-center justify-between gap-4">
+
+  <!-- LEFT CONTENT -->
+  <div class="min-w-0">
+    <h3 class="text-sm font-semibold text-blue-900 truncate">
+      📘 Ongoing Class: {{ OngoingClassDetails?.Topic }}
     </h3>
-    <p class="text-xs text-blue-700 truncate">
-      Teacher: {{ OngoingClassDetails?.Teachername }} | Batch: {{ OngoingClassDetails?.Batchname }} of class {{ OngoingClassDetails?.Classname }} and stream key {{OngoingClassDetails?.Streamkey}}
+
+    <p class="mt-1 text-xs text-blue-700 truncate">
+      👨‍🏫 {{ OngoingClassDetails?.Teachername }}
+      • {{ OngoingClassDetails?.Batchname }}
+      • {{ OngoingClassDetails?.Classname }}
+    </p>
+
+    <p class="mt-0.5 text-[11px] text-blue-600 truncate">
+      🔑 Stream Key: {{ OngoingClassDetails?.Streamkey }}
     </p>
   </div>
-  <div class="ml-21">  
-   <button  (click)="ConfirmEndOngoingclass(OngoingClassDetails?.LiveSessionId)"
-  class="px-4 py-2 rounded-md bg-green-600 text-white font-medium text-sm cursor-pointer">
-  End Class
-</button>
+
+  <!-- RIGHT ACTIONS -->
+  <div class="flex items-center gap-2 shrink-0">
+    
+    <!-- CHAT -->
+    <button
+      (click)="OpenChatroom()"
+      class="px-3 py-1.5
+             rounded-md
+             bg-indigo-600 hover:bg-indigo-700
+             text-white text-xs font-medium
+             transition">
+      💬 Chat
+    </button>
+
+    <!-- END CLASS -->
+    <button
+      (click)="ConfirmEndOngoingclass(OngoingClassDetails?.LiveSessionId)"
+      class="px-3 py-1.5
+             rounded-md
+             bg-red-600 hover:bg-red-700
+             text-white text-xs font-medium
+             transition">
+      ⛔ End
+    </button>
 
   </div>
 </div>
