@@ -61,4 +61,22 @@ SubmitStudentDetails(formData:any)
 
 
 
+
+
+  SubmitAdminFeedback(payload:any)
+  {
+ const token = localStorage.getItem('token'); 
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+let feedback= payload.feedback;
+ 
+return this.http.post( `${this.baseurl}api/SubmitAdminFeedback?_=${unique}`, `"${feedback}"`, {
+  headers: { 'Content-Type': 'application/json' }
+});
+
+  }
+
 }

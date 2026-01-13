@@ -445,7 +445,7 @@ Add New Course  </button>
 
 
 
- <div class="p-4 border rounded-md shadow-sm space-y-6" [formGroup]="paymentForm">
+ <div class="p-4 border rounded-md shadow-sm space-y-6 mt-3" [formGroup]="paymentForm">
 
   <!-- ERROR MESSAGE -->
   <div *ngIf="paymentErrorMsg" class="p-3 bg-red-100 text-red-700 rounded">
@@ -458,8 +458,8 @@ Add New Course  </button>
     <span>Note:Do not Update/Change Payment Type Fixed to subscriptionor vice versa if some students are already enrolled in that course.So choose the plan carfully</span>
     <div class="flex gap-6">
       <label class="flex items-center gap-2">
-        <input type="radio" formControlName="paymentType" value="fixed">
-        Fixed Payment
+        <input type="radio" formControlName="paymentType" value="fixed" class="hidden"/>
+        <!-- Fixed Payment -->
       </label>
 
       <label class="flex items-center gap-2">

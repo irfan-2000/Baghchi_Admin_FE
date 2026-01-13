@@ -18,6 +18,7 @@ import { StudentDetailsComponent } from './student-details/student-details.compo
  import { ClasseshistoryComponent } from './classeshistory/classeshistory.component';
 import { ManageCoursePackagesandDetails2Component } from './manage-course-packagesand-details2/manage-course-packagesand-details2.component';
 import { ChatroomComponent } from './chatroom/chatroom.component';
+import { AdminFeedBackandessentialsComponent } from './admin-feed-backandessentials/admin-feed-backandessentials.component';
   
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { ChatroomComponent } from './chatroom/chatroom.component';
     StudentDetailsComponent,
      ClasseshistoryComponent,
      ManageCoursePackagesandDetails2Component,
-     ChatroomComponent
+     ChatroomComponent,
+     AdminFeedBackandessentialsComponent
     ],
   imports: [ HttpClientModule, FormsModule, ReactiveFormsModule, RouterModule, BrowserModule, AppRoutingModule,NgSelectModule ,CommonModule
   ],

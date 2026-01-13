@@ -11,6 +11,7 @@ import { StudentDetailsComponent } from './student-details/student-details.compo
 import { ClasseshistoryComponent } from './classeshistory/classeshistory.component';
 import { ManageCoursePackagesandDetails2Component } from './manage-course-packagesand-details2/manage-course-packagesand-details2.component';
 import { ChatroomComponent } from './chatroom/chatroom.component';
+import { AdminFeedBackandessentialsComponent } from './admin-feed-backandessentials/admin-feed-backandessentials.component';
  
 const routes: Routes = [
 
@@ -34,6 +35,7 @@ const routes: Routes = [
       {path:'notes-media', component: NotesMediaReportsComponent},
       {path:'student-details', component: StudentDetailsComponent},
       {path:'class-history', component: ClasseshistoryComponent},
+      {path:'Admin-Feedback',component:AdminFeedBackandessentialsComponent}
      // {path:'manage-courses2',component:ManageCoursePackagesandDetails2Component} 
     ]
  }

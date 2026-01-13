@@ -29,7 +29,9 @@ menuItems = [
 
   { label: 'Class History', icon: 'fas fa-chalkboard-teacher', route: '/home/class-history' },
 
-  { label: 'Discounts', icon: 'fas fa-tags', route: '/home/discounts' }
+  { label: 'Discounts', icon: 'fas fa-tags', route: '/home/discounts' },
+
+  { label: 'Admin Feedback', icon: 'fas fa-comment-dots', route: '/home/Admin-Feedback' }
 ];
 
 

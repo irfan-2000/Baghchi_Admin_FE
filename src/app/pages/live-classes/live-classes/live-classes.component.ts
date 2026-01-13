@@ -557,7 +557,7 @@ ShowspecialClassDetailsFrom :any =false;
 
 async startspecialclass(course:any)
 {
-  this.ShowspecialClassDetailsFrom  = true;
+   this.ShowspecialClassDetailsFrom  = true;
   this.ShowClassDetailsFrom = false;
    const response = await firstValueFrom(this.Liveclasses.getOngoingClassDetails())
       if(response?.Result?.length > 0)
