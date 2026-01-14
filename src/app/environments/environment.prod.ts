@@ -3,8 +3,7 @@ export const environment = {
 
     // baseUrl: 'https://localhost:7203/'
 // baseUrl: 'https://admin.api.race-elearn.com:444/'
-baseUrl: 'https://localhost:7091/',
-   userurl:'http://localhost:8080/'
-
+   baseUrl: 'http://admin.api.drbagchisclasses.com/',
+    userurl:'https://api.drbagchisclasses.com/'
    // baseUrl:'https://api.race-elearn.com/'
   };
