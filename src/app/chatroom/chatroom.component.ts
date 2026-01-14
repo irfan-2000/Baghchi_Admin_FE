@@ -57,7 +57,9 @@ private baseurl = environment.userurl;
      `${this.baseurl}api/guest/token`,
       { identity: this.Teacher, room: this.Chatroom_id }
     ).toPromise();
-
+ 
+    debugger
+ 
     this.room = new Room({ adaptiveStream: true, dynacast: true });
 
     this.room.on(RoomEvent.ParticipantConnected, p => {
@@ -99,6 +101,7 @@ this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) =>
         );
       });
     });
+    localStorage.setItem('livekit_token', response!.token);
 
     await this.room.connect('wss://livekit.race-elearn.com', response!.token);
     console.log('✅ Admin connected');
@@ -138,8 +141,7 @@ this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) =>
     }
   }
 
-  // 🔴 MUTE ONE STUDENT
-  async muteStudent(p: RemoteParticipant) 
+   async muteStudent(p: RemoteParticipant) 
   {
     console.log('🔇 Muting:', p.identity);
 
@@ -189,7 +191,8 @@ async muteStudentForcefully(p: any)
 }
 
 
-setStudentMic(participant: any, shouldAllow: boolean) {
+setStudentMic(participant: any, shouldAllow: boolean)
+ {
   const endpoint = shouldAllow ? 'unlock-mic' : 'lock-mic';
   const payload = {
     roomName: this.Chatroom_id,
@@ -220,8 +223,11 @@ muteAllStudents() {
 /**
  * Unmute All Students - Restores publishing permissions for everyone
  */
+
 unmuteAllStudents() {
-  if (confirm("Allow everyone to speak? (This will unlock their microphones)")) {
+  if (confirm("Allow everyone to speak? (This will unlock their microphones)"))
+     {
+      debugger
     this.participants.forEach(p => {
       // Check if they are currently locked (canPublish is false)
       if (p.permissions && !p.permissions.canPublish) {
