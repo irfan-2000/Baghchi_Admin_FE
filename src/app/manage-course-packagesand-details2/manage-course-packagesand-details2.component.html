@@ -550,50 +550,84 @@ Add New Course  </button>
   <!-- ============================================= -->
   <!-- 3️⃣ SUBSCRIPTION PAYMENT UI -->
   <!-- ============================================= -->
-  <div *ngIf="paymentForm.get('paymentType')?.value === 'subscription'"
-       class="p-4 border rounded bg-gray-50 space-y-4">
+ <div *ngIf="paymentForm.get('paymentType')?.value === 'subscription'"
+     class="mt-6 p-6 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
 
-    <h4 class="font-semibold">Subscription Pricing</h4>
+  <!-- Header -->
+  <h4 class="text-lg font-semibold text-gray-800 mb-6">
+    Subscription Pricing
+  </h4>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- Pricing Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-      <div>
-        <label class="font-medium">Monthly</label>
-        <input type="number" formControlName="monthlyAmount"
-               placeholder="Monthly price"
-               class="px-3 py-2 border rounded w-2/3">
-      </div>
-
-      <div>
-        <label class="font-medium">Quarterly</label>
-        <input type="number" formControlName="quarterlyAmount"
-               placeholder="Quarterly price"
-               class="px-3 py-2 border rounded w-2/3">
-      </div>
-
-      <div>
-        <label class="font-medium">Half-Yearly</label>
-        <input type="number" formControlName="halfYearlyAmount"
-               placeholder="Half-Yearly price"
-               class="px-3 py-2 border rounded w-2/3">
-      </div>
-
-      <div>
-        <label class="font-medium">Yearly</label>
-        <input type="number" formControlName="yearlyAmount"
-               placeholder="Yearly price"
-               class="px-3 py-2 border rounded w-2/3">
-      </div>
-
+    <!-- Monthly -->
+    <div class="flex flex-col space-y-2">
+      <label class="text-sm font-medium text-gray-700">
+        Monthly
+      </label>
+      <input
+        type="number"
+        formControlName="monthlyAmount"
+        placeholder="₹ Monthly price"
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+      />
     </div>
 
-    <button type="button"
-            (click)="submitSubscriptionPayment()"
-            class="px-5 py-2 bg-green-600 text-white rounded">
-      Save Subscription Payment
-    </button>
+    <!-- Quarterly -->
+    <div class="flex flex-col space-y-2">
+      <label class="text-sm font-medium text-gray-700">
+        Quarterly
+      </label>
+      <input
+        type="number"
+        formControlName="quarterlyAmount"
+        placeholder="₹ Quarterly price"
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+      />
+    </div>
+
+    <!-- Half-Yearly -->
+    <div class="flex flex-col space-y-2">
+      <label class="text-sm font-medium text-gray-700">
+        Half-Yearly
+      </label>
+      <input
+        type="number"
+        formControlName="halfYearlyAmount"
+        placeholder="₹ Half-yearly price"
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+      />
+    </div>
+
+    <!-- Yearly -->
+    <div class="flex flex-col space-y-2">
+      <label class="text-sm font-medium text-gray-700">
+        Yearly
+      </label>
+      <input
+        type="number"
+        formControlName="yearlyAmount"
+        placeholder="₹ Yearly price"
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+      />
+    </div>
 
   </div>
+
+  <!-- Action Button -->
+  <div class="mt-8 flex justify-end">
+    <button
+      type="button"
+      (click)="submitSubscriptionPayment()"
+      class="px-6 py-2.5 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 transition-all duration-200"
+    >
+      Save Subscription Payment
+    </button>
+  </div>
+
+</div>
+
 
 </div>
 
