@@ -12,12 +12,15 @@ import { ClasseshistoryComponent } from './classeshistory/classeshistory.compone
 import { ManageCoursePackagesandDetails2Component } from './manage-course-packagesand-details2/manage-course-packagesand-details2.component';
 import { ChatroomComponent } from './chatroom/chatroom.component';
 import { AdminFeedBackandessentialsComponent } from './admin-feed-backandessentials/admin-feed-backandessentials.component';
+import { AdminLiveClassWebrtcComponent } from './admin-live-class-webrtc/admin-live-class-webrtc.component';
  
 const routes: Routes = [
 
     { path: 'login', component: AdminLayoutComponent },
     {path: 'classroom',component: ClassroomComponent},
      {path: 'chat',component: ChatroomComponent},
+           {path:'webrtc',component:AdminLiveClassWebrtcComponent},
+
     
    {
    path: 'home',
