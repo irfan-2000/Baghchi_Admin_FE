@@ -1,7 +1,7 @@
 <!-- ROOT CONTAINER -->
-<div class="relative h-screen w-screen bg-slate-900 flex overflow-hidden font-sans">
+<div class="relative h-screen w-screen bg-slate-900 font-sans overflow-hidden">
 
-  <!-- ADMIN JOIN OVERLAY -->
+  <!-- ================= ADMIN JOIN OVERLAY ================= -->
   <div
     *ngIf="!hasAdminJoined"
     class="absolute inset-0 z-50 flex items-center justify-center
@@ -12,226 +12,212 @@
       class="px-10 py-4 bg-indigo-600 text-white text-lg
              font-semibold rounded-full shadow-xl
              hover:bg-indigo-700 transition">
-      Start  Live Class
+      Start Live Class
     </button>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <div class="flex w-full h-full">
+  <!-- ================= MAIN LAYOUT ================= -->
+  <!-- bottom padding added so footer never overlaps -->
+  <div class="flex h-full w-full pb-24">
 
-    <!-- LEFT: Teaching Area (75%) -->
-    <div class="w-3/4 flex items-center justify-center p-4 relative">
+    <!-- ================= LEFT : LIVE BOARD ================= -->
+    <div class="w-3/4 relative flex items-center justify-center p-4">
 
-      <!-- Screen / Board Preview -->
       <div
-        class="w-full h-full bg-black rounded-2xl shadow-2xl
-               overflow-hidden flex items-center justify-center">
+        class="w-full h-full bg-black rounded-2xl
+               shadow-2xl overflow-hidden flex items-center justify-center">
 
         <video
           #screenPreview
           autoplay
-          playsinline
           muted
+          playsinline
           class="w-full h-full object-contain rounded-2xl">
         </video>
       </div>
 
-      <!-- Live Label -->
+      <!-- LIVE LABEL -->
       <div
-        class="absolute top-4 left-4 bg-black/60 text-white
-               text-sm px-3 py-1 rounded-full">
-        Live Board
+        class="absolute top-4 left-4 bg-red-600/90
+               text-white text-sm px-3 py-1
+               rounded-full shadow">
+        🔴 Live Board
+      </div>
+
+      <!-- CURRENT SPEAKER -->
+      <div
+        *ngIf="currentSpeaker"
+        class="absolute top-4 right-4 z-40
+               bg-black/70 text-white
+               px-4 py-2 rounded-full
+               text-sm shadow-lg">
+        🗣️ Speaking: {{ currentSpeaker }}
       </div>
     </div>
 
-    <!-- RIGHT: Side Panel (25%) -->
-    <div class="w-1/4 bg-slate-800 border-l border-slate-700 flex flex-col">
+    <!-- ================= RIGHT : STUDENT + CHAT PANEL ================= -->
+    <!-- RIGHT PANEL -->
+<div class="w-1/4 bg-slate-800 border-l border-slate-700 flex flex-col">
 
-      <!-- Students Header -->
-      <div class="p-4 border-b border-slate-700 text-white font-semibold">
-        Students Joined
-      </div>
+  <!-- ================= TABS HEADER ================= -->
+  <div class="flex border-b border-slate-700">
+    <button
+      (click)="activeTab = 'students'"
+      class="flex-1 py-3 text-sm font-semibold transition"
+      [class.bg-slate-900]="activeTab === 'students'"
+      [class.text-indigo-400]="activeTab === 'students'"
+      [class.text-slate-300]="activeTab !== 'students'">
+      👥 Students
+    </button>
 
-      <!-- Students List -->
-      <div class="flex-1 overflow-y-auto p-3 space-y-2 text-sm text-slate-200">
-        <div
-          class="flex items-center justify-between
-                 bg-slate-700/50 px-3 py-2 rounded-lg">
-          <span>Rahul</span>
-          <span class="text-green-400">🎙️</span>
-        </div>
-      </div>
-
-      <!-- Chat Section -->
-      <div class="border-t border-slate-700 p-3">
-        <div class="text-white text-sm mb-2 font-semibold">Chat</div>
-
-        <div
-          class="h-32 overflow-y-auto bg-slate-900
-                 rounded-lg p-2 text-xs text-slate-200 space-y-1">
-          <div>
-            <span class="text-indigo-400">Ayesha:</span> Sir please repeat
-          </div>
-          <div>
-            <span class="text-green-400">You:</span> Yes
-          </div>
-        </div>
-
-        <input
-          type="text"
-          placeholder="Type a message..."
-          class="mt-2 w-full bg-slate-700 text-white
-                 text-sm px-3 py-2 rounded-lg outline-none
-                 focus:ring-2 focus:ring-indigo-500" />
-      </div>
-    </div>
+    <button
+      (click)="activeTab = 'chat'"
+      class="flex-1 py-3 text-sm font-semibold transition"
+      [class.bg-slate-900]="activeTab === 'chat'"
+      [class.text-indigo-400]="activeTab === 'chat'"
+      [class.text-slate-300]="activeTab !== 'chat'">
+      💬 Chat
+    </button>
   </div>
 
-  <!-- CURRENT SPEAKER INDICATOR -->
+  <!-- ================= STUDENTS TAB ================= -->
   <div
-    *ngIf="currentSpeaker"
-    class="absolute top-4 right-4 z-40 bg-black/70
-           text-white px-4 py-2 rounded-full
-           shadow-lg text-sm">
-    🗣️ Speaking: {{ currentSpeaker }}
+    *ngIf="activeTab === 'students'"
+    class="flex-1 overflow-y-auto p-3 space-y-2">
+
+    <div
+      *ngFor="let s of students_data"
+      class="flex items-center justify-between
+             bg-slate-700/60 px-3 py-2 rounded-lg">
+
+      <!-- NAME + STATUS -->
+      <div>
+        <div class="text-sm font-medium text-white">
+          {{ s.name }}
+        </div>
+
+        <div
+          class="text-xs"
+          [class.text-green-400]="s.status === 'on'"
+          [class.text-slate-400]="s.status === 'off'"
+          [class.text-red-400]="s.status === 'locked'">
+
+          {{
+            s.status === 'on'
+              ? 'Mic ON'
+              : s.status === 'off'
+                ? 'Mic OFF'
+                : 'Muted by Admin'
+          }}
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="flex gap-1">
+        <button
+          *ngIf="s.status !== 'locked'"
+          class="px-2 py-1 text-xs rounded bg-red-600">
+          Mute
+        </button>
+
+        <button
+          *ngIf="s.status === 'locked'"
+          class="px-2 py-1 text-xs rounded bg-green-600">
+          Unmute
+        </button>
+
+        <button
+          class="px-2 py-1 text-xs rounded bg-slate-600">
+          Kick
+        </button>
+      </div>
+    </div>
+
+    <!-- ADMIN CONTROLS -->
+    <div class="pt-3 border-t border-slate-700 flex gap-2">
+      <button class="flex-1 py-2 text-sm rounded bg-red-700" (click)="muteAllStudents()">
+        Mute All
+      </button>
+      <button class="flex-1 py-2 text-sm rounded bg-green-700" (click)="unmuteAllStudents()">
+        Unmute All
+      </button>
+    </div>
   </div>
 
-  <!-- ADMIN AUDIO -->
-  <audio #adminAudio autoplay></audio>
+  <!-- ================= CHAT TAB ================= -->
+<div
+  *ngIf="activeTab === 'chat'"
+  class="flex flex-col flex-1 min-h-0">
 
-  <!-- BOTTOM CONTROL BAR -->
+    <!-- CHAT MESSAGES -->
+    <div (scroll)="onChatScroll()"
+      #chatContainer
+      class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-900">
+
+      <div *ngFor="let msg of messages">
+        <div class="text-xs text-slate-400">
+          {{ msg.user }} • {{ msg.time }}
+        </div>
+        <div class="text-sm text-white">
+          {{ msg.text }}
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT INPUT -->
+    <div class="p-3 border-t border-slate-700">
+      <input
+        type="text"
+        [(ngModel)]="chatInput"
+        (keydown.enter)="sendMessage()"
+        placeholder="Type a message and press Enter"
+        class="w-full bg-slate-700 text-white
+               text-sm px-3 py-2 rounded-lg
+               outline-none focus:ring-2
+               focus:ring-indigo-500">
+    </div>
+  </div>
+
+</div>
+
+    
+  </div>
+
+  <!-- ================= BOTTOM CONTROL BAR ================= -->
   <div
     class="absolute bottom-0 left-0 w-full z-40
            bg-slate-800 border-t border-slate-700
            flex items-center justify-center gap-4 p-4">
 
     <button
-      (click)="toggleScreenShare()"
-      [disabled]="!isConnected"
-      class="px-6 py-2 rounded-full font-semibold transition
-             bg-indigo-600 hover:bg-indigo-700 text-white
-             disabled:opacity-50 disabled:cursor-not-allowed">
-      {{ isScreenSharing ? 'Stop Share' : 'Share Screen' }}
+      class="px-6 py-2 rounded-full font-semibold
+             bg-indigo-600 hover:bg-indigo-700
+             text-white transition">
+      Share Screen
     </button>
 
-    <button
-      class="px-4 py-2 rounded-full bg-slate-700
-             text-white hover:bg-slate-600">
-      🎙️ Mic
-    </button>
+   <button
+  (click)="toggleAdminMic()"
+  class="px-6 py-2 rounded-full font-semibold text-white
+         shadow-lg transition bg-indigo-600 hover:bg-indigo-700">
+  {{ isMicOn ? '🎙️ Mic ON' : '🔇 Mic OFF' }}
+</button>
+
 
     <button
-      class="px-4 py-2 rounded-full bg-slate-700
-             text-white hover:bg-slate-600">
+      class="px-4 py-2 rounded-full
+             bg-slate-700 text-white hover:bg-slate-600">
       🎥 Camera
     </button>
 
     <button
-      class="px-4 py-2 rounded-full bg-red-600
-             text-white hover:bg-red-700">
+      class="px-4 py-2 rounded-full
+             bg-red-600 text-white hover:bg-red-700">
       End Class
     </button>
   </div>
 
- <!-- RIGHT SIDE PANEL -->
-<div class="w-80 h-full bg-slate-900 text-white flex flex-col">
-
-  <!-- HEADER -->
-  <div class="px-4 py-3 border-b border-slate-700">
-    <h3 class="text-lg font-semibold">Students</h3>
-  </div>
-
-  <!-- STUDENT LIST -->
-  <div class="flex-1 overflow-y-auto px-3 py-2 space-y-2">
-
-    <div
-      *ngFor="let s of students"
-      class="flex items-center justify-between
-             bg-slate-800 rounded-lg px-3 py-2
-             hover:bg-slate-700 transition">
-
-      <!-- LEFT: NAME + STATUS -->
-      <div>
-        <div class="font-medium text-sm">
-          {{ s.identity }}
-        </div>
-
-        <div
-          class="text-xs mt-0.5"
-          [class.text-green-400]="s.micOn && !s.isLocked"
-          [class.text-red-400]="s.isLocked"
-          [class.text-slate-400]="!s.micOn && !s.isLocked">
-
-          {{ s.isLocked
-              ? 'Muted by Admin'
-              : s.micOn
-                ? 'Mic ON'
-                : 'Mic OFF' }}
-        </div>
-      </div>
-
-      <!-- RIGHT: ACTIONS -->
-      <div class="flex items-center gap-2">
-
-        <!-- MUTE -->
-        <button
-          *ngIf="!s.isLocked"
-          (click)="lockMic(s.identity)"
-          class="px-2 py-1 text-xs rounded
-                 bg-red-600 hover:bg-red-700 transition">
-          Mute
-        </button>
-
-        <!-- UNMUTE -->
-        <button
-          *ngIf="s.isLocked"
-          (click)="unlockMic(s.identity)"
-          class="px-2 py-1 text-xs rounded
-                 bg-green-600 hover:bg-green-700 transition">
-          Unmute
-        </button>
-
-        <!-- KICK -->
-        <button
-          (click)="kickStudent(s.identity)"
-          class="px-2 py-1 text-xs rounded
-                 bg-slate-600 hover:bg-slate-500 transition">
-          Ki ck
-        </button>
-
-        <button
-      (click)="muteAllStudents()"
-      class="flex-1 py-2 text-sm rounded
-             bg-red-700 hover:bg-red-800 transition">
-      Mute All
-    </button>
-
-    <button
-      (click)="unmuteAllStudents()"
-      class="flex-1 py-2 text-sm rounded
-             bg-green-700 hover:bg-green-800 transition">
-      Unmute All
-    </button>
-
-      </div>
-    </div>
-
-    <!-- EMPTY STATE -->
-    <div
-      *ngIf="students.length === 0"
-      class="text-center text-slate-400 text-sm mt-6">
-      No students joined yet
-    </div>
-
-  </div>
-
-  <!-- FOOTER (OPTIONAL GLOBAL CONTROLS) -->
-  <div class="p-3 border-t border-slate-700 flex gap-2">
-    
-  </div>
-
-</div>
-
-
+  <!-- ADMIN AUDIO -->
+  <audio #adminAudio autoplay></audio>
 
 </div>

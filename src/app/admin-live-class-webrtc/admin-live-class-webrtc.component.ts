@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { Room, LocalTrack, LocalVideoTrack, Track, RemoteParticipant, RoomEvent, Participant } from 'livekit-client';
+import { Room,createLocalAudioTrack, LocalVideoTrack, Track, RemoteParticipant, RoomEvent, Participant, LocalAudioTrack } from 'livekit-client';
 import { environment } from '../environments/environment.prod';
 
 @Component({
@@ -30,6 +30,10 @@ private audioElements = new Map<string, HTMLAudioElement>();
   /* -------------------------------
      STEP 2.1 – CONNECT AS TEACHER
   --------------------------------*/
+  adminIdentity = 'teacher_1'; // 🔑 SINGLE SOURCE OF TRUTH
+roomName = 'class_123';
+
+
 async ngOnInit()
  {
   try {
@@ -42,8 +46,8 @@ async ngOnInit()
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          room: 'class_123',   // dynamic
-          identity: 'teacher_1', role: 'teacher'
+          room: this.roomName,   // dynamic
+          identity: this.adminIdentity, role: 'teacher'
         })
       }
     );
@@ -53,6 +57,7 @@ this.data = data;
     // 2️⃣ Backend response MUST contain these
     //const livekitUrl = data.url;     // e.g. wss://livekit.race-elearn.com
     const token = data.token;        // JWT
+  this.startApiSimulation();
 
  
   } catch (err) {
@@ -293,7 +298,7 @@ async joinAsAdmin() {
 
   // MUST be inside click
   await this.connectAsTeacher(this.livekitUrl, this.data.token);
-  await this.publishTeacherMic();
+  //await this.publishTeacherMic();
 
   // 🔥 Unlock browser audio
   this.room.startAudio();
@@ -395,7 +400,12 @@ private setMicStatus(identity: string, micOn: boolean) {
     console.log('   ↳ isLocal:', participant.isLocal);
     console.log('   ↳ tracks:', participant.trackPublications);
 
-    this.addStudent(participant.identity);
+    if (participant.identity !== this.adminIdentity) {
+  this.addStudent(participant.identity);
+}
+
+
+
   });
 
   // 2️⃣ LISTEN FOR NEW STUDENTS
@@ -408,8 +418,11 @@ private setMicStatus(identity: string, micOn: boolean) {
       console.log('   ↳ identity:', participant.identity);
       console.log('   ↳ isLocal:', participant.isLocal);
 
-      this.addStudent(participant.identity);
-    }
+if (participant.identity !== this.adminIdentity) {
+  this.addStudent(participant.identity);
+}
+
+}
   );
 
   // 3️⃣ LISTEN FOR STUDENT LEAVING
@@ -487,49 +500,66 @@ private setLockStatus(identity: string, locked: boolean) {
       student.micOn = false;
     }
   }
-} 
+}  
 
-
+// Mute all students (except admin)
 muteAllStudents() {
-  console.log('🔇 Muting all students');
+  console.log('🔇 Sending MUTE ALL request to backend');
 
-  this.students.forEach(s => {
-    if (!s.isLocked) {
-      fetch(`${this.userurl}api/guest/lock-mic`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomName: 'class_123',
-          identity: s.identity
-        })
-      }).then(() => {
-        // Optimistic UI update
+  fetch(`${this.userurl}api/guest/mute-all`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      roomName: this.roomName,
+      adminIdentity: this.adminIdentity
+    })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error('Mute all failed');
+    return res.text();
+  })
+  .then(() => {
+    console.log('✅ All students muted');
+
+    // Update UI optimistically
+    this.students.forEach(s => {
+      if (s.identity !== this.adminIdentity) {
         s.isLocked = true;
         s.micOn = false;
-      });
-    }
-  });
+      }
+    });
+  })
+  .catch(err => console.error('❌ Error muting all:', err));
 }
 
+// Unmute all students (except admin)
 unmuteAllStudents() {
-  console.log('🔊 Unmuting all students');
+  console.log('🔊 Sending UNMUTE ALL request to backend');
 
-  this.students.forEach(s => {
-    if (s.isLocked) {
-      fetch(`${this.userurl}api/guest/unlock-mic`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomName: 'class_123',
-          identity: s.identity
-        })
-      }).then(() => {
-        // Optimistic UI update
+  fetch(`${this.userurl}api/guest/unmute-all`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      roomName: this.roomName,
+      adminIdentity: this.adminIdentity
+    })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error('Unmute all failed');
+    return res.text();
+  })
+  .then(() => {
+    console.log('✅ All students unmuted');
+
+    // Update UI optimistically
+    this.students.forEach(s => {
+      if (s.identity !== this.adminIdentity) {
         s.isLocked = false;
-        // micOn will turn true only when student actually publishes audio
-      });
-    }
-  });
+        // micOn will update automatically when student publishes audio
+      }
+    });
+  })
+  .catch(err => console.error('❌ Error unmuting all:', err));
 }
 
 
@@ -558,6 +588,193 @@ kickStudent(identity: string) {
   });
 }
 
+
+
+  activeTab: 'students' | 'chat' = 'students';
+
+  // HARD-CODED STUDENTS
+  students_data= [
+    { name: 'Rahul', status: 'on' },
+    { name: 'Ayesha', status: 'off' },
+    { name: 'Rohan', status: 'locked' }
+  ];
+ messages: {
+    user: string;
+    text: string;
+    time: string;
+  }[] = [
+    {
+      user: 'Ayesha',
+      text: 'Sir please repeat',
+      time: this.getTime()
+    }
+  ];
+
+  chatInput = '';
+
+  @ViewChild('chatContainer')
+  chatContainer!: ElementRef;
+sendMessage() {
+  if (!this.chatInput.trim()) return;
+
+  this.messages.push({
+    user: 'You',
+    text: this.chatInput,
+    time: this.getTime()
+  });
+
+  this.chatInput = '';
+
+  setTimeout(() => {
+    if (this.isUserAtBottom) {
+      this.scrollToBottom();
+    }
+  });
+}
+
+
+onChatScroll() {
+  const el = this.chatContainer.nativeElement;
+
+  const scrollTop = el.scrollTop;
+  const clientHeight = el.clientHeight;
+  const scrollHeight = el.scrollHeight;
+
+  const threshold = 20;
+
+  const atBottom =
+    scrollTop + clientHeight >= scrollHeight - threshold;
+
+  console.log('CHAT SCROLL DEBUG');
+  console.log('scrollTop      :', scrollTop);
+  console.log('clientHeight  :', clientHeight);
+  console.log('scrollHeight  :', scrollHeight);
+  console.log('sum (top+view):', scrollTop + clientHeight);
+  console.log('bottom target :', scrollHeight - threshold);
+  console.log('isUserAtBottom:', atBottom);
+  console.log('-----------------------------');
+
+  this.isUserAtBottom = atBottom;
+}
+
+isUserAtBottom = true;
+
+ 
+
+  private scrollToBottom() {
+    if (!this.chatContainer) return;
+
+    const el = this.chatContainer.nativeElement;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  private getTime(): string {
+    return new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+private apiSimulationStarted = false;
+private apiIntervalId: any;
+startApiSimulation() {
+  if (this.apiSimulationStarted) return; // 🔒 run once
+
+  this.apiSimulationStarted = true;
+
+  this.apiIntervalId = setInterval(() => {
+    this.receiveApiMessage();
+  }, 3000); // 10 seconds
+}
+receiveApiMessage() {
+  const randomTexts = [
+    'Please repeat this topic',
+    'Audio is not clear',
+    'Can you share notes?',
+    'Yes, understood',
+    'Thank you sir',
+    '👍',
+    'Can you slow down?',
+    'Network issue here'
+  ];
+
+  const randomUsers = ['Rahul', 'Ayesha', 'Rohan', 'Neha'];
+
+  const message = {
+    user: randomUsers[Math.floor(Math.random() * randomUsers.length)],
+    text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+    time: this.getTime()
+  };
+
+  this.messages.push(message);
+
+  // Auto-scroll ONLY if user is at bottom
+  setTimeout(() => {
+    if (this.isUserAtBottom) {
+      console.log("user at bottom");
+      this.scrollToBottom();
+    } else {
+      this.unreadCount++;
+    }
+  });
+}
+
+unreadCount = 0;
+ngOnDestroy() {
+  if (this.apiIntervalId) {
+    clearInterval(this.apiIntervalId);
+  }
+}
+
+
+/**
+ * 🔊 Admin mic toggle
+ * Teacher can always turn mic ON/OFF
+ */
+ 
+// -------------------- LiveKit --------------------
+localAudioTrack: LocalAudioTrack | null = null;
+isMicOn = false; // mic OFF by default
+
+  
+ async toggleAdminMic() {
+
+  if (!this.room || !this.isConnected) {
+    console.warn('⏳ LiveKit not connected yet');
+    return;
+  }
+
+  const localParticipant = this.room.localParticipant;
+
+  // 🔇 TURN MIC OFF
+  if (this.isMicOn && this.localAudioTrack) 
+    {
+    await localParticipant.unpublishTrack(this.localAudioTrack);
+    this.localAudioTrack.stop();
+    this.localAudioTrack = null;
+    this.isMicOn = false;
+    console.log('🔇 Admin mic OFF');
+    return;
+  }
+
+  // 🎙️ TURN MIC ON
+  try {
+    const track = await createLocalAudioTrack({
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true
+    });
+
+    await localParticipant.publishTrack(track);
+
+    this.localAudioTrack = track;
+    this.isMicOn = true;
+    console.log('🎙️ Admin mic ON');
+
+  } catch (err) {
+    console.error('❌ Failed to toggle admin mic', err);
+  }
+}
 
 
 }
