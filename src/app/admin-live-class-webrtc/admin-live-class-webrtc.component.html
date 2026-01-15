@@ -1,88 +1,237 @@
-<div class="h-screen w-screen bg-slate-900 flex overflow-hidden font-sans">
+<!-- ROOT CONTAINER -->
+<div class="relative h-screen w-screen bg-slate-900 flex overflow-hidden font-sans">
 
-  <!-- LEFT: Teaching Area (75%) -->
-  <div class="w-3/4 flex items-center justify-center p-4 relative">
+  <!-- ADMIN JOIN OVERLAY -->
+  <div
+    *ngIf="!hasAdminJoined"
+    class="absolute inset-0 z-50 flex items-center justify-center
+           bg-black/80 backdrop-blur-sm">
 
-    <!-- Screen / Board Preview -->
-    <div class="w-full h-full bg-black rounded-2xl shadow-2xl overflow-hidden flex items-center justify-center">
-      <video
-        #screenPreview
-        autoplay
-        playsinline
-        muted
-        class="w-full h-full object-contain rounded-2xl">
-      </video>
-    </div>
-
-    <!-- Optional Label -->
-    <div class="absolute top-4 left-4 bg-black/60 text-white text-sm px-3 py-1 rounded-full">
-      Live Board
-    </div>
-
+    <button
+      (click)="joinAsAdmin()"
+      class="px-10 py-4 bg-indigo-600 text-white text-lg
+             font-semibold rounded-full shadow-xl
+             hover:bg-indigo-700 transition">
+      Start  Live Class
+    </button>
   </div>
 
-  <!-- RIGHT: Side Panel (25%) -->
-  <div class="w-1/4 bg-slate-800 border-l border-slate-700 flex flex-col">
+  <!-- MAIN CONTENT -->
+  <div class="flex w-full h-full">
 
-    <!-- Students Header -->
-    <div class="p-4 border-b border-slate-700 text-white font-semibold">
-      Students Joined
-    </div>
+    <!-- LEFT: Teaching Area (75%) -->
+    <div class="w-3/4 flex items-center justify-center p-4 relative">
 
-    <!-- Students List -->
-    <div class="flex-1 overflow-y-auto p-3 space-y-2 text-sm text-slate-200">
-      <!-- Student item example -->
-      <div class="flex items-center justify-between bg-slate-700/50 px-3 py-2 rounded-lg">
-        <span>Rahul</span>
-        <span class="text-green-400">🎙️</span>
+      <!-- Screen / Board Preview -->
+      <div
+        class="w-full h-full bg-black rounded-2xl shadow-2xl
+               overflow-hidden flex items-center justify-center">
+
+        <video
+          #screenPreview
+          autoplay
+          playsinline
+          muted
+          class="w-full h-full object-contain rounded-2xl">
+        </video>
+      </div>
+
+      <!-- Live Label -->
+      <div
+        class="absolute top-4 left-4 bg-black/60 text-white
+               text-sm px-3 py-1 rounded-full">
+        Live Board
       </div>
     </div>
 
-    <!-- Chat Section -->
-    <div class="border-t border-slate-700 p-3">
-      <div class="text-white text-sm mb-2 font-semibold">Chat</div>
+    <!-- RIGHT: Side Panel (25%) -->
+    <div class="w-1/4 bg-slate-800 border-l border-slate-700 flex flex-col">
 
-      <div class="h-32 overflow-y-auto bg-slate-900 rounded-lg p-2 text-xs text-slate-200 space-y-1">
-        <div><span class="text-indigo-400">Ayesha:</span> Sir please repeat</div>
-        <div><span class="text-green-400">You:</span> Yes</div>
+      <!-- Students Header -->
+      <div class="p-4 border-b border-slate-700 text-white font-semibold">
+        Students Joined
       </div>
 
-      <input
-        type="text"
-        placeholder="Type a message..."
-        class="mt-2 w-full bg-slate-700 text-white text-sm px-3 py-2 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-      />
-    </div>
+      <!-- Students List -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-2 text-sm text-slate-200">
+        <div
+          class="flex items-center justify-between
+                 bg-slate-700/50 px-3 py-2 rounded-lg">
+          <span>Rahul</span>
+          <span class="text-green-400">🎙️</span>
+        </div>
+      </div>
 
+      <!-- Chat Section -->
+      <div class="border-t border-slate-700 p-3">
+        <div class="text-white text-sm mb-2 font-semibold">Chat</div>
+
+        <div
+          class="h-32 overflow-y-auto bg-slate-900
+                 rounded-lg p-2 text-xs text-slate-200 space-y-1">
+          <div>
+            <span class="text-indigo-400">Ayesha:</span> Sir please repeat
+          </div>
+          <div>
+            <span class="text-green-400">You:</span> Yes
+          </div>
+        </div>
+
+        <input
+          type="text"
+          placeholder="Type a message..."
+          class="mt-2 w-full bg-slate-700 text-white
+                 text-sm px-3 py-2 rounded-lg outline-none
+                 focus:ring-2 focus:ring-indigo-500" />
+      </div>
+    </div>
   </div>
+
+  <!-- CURRENT SPEAKER INDICATOR -->
+  <div
+    *ngIf="currentSpeaker"
+    class="absolute top-4 right-4 z-40 bg-black/70
+           text-white px-4 py-2 rounded-full
+           shadow-lg text-sm">
+    🗣️ Speaking: {{ currentSpeaker }}
+  </div>
+
+  <!-- ADMIN AUDIO -->
+  <audio #adminAudio autoplay></audio>
 
   <!-- BOTTOM CONTROL BAR -->
-  <div class="absolute bottom-0 left-0 w-full bg-slate-800 border-t border-slate-700 flex items-center justify-center gap-4 p-4">
+  <div
+    class="absolute bottom-0 left-0 w-full z-40
+           bg-slate-800 border-t border-slate-700
+           flex items-center justify-center gap-4 p-4">
 
-   <button
-  (click)="toggleScreenShare()"
-  [disabled]="!isConnected"
-  class="px-6 py-2 rounded-full font-semibold transition
-         bg-indigo-600 hover:bg-indigo-700 text-white
-         disabled:opacity-50 disabled:cursor-not-allowed">
+    <button
+      (click)="toggleScreenShare()"
+      [disabled]="!isConnected"
+      class="px-6 py-2 rounded-full font-semibold transition
+             bg-indigo-600 hover:bg-indigo-700 text-white
+             disabled:opacity-50 disabled:cursor-not-allowed">
+      {{ isScreenSharing ? 'Stop Share' : 'Share Screen' }}
+    </button>
 
-  {{ isScreenSharing ? 'Stop Share' : 'Share Screen' }}
-</button>
-
-
-    <!-- Future buttons -->
-    <button class="px-4 py-2 rounded-full bg-slate-700 text-white hover:bg-slate-600">
+    <button
+      class="px-4 py-2 rounded-full bg-slate-700
+             text-white hover:bg-slate-600">
       🎙️ Mic
     </button>
 
-    <button class="px-4 py-2 rounded-full bg-slate-700 text-white hover:bg-slate-600">
+    <button
+      class="px-4 py-2 rounded-full bg-slate-700
+             text-white hover:bg-slate-600">
       🎥 Camera
     </button>
 
-    <button class="px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700">
+    <button
+      class="px-4 py-2 rounded-full bg-red-600
+             text-white hover:bg-red-700">
       End Class
     </button>
+  </div>
+
+ <!-- RIGHT SIDE PANEL -->
+<div class="w-80 h-full bg-slate-900 text-white flex flex-col">
+
+  <!-- HEADER -->
+  <div class="px-4 py-3 border-b border-slate-700">
+    <h3 class="text-lg font-semibold">Students</h3>
+  </div>
+
+  <!-- STUDENT LIST -->
+  <div class="flex-1 overflow-y-auto px-3 py-2 space-y-2">
+
+    <div
+      *ngFor="let s of students"
+      class="flex items-center justify-between
+             bg-slate-800 rounded-lg px-3 py-2
+             hover:bg-slate-700 transition">
+
+      <!-- LEFT: NAME + STATUS -->
+      <div>
+        <div class="font-medium text-sm">
+          {{ s.identity }}
+        </div>
+
+        <div
+          class="text-xs mt-0.5"
+          [class.text-green-400]="s.micOn && !s.isLocked"
+          [class.text-red-400]="s.isLocked"
+          [class.text-slate-400]="!s.micOn && !s.isLocked">
+
+          {{ s.isLocked
+              ? 'Muted by Admin'
+              : s.micOn
+                ? 'Mic ON'
+                : 'Mic OFF' }}
+        </div>
+      </div>
+
+      <!-- RIGHT: ACTIONS -->
+      <div class="flex items-center gap-2">
+
+        <!-- MUTE -->
+        <button
+          *ngIf="!s.isLocked"
+          (click)="lockMic(s.identity)"
+          class="px-2 py-1 text-xs rounded
+                 bg-red-600 hover:bg-red-700 transition">
+          Mute
+        </button>
+
+        <!-- UNMUTE -->
+        <button
+          *ngIf="s.isLocked"
+          (click)="unlockMic(s.identity)"
+          class="px-2 py-1 text-xs rounded
+                 bg-green-600 hover:bg-green-700 transition">
+          Unmute
+        </button>
+
+        <!-- KICK -->
+        <button
+          (click)="kickStudent(s.identity)"
+          class="px-2 py-1 text-xs rounded
+                 bg-slate-600 hover:bg-slate-500 transition">
+          Ki ck
+        </button>
+
+        <button
+      (click)="muteAllStudents()"
+      class="flex-1 py-2 text-sm rounded
+             bg-red-700 hover:bg-red-800 transition">
+      Mute All
+    </button>
+
+    <button
+      (click)="unmuteAllStudents()"
+      class="flex-1 py-2 text-sm rounded
+             bg-green-700 hover:bg-green-800 transition">
+      Unmute All
+    </button>
+
+      </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div
+      *ngIf="students.length === 0"
+      class="text-center text-slate-400 text-sm mt-6">
+      No students joined yet
+    </div>
 
   </div>
+
+  <!-- FOOTER (OPTIONAL GLOBAL CONTROLS) -->
+  <div class="p-3 border-t border-slate-700 flex gap-2">
+    
+  </div>
+
+</div>
+
+
 
 </div>
