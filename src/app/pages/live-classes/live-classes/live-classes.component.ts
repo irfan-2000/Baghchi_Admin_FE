@@ -775,11 +775,11 @@ OpenChatroom()
 {
   debugger
   const url = this.router.serializeUrl(
-    this.router.createUrlTree(['/chat'], {
+    this.router.createUrlTree(['/webrtc'], {
       queryParams: {
         courseId: this.OngoingClassDetails.CourseId,
         Batchname: this.OngoingClassDetails.BatchId,
-        chatroom_id: this.OngoingClassDetails.Chatroom_id,
+        chatroom_id: this.OngoingClassDetails.Streamkey,
         teacher: this.OngoingClassDetails.Teachername
       }
     })

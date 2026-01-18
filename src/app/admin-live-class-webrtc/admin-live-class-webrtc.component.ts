@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Room,createLocalAudioTrack, LocalVideoTrack, Track, RemoteParticipant, RoomEvent, Participant, LocalAudioTrack } from 'livekit-client';
 import { environment } from '../environments/environment.prod';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-admin-live-class-webrtc',
@@ -26,12 +27,28 @@ data: any;
 adminAudio!: ElementRef<HTMLAudioElement>;
 currentSpeaker: string | null = null;
 private audioElements = new Map<string, HTMLAudioElement>();
+  adminIdentity  :any // 🔑 SINGLE SOURCE OF TRUTH
+roomName :any
 
+
+CourseId:any=''
+Batchname:any = ''
+ 
+constructor(private route:ActivatedRoute)
+{
+  
+      this.route.queryParams.subscribe(params => {
+        this.CourseId = params['courseId'],
+        this.Batchname = params['Batchname'],
+        this.roomName = params['chatroom_id'],
+        this.adminIdentity = params['teacher']
+});
+  
+ 
+}
   /* -------------------------------
      STEP 2.1 – CONNECT AS TEACHER
   --------------------------------*/
-  adminIdentity = 'teacher_1'; // 🔑 SINGLE SOURCE OF TRUTH
-roomName = 'class_123';
 
 
 async ngOnInit()
@@ -51,6 +68,7 @@ async ngOnInit()
         })
       }
     );
+     
 
     const data = await res.json();
 this.data = data;
@@ -158,6 +176,7 @@ await this.room.localParticipant.unpublishTrack(pub.track.mediaStreamTrack);
           new MediaStream([videoTrack]);
         await this.screenPreview.nativeElement.play();
       }
+      debugger
 
       this.isScreenSharing = true;
       console.log('🖥️ Screen sharing started');
@@ -305,6 +324,8 @@ async joinAsAdmin() {
 
   // 🔥 Attach student audio + detect speaker
   this.registerStudentAudio();
+await this.startAdminCamera();
+
 
   setTimeout(() => {
     
@@ -711,8 +732,7 @@ receiveApiMessage() {
   // Auto-scroll ONLY if user is at bottom
   setTimeout(() => {
     if (this.isUserAtBottom) {
-      console.log("user at bottom");
-      this.scrollToBottom();
+       this.scrollToBottom();
     } else {
       this.unreadCount++;
     }
@@ -773,6 +793,108 @@ isMicOn = false; // mic OFF by default
 
   } catch (err) {
     console.error('❌ Failed to toggle admin mic', err);
+  }
+}
+
+
+cameraTrack: LocalVideoTrack | null = null;
+isCameraOn = false;
+@ViewChild('adminCameraPreview')
+adminCameraPreview!: ElementRef<HTMLVideoElement>;
+
+async startAdminCamera() {
+  if (!this.room || this.isCameraOn) return;
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 1280, height: 720, frameRate: 30 }
+    });
+
+    const mediaTrack = stream.getVideoTracks()[0];
+
+    // Create LiveKit track
+    this.cameraTrack = new LocalVideoTrack(mediaTrack);
+
+    // Publish to room
+    await this.room.localParticipant.publishTrack(this.cameraTrack, {
+      source: Track.Source.Camera
+    });
+
+    // 🔥 CRITICAL: attach using LiveKit
+    setTimeout(() => {
+      const videoEl = this.adminCameraPreview?.nativeElement;
+
+      if (!videoEl) {
+        console.error('❌ adminCameraPreview element not found');
+        return;
+      }
+
+      this.cameraTrack!.attach(videoEl);
+      videoEl.muted = true;        // REQUIRED
+      videoEl.playsInline = true; // mobile safe
+
+      videoEl.play()
+        .then(() => console.log('📷 Admin camera preview playing'))
+        .catch(err => console.warn('⚠️ Autoplay blocked:', err));
+    }, 100);
+
+    this.isCameraOn = true;
+    console.log('📷 Admin camera ON');
+
+  } catch (err) {
+    console.error('❌ Failed to start admin camera', err);
+  }
+}
+
+ 
+
+async toggleAdminCamera() {
+  if (!this.room) return;
+
+  // 🔴 CAMERA OFF
+  if (this.isCameraOn && this.cameraTrack) {
+    this.cameraTrack.detach();
+    await this.room.localParticipant.unpublishTrack(this.cameraTrack);
+    this.cameraTrack.stop();
+    this.cameraTrack = null;
+    this.isCameraOn = false;
+    console.log('📷 Camera OFF');
+    return;
+  }
+
+  // 🟢 CAMERA ON
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 1280, height: 720 }
+    });
+
+    const mediaTrack = stream.getVideoTracks()[0];
+    this.cameraTrack = new LocalVideoTrack(mediaTrack);
+
+    await this.room.localParticipant.publishTrack(this.cameraTrack, {
+      source: Track.Source.Camera
+    });
+    debugger
+
+    // 🔥 CRITICAL PART
+    setTimeout(() => {
+      const videoEl = this.adminCameraPreview?.nativeElement;
+      if (!videoEl) {
+        console.error('❌ adminCameraPreview NOT FOUND');
+        return;
+      }
+
+      this.cameraTrack!.attach(videoEl);
+      videoEl.muted = true;
+      videoEl.play()
+        .then(() => console.log('📷 Admin camera preview playing'))
+        .catch(err => console.warn('Autoplay blocked', err));
+    }, 100);
+
+    this.isCameraOn = true;
+    console.log('📷 Camera ON');
+  } catch (err) {
+    console.error('❌ Camera start failed', err);
   }
 }
 
