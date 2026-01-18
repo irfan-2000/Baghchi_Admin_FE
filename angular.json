@@ -60,7 +60,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "prerender": false 
             },
             "development": {
               "optimization": false,
@@ -74,7 +75,7 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Baghchi_Admin_FE:build:production"
+              "buildTarget": "Baghchi_Admin_FE:build:production" 
             },
             "development": {
               "buildTarget": "Baghchi_Admin_FE:build:development"
