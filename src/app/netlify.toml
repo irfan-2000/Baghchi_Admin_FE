@@ -1,0 +1,10 @@
+[build]
+  command = "ng build --configuration production"
+  publish = "dist/baghchi-admin-fe/browser"
+
+[[plugins]]
+  package = "@netlify/angular-runtime"
+
+# Skip SSR/prerender for /webrtc
+[[plugins.inputs.client_only_routes]]
+  path = "/webrtc"

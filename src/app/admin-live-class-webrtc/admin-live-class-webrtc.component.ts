@@ -72,8 +72,7 @@ async ngOnInit()
 
     const data = await res.json();
 this.data = data;
-    // 2️⃣ Backend response MUST contain these
-    //const livekitUrl = data.url;     // e.g. wss://livekit.race-elearn.com
+     //const livekitUrl = data.url;     // e.g. wss://livekit.race-elearn.com
     const token = data.token;        // JWT
   this.startApiSimulation();
 

@@ -19,7 +19,8 @@ const routes: Routes = [
     { path: 'login', component: AdminLayoutComponent },
     {path: 'classroom',component: ClassroomComponent},
      {path: 'chat',component: ChatroomComponent},
-           {path:'webrtc',component:AdminLiveClassWebrtcComponent},
+      
+     {path:'webrtc',component:AdminLiveClassWebrtcComponent},
 
     
    {
