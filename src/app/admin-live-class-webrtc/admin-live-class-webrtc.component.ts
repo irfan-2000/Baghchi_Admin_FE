@@ -331,7 +331,45 @@ await this.startAdminCamera();
     
   this.registerStudentList(); // 🔥 STEP-6
   }, 6000);
+this.room.on(
+    RoomEvent.ParticipantConnected,
+    (participant) => {
+      if (participant.identity === this.adminIdentity) return;
 
+      console.log('👤 Student joined:', participant.identity);
+
+      fetch(`${this.userurl}api/attendance/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomName: this.roomName,
+          identity: participant.identity,
+          joinedAt: new Date().toISOString()
+        })
+      });
+    }
+  );
+
+    this.room.on(
+    RoomEvent.ParticipantDisconnected,
+    (participant) => {
+      if (participant.identity === this.adminIdentity) return;
+
+      console.log('👋 Student left:', participant.identity);
+
+      fetch(`${this.userurl}api/attendance/leave`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomName: this.roomName,
+          identity: participant.identity,
+          leftAt: new Date().toISOString()
+        })
+      });
+    }
+  );
+
+  
   this.room.on(
     RoomEvent.ParticipantMetadataChanged,
     (metadata, participant) => {
