@@ -1,7 +1,9 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, Inject, Optional } from '@angular/core';
 import { Room,createLocalAudioTrack, LocalVideoTrack, Track, RemoteParticipant, RoomEvent, Participant, LocalAudioTrack } from 'livekit-client';
 import { environment } from '../environments/environment.prod';
 import { ActivatedRoute } from '@angular/router';
+import { PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-admin-live-class-webrtc',
@@ -34,17 +36,19 @@ roomName :any
 CourseId:any=''
 Batchname:any = ''
  
-constructor(private route:ActivatedRoute)
-{
+constructor(
+  private route: ActivatedRoute,
+  @Inject(PLATFORM_ID) private platformId: Object
+) {
   
-      this.route.queryParams.subscribe(params => {
-        this.CourseId = params['courseId'],
-        this.Batchname = params['Batchname'],
-        this.roomName = params['chatroom_id'],
-        this.adminIdentity = params['teacher']
-});
-  
- 
+  if (isPlatformBrowser(this.platformId)) {
+    this.route.queryParams.subscribe(params => {
+      this.CourseId = params['courseId'];
+      this.Batchname = params['Batchname'];
+      this.roomName = params['chatroom_id'];
+      this.adminIdentity = params['teacher'];
+    });
+  }
 }
   /* -------------------------------
      STEP 2.1 – CONNECT AS TEACHER
@@ -53,6 +57,11 @@ constructor(private route:ActivatedRoute)
 
 async ngOnInit()
  {
+  // Skip initialization on server-side (SSR/prerendering)
+  if (!isPlatformBrowser(this.platformId)) {
+    return;
+  }
+
   try {
     // 1️⃣ Call YOUR backend to get LiveKit config
     const res = await fetch(
