@@ -13,7 +13,7 @@
   <!-- LEFT CONTENT -->
   <div class="min-w-0">
     <h3 class="text-sm font-semibold text-blue-900 truncate">
-      📘 Ongoing Class: {{ OngoingClassDetails?.Topic }}
+      📘 Ongoing Class: {{ OngoingClassDetails?.Topic }} /courseId- {{OngoingClassDetails?.CourseId}}
     </h3>
 
     <p class="mt-1 text-xs text-blue-700 truncate">
@@ -316,7 +316,7 @@
     Enter Meeting title key*
   </label>
 
-  <div class="flex gap-2 items-center">
+  <!-- <div class="flex gap-2 items-center">
     <input
       type="text"
       formControlName="streamkey"
@@ -335,15 +335,13 @@
     >
       Generate
     </button>
-  </div>
+  </div> -->
 
-  <!-- Error Message -->
-          <span class="text-sm text-red-600" *ngIf="ErrorMsg['streamkey']">{{ ErrorMsg['streamkey'] }}</span>
+           <!-- <span class="text-sm text-red-600" *ngIf="ErrorMsg['streamkey']">{{ ErrorMsg['streamkey'] }}</span>
  
-  <!-- Success Message -->
-  <span class="text-sm text-green-600" *ngIf="IskeyGenerated">
+   <span class="text-sm text-green-600" *ngIf="IskeyGenerated">
     ✔ Copy this key
-  </span>
+  </span> -->
 </div>
 
             

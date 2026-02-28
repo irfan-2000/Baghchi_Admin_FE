@@ -222,7 +222,7 @@ async docallback()
 {
    this.loading = true;
    this.msg= 'please wait';
-   
+   this.generateKey();
 
 
 
@@ -647,10 +647,10 @@ const url = this.router.serializeUrl(
  
 generateKey() 
 {
-if(this.form.get('streamkey')?.value == '' || this.form.get('streamkey')?.value == 'undefined' || this.form.get('streamkey')?.value== null)
-{
-  return;
-}
+// if(this.form.get('streamkey')?.value == '' || this.form.get('streamkey')?.value == 'undefined' || this.form.get('streamkey')?.value== null)
+// {
+//   return;
+// }
   const randomKey = this.form.get('streamkey')?.value +'-' + Math.floor(100000 + Math.random() * 900000);
 
   this.form.get('streamkey')?.setValue(randomKey);
@@ -718,7 +718,7 @@ this.loading = true;
     if(response.StatusCode == 200)
     { 
       this.msg  = ''
-      this.successmsg = "Class data has been saved you can paste the key in obs and start to stream"
+      this.successmsg = "Class data has been saved  you can start the class by clicking on start button in ongoing class section"
 
       setTimeout(() => {
         window.location.reload();
