@@ -8,7 +8,7 @@ import { environment } from './environments/environment';
 })
 export class StudentService {
 private baseurl = environment.baseUrl;
-  
+private userurl = environment.userurl;
  
  constructor(private http:HttpClient ,private router:Router)
    { }
@@ -78,5 +78,32 @@ return this.http.post( `${this.baseurl}api/SubmitAdminFeedback?_=${unique}`, `"$
 });
 
   }
+
+
+  getchats(RoomName:any)
+  {
+    
+    const token = localStorage.getItem('token'); 
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+  let params = new HttpParams().set('roomname',RoomName);
+ 
+   return this.http.get<any>(`${this.baseurl}api/GetAllComments?_=${unique}`,{
+     headers,withCredentials:false,params
+   });
+  }
+
+
+  
+   sendMessage(payload: any) {
+    return this.http.post<any>(
+      `${this.userurl  }api/guest/SendChat`,
+      payload
+    );
+  }
+
 
 }

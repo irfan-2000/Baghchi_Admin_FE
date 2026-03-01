@@ -779,7 +779,7 @@ OpenChatroom()
       queryParams: {
         courseId: this.OngoingClassDetails.CourseId,
         Batchname: this.OngoingClassDetails.BatchId,
-        chatroom_id: this.OngoingClassDetails.Streamkey,
+        chatroom_id: this.OngoingClassDetails.Chatroom_id,
         teacher: this.OngoingClassDetails.Teachername
       }
     })

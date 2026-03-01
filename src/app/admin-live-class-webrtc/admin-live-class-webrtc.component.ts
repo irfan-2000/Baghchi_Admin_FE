@@ -4,6 +4,7 @@ import { environment } from '../environments/environment.prod';
 import { ActivatedRoute } from '@angular/router';
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { StudentService } from '../student.service';
 
 @Component({
   selector: 'app-admin-live-class-webrtc',
@@ -22,22 +23,24 @@ export class AdminLiveClassWebrtcComponent {
   isConnected = false;
   initialspeaker: any | null = null;
 
-data: any;
+  data: any;
   @ViewChild('screenPreview')
   screenPreview!: ElementRef<HTMLVideoElement>;
-@ViewChild('adminAudio', { static: true })
-adminAudio!: ElementRef<HTMLAudioElement>;
-currentSpeaker: string | null = null;
-private audioElements = new Map<string, HTMLAudioElement>();
-  adminIdentity  :any // 🔑 SINGLE SOURCE OF TRUTH
-roomName :any
+  @ViewChild('adminAudio', { static: true })
+  adminAudio!: ElementRef<HTMLAudioElement>;
+  currentSpeaker: string | null = null;
+  private audioElements = new Map<string, HTMLAudioElement>();
+  adminIdentity: any // 🔑 SINGLE SOURCE OF TRUTH
+  roomName: any
 
 
-CourseId:any=''
-Batchname:any = ''
+  CourseId:any=''
+  Batchname:any = ''
+
+  StudentInMeetList: any  = [];
  
 constructor(
-  private route: ActivatedRoute,
+  private route: ActivatedRoute,private studentservice: StudentService,
   @Inject(PLATFORM_ID) private platformId: Object
 ) {
   
@@ -83,12 +86,13 @@ async ngOnInit()
 this.data = data;
      //const livekitUrl = data.url;     // e.g. wss://livekit.race-elearn.com
     const token = data.token;        // JWT
-  this.startApiSimulation();
-
+  
  
   } catch (err) {
     console.error('Failed to init teacher live class', err);
   }
+
+
 }
 async connectAsTeacher(url: string, token: string) {
   this.room = new Room({
@@ -184,7 +188,7 @@ await this.room.localParticipant.unpublishTrack(pub.track.mediaStreamTrack);
           new MediaStream([videoTrack]);
         await this.screenPreview.nativeElement.play();
       }
-      debugger
+       
 
       this.isScreenSharing = true;
       console.log('🖥️ Screen sharing started');
@@ -320,7 +324,8 @@ this.currentSpeaker = participant.identity;
 hasAdminJoined = false;
 
 
-async joinAsAdmin() {
+async joinAsAdmin() 
+{
   this.hasAdminJoined = true;
 
   // MUST be inside click
@@ -339,24 +344,31 @@ await this.startAdminCamera();
     
   this.registerStudentList(); // 🔥 STEP-6
   }, 6000);
-this.room.on(
-    RoomEvent.ParticipantConnected,
-    (participant) => {
+
+this.room.remoteParticipants.forEach((participant) => {
+  if (participant.identity !== this.adminIdentity) {
+
+    console.log("👤 Existing student found:", participant.identity);
+
+      this.StudentInMeetList.push({
+        identity: participant.identity
+       });
+       this.fetchStudentList();
+
+     // Example usage
+   }
+});
+
+this.room.on( RoomEvent.ParticipantConnected,  (participant) => {
       if (participant.identity === this.adminIdentity) return;
 
       console.log('👤 Student joined:', participant.identity);
 
-      fetch(`${this.userurl}api/attendance/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomName: this.roomName,
-          identity: participant.identity,
-          joinedAt: new Date().toISOString()
-        })
-      });
-    }
-  );
+        this.StudentInMeetList.push({
+        identity: participant.identity
+       });
+
+});
 
     this.room.on(
     RoomEvent.ParticipantDisconnected,
@@ -364,17 +376,11 @@ this.room.on(
       if (participant.identity === this.adminIdentity) return;
 
       console.log('👋 Student left:', participant.identity);
+ this.StudentInMeetList.splice(this.StudentInMeetList.findIndex((s:any) => s.identity === participant.identity), 1);
 
-      fetch(`${this.userurl}api/attendance/leave`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomName: this.roomName,
-          identity: participant.identity,
-          leftAt: new Date().toISOString()
-        })
-      });
+
     }
+
   );
 
   
@@ -398,41 +404,10 @@ this.room.on(
   );
 
   console.log('▶️ Admin joined, audio unlocked, detection active');
+
 }
 
 
-students: {
-  identity: string;
-  micOn: boolean;
-    isLocked: boolean;
-
-}[] = [];
-
-private addStudent(identity: string) {
-  if (this.students.find(s => s.identity === identity)) return;
-
-  this.students.push({
-    identity,
-    micOn: false,
-      isLocked: false
-  });
-}
-
-private removeStudent(identity: string) {
-  this.students = this.students.filter(
-    s => s.identity !== identity
-  );
-}
-
-private setMicStatus(identity: string, micOn: boolean) {
-  const student = this.students.find(
-    s => s.identity === identity
-  );
-  if (student) {
-    student.micOn = micOn;
-  }
-}
- 
 
  registerStudentList() {
 
@@ -459,7 +434,7 @@ private setMicStatus(identity: string, micOn: boolean) {
   if (remoteMap.size === 0) {
     console.warn('⚠️ No remote participants at time of registration');
   }
-
+ 
   remoteMap.forEach((participant, key) => {
     console.log('👤 Found existing participant');
     console.log('   ↳ key:', key);
@@ -527,6 +502,40 @@ this.room.on(
   console.log('✅ registerStudentList() SETUP COMPLETE');
   console.log('==============================');
 }
+
+students: {
+  identity: string;
+  micOn: boolean;
+    isLocked: boolean;
+
+}[] = [];
+
+private addStudent(identity: string) {
+  if (this.students.find(s => s.identity === identity)) return;
+
+  this.students.push({
+    identity,
+    micOn: false,
+      isLocked: false
+  });
+}
+
+private removeStudent(identity: string) {
+  this.students = this.students.filter(
+    s => s.identity !== identity
+  );
+}
+
+private setMicStatus(identity: string, micOn: boolean) {
+  const student = this.students.find(
+    s => s.identity === identity
+  );
+  if (student) {
+    student.micOn = micOn;
+  }
+}
+ 
+
 
 
 lockMic(studentId: string) {
@@ -657,7 +666,21 @@ kickStudent(identity: string) {
 
 
 
-  activeTab: 'students' | 'chat' = 'students';
+  private _activeTab: 'students' | 'chat' = 'students';
+  // expose as property with getter/setter so template assignments trigger logic
+  get activeTab(): 'students' | 'chat' { return this._activeTab; }
+  set activeTab(v: 'students' | 'chat') {
+    if (this._activeTab === v) return;
+    this._activeTab = v;
+    // start/stop polling when switching to/from chat
+    if (v === 'chat') {
+      this.startChatPolling();
+    } else {
+      this.stopChatPolling();
+    }
+  }
+
+  private chatIntervalId: any = null;
 
   // HARD-CODED STUDENTS
   students_data= [
@@ -665,17 +688,7 @@ kickStudent(identity: string) {
     { name: 'Ayesha', status: 'off' },
     { name: 'Rohan', status: 'locked' }
   ];
- messages: {
-    user: string;
-    text: string;
-    time: string;
-  }[] = [
-    {
-      user: 'Ayesha',
-      text: 'Sir please repeat',
-      time: this.getTime()
-    }
-  ];
+ messages:  any=[ ];
 
   chatInput = '';
 
@@ -744,51 +757,32 @@ isUserAtBottom = true;
 
 private apiSimulationStarted = false;
 private apiIntervalId: any;
-startApiSimulation() {
-  if (this.apiSimulationStarted) return; // 🔒 run once
+  
+  // Start polling chat messages when teacher opens Chat tab
+  private startChatPolling() 
+  {
+    if (this.chatIntervalId) return; // already running
+    // fetch immediately, then every 1s
+    try { this.getAllComments(); } catch (e) { /* ignore */ }
+    this.chatIntervalId = setInterval(() => {
+      this.getAllComments();
+    }, 20000);
+  }
 
-  this.apiSimulationStarted = true;
-
-  this.apiIntervalId = setInterval(() => {
-    this.receiveApiMessage();
-  }, 3000); // 10 seconds
-}
-receiveApiMessage() {
-  const randomTexts = [
-    'Please repeat this topic',
-    'Audio is not clear',
-    'Can you share notes?',
-    'Yes, understood',
-    'Thank you sir',
-    '👍',
-    'Can you slow down?',
-    'Network issue here'
-  ];
-
-  const randomUsers = ['Rahul', 'Ayesha', 'Rohan', 'Neha'];
-
-  const message = {
-    user: randomUsers[Math.floor(Math.random() * randomUsers.length)],
-    text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
-    time: this.getTime()
-  };
-
-  this.messages.push(message);
-
-  // Auto-scroll ONLY if user is at bottom
-  setTimeout(() => {
-    if (this.isUserAtBottom) {
-       this.scrollToBottom();
-    } else {
-      this.unreadCount++;
-    }
-  });
-}
-
+  private stopChatPolling() {
+    if (!this.chatIntervalId) return;
+    clearInterval(this.chatIntervalId);
+    this.chatIntervalId = null;
+  }
+ 
 unreadCount = 0;
 ngOnDestroy() {
   if (this.apiIntervalId) {
     clearInterval(this.apiIntervalId);
+  }
+  if (this.chatIntervalId) {
+    clearInterval(this.chatIntervalId);
+    this.chatIntervalId = null;
   }
 }
 
@@ -920,7 +914,7 @@ async toggleAdminCamera() {
     await this.room.localParticipant.publishTrack(this.cameraTrack, {
       source: Track.Source.Camera
     });
-    debugger
+     
 
     // 🔥 CRITICAL PART
     setTimeout(() => {
@@ -944,6 +938,79 @@ async toggleAdminCamera() {
   }
 }
 
+
+
+fetchStudentList() 
+{
+   
+  const identities = this.StudentInMeetList.map((student: any) => student.identity).join(',');
+fetch(`${this.userurl}api/guest/GetStudentList`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    studentlist: identities
+  })
+})
+.then(res => res.json())
+.then(data => {
+  console.log('📋 Student list from backend:', data);
+  this.StudentInMeetList = data.result || [];
+})
+.catch(err => console.error('❌ Failed to fetch student list', err));
+
+}
+
+
+getAllComments()
+{
+
+  this.studentservice.getchats(this.roomName).subscribe({
+    next:(response)=>{
+      console.log("Chat response",response);
+      this.messages = response;
+       
+      this.scrollToBottom();
+    },
+    error:(err)=>{
+      console.error("Chat error",err);
+    }
+  });
+ 
+}
+
+sendMessage1() {
+    if (!this.chatInput.trim()) return;
+     
+    const messageText = this.chatInput;
+    this.chatInput = ''; // Clear input immediately for UX
+     
+    console.log('📤 Sending message:', messageText);
+    
+    const payload = {
+      RoomName: this.roomName,
+      CourseId:this.CourseId,
+      BatchId:this.Batchname,
+      SenderId: 0,
+      SenderName:  'Admin', // Use actual student name if available
+      SenderRole: 'Admin',
+      MessageText: messageText
+    };
+
+    this.studentservice.sendMessage(payload)
+      .subscribe({
+        next: (res) => {
+          console.log('✅ Message sent successfully:', res);
+           
+     this.getAllComments(); // Refresh chat after sending
+        },
+        error: (err) => {
+          console.error('❌ Message send failed', err);
+           alert('Failed to send message. Please try again.');
+          // Re-populate the input in case of error
+          this.chatInput = messageText;
+        }
+      });
+  }
 
 }
  
