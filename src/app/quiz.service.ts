@@ -68,10 +68,12 @@ getallquizzes()
 
 
 
-UploadandParseWordFile(file: any) {
+UploadandParseWordFile(file: any,Flag:any,filename:any = '') {
 
   const formData = new FormData();
-  formData.append("file", file);    
+  formData.append("file", file); 
+  formData.append("Flag", Flag);
+  formData.append("FileName", filename);   
 
   const token = localStorage.getItem('token');
 

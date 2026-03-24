@@ -20,6 +20,7 @@ import { ManageCoursePackagesandDetails2Component } from './manage-course-packag
 import { ChatroomComponent } from './chatroom/chatroom.component';
 import { AdminFeedBackandessentialsComponent } from './admin-feed-backandessentials/admin-feed-backandessentials.component';
 import { AdminLiveClassWebrtcComponent } from './admin-live-class-webrtc/admin-live-class-webrtc.component';
+import { TimeTableComponent } from './time-table/time-table.component';
   
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { AdminLiveClassWebrtcComponent } from './admin-live-class-webrtc/admin-l
      ManageCoursePackagesandDetails2Component,
      ChatroomComponent,
      AdminFeedBackandessentialsComponent,
-     AdminLiveClassWebrtcComponent
+     AdminLiveClassWebrtcComponent,
+     TimeTableComponent
     ],
   imports: [ HttpClientModule, FormsModule, ReactiveFormsModule, RouterModule, BrowserModule, AppRoutingModule,NgSelectModule ,CommonModule
   ],

@@ -13,37 +13,67 @@ import { ManageCoursePackagesandDetails2Component } from './manage-course-packag
 import { ChatroomComponent } from './chatroom/chatroom.component';
 import { AdminFeedBackandessentialsComponent } from './admin-feed-backandessentials/admin-feed-backandessentials.component';
 import { AdminLiveClassWebrtcComponent } from './admin-live-class-webrtc/admin-live-class-webrtc.component';
+import { TimeTableComponent } from './time-table/time-table.component';
  
-const routes: Routes = [
+// const routes: Routes = [
 
-    { path: 'login', component: AdminLayoutComponent },
-    {path: 'classroom',component: ClassroomComponent},
-     {path: 'chat',component: ChatroomComponent},
+//     { path: 'login', component: AdminLayoutComponent },
+//     {path: 'classroom',component: ClassroomComponent},
+//      {path: 'chat',component: ChatroomComponent},
       
-     {path:'webrtc',component:AdminLiveClassWebrtcComponent},
+//      {path:'webrtc',component:AdminLiveClassWebrtcComponent},
 
     
-   {
-   path: 'home',
-   component: AdminLayoutComponent,
-   children: [
-     {
-       path: 'live-classes',
-       loadChildren: () => import('./pages/live-classes/live-classes.module')
-         .then(m => m.LiveClassesModule)
-     }, 
-     {path:'create-quiz',component:CreateQuizComponent},
-      { path:'manage-class-board-subjects',component:ManageClassBoardSubjectsComponent},
-      {path:'manage-courses',component:ManageCoursePackagesandDetails2Component},
-      {path:'quiz-history',component:QuizhistoryComponent},
-      {path:'notes-media', component: NotesMediaReportsComponent},
-      {path:'student-details', component: StudentDetailsComponent},
-      {path:'class-history', component: ClasseshistoryComponent},
-      {path:'Admin-Feedback',component:AdminFeedBackandessentialsComponent}
-     // {path:'manage-courses2',component:ManageCoursePackagesandDetails2Component} 
+//    {
+//    path: 'home',
+//    component: AdminLayoutComponent,
+//    children: [
+//      {
+//        path: 'live-classes',
+//        loadChildren: () => import('./pages/live-classes/live-classes.module')
+//          .then(m => m.LiveClassesModule)
+//      }, 
+//      {path:'create-quiz',component:CreateQuizComponent},
+//       { path:'manage-class-board-subjects',component:ManageClassBoardSubjectsComponent},
+//       {path:'manage-courses',component:ManageCoursePackagesandDetails2Component},
+//       {path:'quiz-history',component:QuizhistoryComponent},
+//       {path:'notes-media', component: NotesMediaReportsComponent},
+//       {path:'student-details', component: StudentDetailsComponent},
+//       {path:'class-history', component: ClasseshistoryComponent},
+//       {path:'Admin-Feedback',component:AdminFeedBackandessentialsComponent}
+//      // {path:'manage-courses2',component:ManageCoursePackagesandDetails2Component} 
+//     ]
+//  }
+//  ];
+
+
+const routes: Routes = [
+
+  { path: 'Layout', component: AdminLayoutComponent },
+
+  {
+    path: '',
+    component: AdminLayoutComponent,
+    children: [
+
+      { path: 'live-classes', loadChildren: () =>
+          import('./pages/live-classes/live-classes.module')
+          .then(m => m.LiveClassesModule)
+      },
+
+      { path: 'create-quiz', component: CreateQuizComponent },
+      { path: 'manage-class-board-subjects', component: ManageClassBoardSubjectsComponent },
+      { path: 'manage-courses', component: ManageCoursePackagesandDetails2Component },
+      { path: 'quiz-history', component: QuizhistoryComponent },
+      { path: 'notes-media', component: NotesMediaReportsComponent },
+      { path: 'student-details', component: StudentDetailsComponent },
+      { path: 'class-history', component: ClasseshistoryComponent },
+      { path: 'Admin-Feedback', component: AdminFeedBackandessentialsComponent },
+      {path:'time-table',component:TimeTableComponent}
     ]
- }
- ];
+  }
+
+];
 
 
  

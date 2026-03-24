@@ -35,7 +35,7 @@ getallquizzes( )
 }
 
 gotoEditQuiz(id: number) {
-  this.router.navigate(['/home/create-quiz'], { 
+  this.router.navigate(['/create-quiz'], { 
     queryParams: { IsEditMode: true, id: id } 
   });
 }

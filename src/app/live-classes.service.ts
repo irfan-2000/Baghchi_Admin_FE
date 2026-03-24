@@ -168,4 +168,29 @@ EndOngoingclass(Livesessionid: any) {
 }
 
 
+
+AddUpdateTimeTable(payload:any)
+{
+   
+  const token = localStorage.getItem('token'); // Or wherever you store your token
+    const headers =new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+        const unique = Math.random();
+    return this.http.post<any>(`${this.baseurl}api/AddUpdateTimeTable?_=${unique}`,payload,{
+      headers
+    });
+}
+
+
+GetTimeTable() {
+  const token = localStorage.getItem('token');
+
+  return this.http.get<any>(`${this.baseurl}api/GetTimeTable`, {
+    headers: new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    })
+  });
+}
+
 }

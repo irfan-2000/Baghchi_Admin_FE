@@ -17,9 +17,12 @@ export class CreateQuizComponent {
   QuizId:any;
   IsEditMode: boolean = false;
   errorMessage:any ='';
+  flag:any= 0;
+  filename:any = '';
 
 constructor(private fb: FormBuilder,private Liveclasses:LiveClassesService,private quizservice:QuizService,private route: ActivatedRoute)
-{
+{  this.getAllCourses();
+
    
   this.quizForm = this.fb.group({
       title: ['', Validators.required],
@@ -49,14 +52,15 @@ this.route.queryParams.subscribe(params => {
       this.QuizId  = params['id'];      
       this.IsEditMode= this.IsEditMode = params["IsEditMode"]?.toLowerCase() === "true";         
     });
-     if(this.IsEditMode && this.QuizId >0)
+  if (this.IsEditMode && this.QuizId > 0) {
+    this.getquizdatabyid('Id', this.QuizId);
+    this.flag = "U";
+  }
+  else 
     {
-this.getquizdatabyid('Id',this.QuizId);
-    
-}
-  this.getAllCourses();
-  
-  
+    this.flag = "I";
+  }
+
 
 // Enable/disable NegativeMarking field dynamically
 this.quizForm.get('allowNegative')?.valueChanges.subscribe((allow: boolean) => {
@@ -377,6 +381,7 @@ oncoursechange(event:any)
  
 this.getBatchesByCourseid(event.target.value);
 }
+
 Batches:any = [];
 getBatchesByCourseid(CourseId:any)
 {
@@ -447,6 +452,7 @@ getBatchesByCourseid(CourseId:any)
  
   async populateSampleData(quizData: any) 
   {
+    
   // Populate batches
   const response = await firstValueFrom(this.Liveclasses.getBatchesByCourseid(quizData.CourseId));
   this.Batches = response.Result;
@@ -458,6 +464,8 @@ getBatchesByCourseid(CourseId:any)
   const batchArray = quizData.BatchId || [];
  
   // Patch main quiz form
+ 
+ 
   this.quizForm.patchValue({
     quizId: quizData.QuizId || 0,
     CourseId: quizData.CourseId,
@@ -468,24 +476,31 @@ getBatchesByCourseid(CourseId:any)
     endDate: quizData.EndDate ? quizData.EndDate.split('T')[0] : '',
     endTime: quizData.EndTime ? quizData.EndTime : '',
     title: quizData.Title,
-    status: quizData.Status
+    status: quizData.Status,
+    totalQuestions: quizData.TotalQuestions,
+    MarksPerQuestion: quizData.MarksPerQuestion,
+    allowNegative: quizData.AllowNegative,
+     shuffleQuestions: quizData.ShuffleQuestions,
+    totalMarks: quizData.TotalMarks,
+    subjects: quizData.Subjects,
+    allowSkip: quizData.AllowSkip
   });
 
   // Populate questions
-  (quizData.Questions || []).forEach((q:any) => 
-    {
-    const qGroup = this.fb.group({
-      question_text: [q.Question_text || q.question_text || '', Validators.required],
-      options: this.fb.array((q.Options || q.options || []).map((o:any) =>
-        this.fb.group({
-          text: [o.Text || o.text || '', Validators.required],
-          isCorrect: [o.IsCorrect ?? o.isCorrect ?? false]
-        }))
-      )
-    });
+  // (quizData.Questions || []).forEach((q:any) => 
+  //   {
+  //   const qGroup = this.fb.group({
+  //     question_text: [q.Question_text || q.question_text || '', Validators.required],
+  //     options: this.fb.array((q.Options || q.options || []).map((o:any) =>
+  //       this.fb.group({
+  //         text: [o.Text || o.text || '', Validators.required],
+  //         isCorrect: [o.IsCorrect ?? o.isCorrect ?? false]
+  //       }))
+  //     )
+  //   });
 
-    this.questions.push(qGroup);
-  });
+  //   this.questions.push(qGroup);
+  // });
 
   console.log('Quiz form after patch:', this.quizForm.value);
 }
@@ -505,11 +520,14 @@ getquizdatabyid(flag:any,id :any)
    
   this.quizservice.getQuizById('Id',id).subscribe({
     next:(response:any)=>
-    {debugger
-      this.questions_wordfile =  response.Questions;
-      console.log(response);
- 
-      //this.populateSampleData(response);
+    { 
+
+
+      debugger
+      this.populateSampleData(response);
+      this.filename = response.QuizFileName;
+      this.LoadExistingDataofquiz();
+      
     },
     error:(error:any)=>
     {
@@ -663,20 +681,20 @@ ondocFileSelected(event:any)
 }
 
 UploadandParseWordFile(event:any)
-{ const file = event.target.files[0];
-    const loadingElement = document.getElementById('loadingText');
- this.errorMessage = '' 
+{ 
+   const file = event.target.files[0];
+   const loadingElement = document.getElementById('loadingText');
+    this.errorMessage = '' 
+
   if (!file) {
     alert('Please select a Word file to upload.');
     return;
   }else{
       
-  this.quizservice.UploadandParseWordFile(file).subscribe({
+  this.quizservice.UploadandParseWordFile(file,this.flag,this.filename).subscribe({
     next:(response:any)=>
     {
-      debugger
-      console.log(response);
- 
+
       if(response.Message == "Parsed successfully")
       {
         this.questions_wordfile = response.Questions;
@@ -697,6 +715,36 @@ UploadandParseWordFile(event:any)
 
 }
 
+
+
+
+LoadExistingDataofquiz( )
+{ 
+    const loadingElement = document.getElementById('loadingText');
+    this.errorMessage = '' 
+ 
+      
+  this.quizservice.UploadandParseWordFile( "",this.flag,this.filename).subscribe({
+    next:(response:any)=>
+    {
+
+      if(response.Message == "Parsed successfully")
+      {
+        this.questions_wordfile = response.Questions;
+            loadingElement!.classList.add('hidden');
+
+        debugger
+      }
+    //  this.populateSampleData(response);
+    },
+    error:(error:any)=>
+    {
+      this.errorMessage = error.error.Message + 'Please corrrect the errors in the Word file and re-upload.';
+      loadingElement!.classList.add('hidden');
+      console.error('Error fetching quiz:', error);
+    }});
+  
+}
 
 
 }

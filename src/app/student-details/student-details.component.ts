@@ -134,6 +134,7 @@ ViewProfileimage()
    
   window.open(this.studentdata.ImageUrl, '_blank');
 }
+
 Availableclasses:any;
 
  GetAvailableCourses(): void
@@ -151,7 +152,7 @@ Availableclasses:any;
 submitForm()
 {
   let formData = new FormData(); 
- formData.append('StudentId', this.studentdata.StudentId || '0'); 
+ formData.append('StudentId', this.studentdata?.StudentId || '0'); 
 formData.append('FullName', this.studentForm.get('FullName')?.value);
 formData.append('DateOfBirth', this.studentForm.get('DateOfBirth')?.value);
 formData.append('Gender', this.studentForm.get('Gender')?.value);
@@ -171,10 +172,10 @@ formData.append('Password', this.studentForm.get('Password')?.value);
 formData.append('IsActive', this.studentForm.get('IsActive')?.value);
 formData.append('Student_Cast', this.studentForm.get('Student_Cast')?.value);
 formData.append('IsEditing','true');
-formData.append('OldImageName', this.studentdata.ImageName );
+formData.append('OldImageName', this.studentdata?.ImageName );
 formData.append('BoardId', this.studentForm.get('BoardId')?.value);
    debugger
-if(!this.selectedFileName && !this.studentdata.ImageName)
+if(!this.selectedFileName && !this.studentdata?.ImageName && !this.IsAddingStudent)
 {
 alert("please select course image");
 }
@@ -215,6 +216,15 @@ GetAvailableBoards(): void
 }
  
 
+
+IsAddingStudent = false;
+AddStudent()
+{
+  debugger
+  this.studentForm.reset();
+  this.Showstudentlist = false;
+  this.IsAddingStudent = true;
+}
 
 
 }

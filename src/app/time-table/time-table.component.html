@@ -1,0 +1,184 @@
+ <div class="w-full h-full overflow-hidden">
+
+  <div class="flex h-full">
+
+    <!-- Time Column -->
+    <div class="w-16 bg-white border-r flex-shrink-0">
+      <div *ngFor="let h of [].constructor(endHour - startHour); let i = index"
+           class="h-[60px] text-xs text-gray-500 flex items-start justify-center pt-1">
+        {{ startHour + i }}:00
+      </div>
+    </div>
+
+    <!-- Scrollable Area -->
+    <div class="flex-1 overflow-x-auto overflow-y-hidden">
+
+      <div class="flex min-w-[1000px] h-full">
+
+        <!-- Days -->
+        <div *ngFor="let day of days"
+             class="flex-1 border-r relative bg-gray-50">
+
+          <!-- Header -->
+          <div class="text-center font-semibold py-2 border-b bg-white sticky top-0 z-20 shadow-sm">
+            {{ day }}
+          </div>
+
+          <!-- Timeline -->
+          <div class="relative"
+               [style.height.px]="(endHour - startHour) * 60"
+               (click)="openModal(day)">
+
+            <!-- Hour lines -->
+            <div *ngFor="let h of [].constructor(endHour - startHour); let i = index"
+                 class="absolute w-full border-t border-gray-200"
+                 [style.top.px]="i * 60">
+            </div>
+
+            <!-- Sessions -->
+            <div *ngFor="let s of getSessions(day)"
+                 (click)="editSession(s); $event.stopPropagation()"
+                 class="absolute left-1 right-1 rounded-lg p-2 text-xs shadow cursor-pointer transition
+                        bg-gradient-to-r from-blue-600 to-indigo-500 text-white hover:scale-[1.02]"
+                [style.top.%]="getTop(s.startTime)"
+[style.height.%]="getHeight(s.startTime, s.endTime)">
+
+              <div class="flex flex-col gap-1">
+                <span class="font-semibold text-[13px] leading-tight">
+                  {{ s.title }}
+                </span>
+
+                <span class="text-[11px] opacity-90">
+                  {{ s.startTime }} → {{ s.endTime }}
+                </span>
+
+                <span class="text-[10px] opacity-70">
+                  {{ s.teachername || 'Teacher' }}
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+ <div *ngIf="showModal"
+     class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-5 animate-fadeIn">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-800">
+        {{ isEdit ? 'Edit Class' : 'Add Class' }}
+      </h3>
+      <button (click)="showModal=false"
+              class="text-gray-400 hover:text-gray-600 text-xl">
+        ✕
+      </button>
+    </div>
+
+    <!-- Day Badge -->
+    <div class="mb-4">
+      <span class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full">
+        {{ selectedDay }}
+      </span>
+    </div>
+
+    <!-- Form -->
+    <div class="space-y-3">
+
+      <!-- Subject -->
+      <div>
+        <label class="text-sm text-gray-600">Subject</label>
+        <input type="text"
+               [(ngModel)]="form.title"
+               class="w-full mt-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+               placeholder="Enter subject" />
+      </div>
+
+      <!-- Course -->
+      <div>
+        <label class="text-sm text-gray-600">Course</label>
+        <select [(ngModel)]="form.courseid"
+                (change)="onCourseChange($event)"
+                class="w-full mt-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <option [ngValue]="null">Select Course</option>
+          <option *ngFor="let course of AvailableCourses" [ngValue]="course.CourseId">
+            {{ course.CourseName }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Batch -->
+      <div>
+        <label class="text-sm text-gray-600">Batch</label>
+        <select [(ngModel)]="form.batchid"
+                class="w-full mt-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <option [ngValue]="null">Select Batch</option>
+          <option *ngFor="let batch of Batches" [ngValue]="batch.BatchId">
+            {{ batch.BatchName }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Time -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm text-gray-600">Start Time</label>
+          <input type="time"
+                 [(ngModel)]="form.startTime"
+                 class="w-full mt-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
+        </div>
+
+        <div>
+          <label class="text-sm text-gray-600">End Time</label>
+          <input type="time"
+                 [(ngModel)]="form.endTime"
+                 class="w-full mt-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none" />
+        </div>
+      </div>
+
+      <!-- Teacher -->
+      <div>
+        <label class="text-sm text-gray-600">Teacher</label>
+        <input type="text"
+               [(ngModel)]="form.teachername"
+               class="w-full mt-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+               placeholder="Enter teacher name" />
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="errorMessage"
+           class="text-red-500 text-sm bg-red-50 p-2 rounded-md">
+        {{ errorMessage }}
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-2 mt-5">
+
+      <button class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+              (click)="showModal=false">
+        Cancel
+      </button>
+
+      <button class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-500 text-white shadow-md hover:scale-[1.02] transition"
+              (click)="saveSession()">
+        {{ isEdit ? 'Update' : 'Save' }}
+      </button>
+
+    </div>
+
+  </div>
+</div>
