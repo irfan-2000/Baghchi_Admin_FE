@@ -57,26 +57,48 @@ export class LiveClassesComponent implements OnInit{
        this.getAllCourses();
       this.getOngoingClassDetails();
       this.getAllStudents();
-   this.form = this.fb.group({
-    topic: [this.defaults.topic, [Validators.required, Validators.maxLength(200)]],
+  //  this.form = this.fb.group({
+  //   topic: [this.defaults.topic, [Validators.required, Validators.maxLength(200)]],
+  //   type: [this.defaults.type, [Validators.required]],
+  //   start_time_local: [this.defaults.start_time_local], // only used when type = 2
+  //   duration: [this.defaults.duration, [Validators.min(1)]],
+  //   timezone: [this.defaults.timezone, [Validators.required]],
+  //   agenda: [this.defaults.agenda, [Validators.maxLength(500)]],
+  //   host_video: [this.defaults.host_video],
+  //   participant_video: [this.defaults.participant_video],
+  //   join_before_host: [this.defaults.join_before_host],
+  //   mute_upon_entry: [this.defaults.mute_upon_entry],
+  //   approval_type: [this.defaults.approval_type],
+  //   batchId: ['', [Validators.required]],
+  //   teachername:['',Validators.required],
+  //   specialClassType:[''],
+  //  studentIds: [[]], 
+  //  streamkey:['',Validators.required]       // array of student ids
+
+  // });
+
+
+    this.form = this.fb.group({
+    topic: ['', [Validators.required, Validators.maxLength(200)]],
     type: [this.defaults.type, [Validators.required]],
     start_time_local: [this.defaults.start_time_local], // only used when type = 2
-    duration: [this.defaults.duration, [Validators.min(1)]],
+    duration: ['', [Validators.min(1)]],
     timezone: [this.defaults.timezone, [Validators.required]],
-    agenda: [this.defaults.agenda, [Validators.maxLength(500)]],
+    agenda: ['', [Validators.maxLength(500)]],
     host_video: [this.defaults.host_video],
     participant_video: [this.defaults.participant_video],
     join_before_host: [this.defaults.join_before_host],
     mute_upon_entry: [this.defaults.mute_upon_entry],
     approval_type: [this.defaults.approval_type],
     batchId: ['', [Validators.required]],
-    teachername:['',Validators.required],
+    teachername:['Dr.Bagchi ',Validators.required],
     specialClassType:[''],
    studentIds: [[]], 
    streamkey:['',Validators.required]       // array of student ids
 
   });
-console.log("Form initial values:", this.form.value);  // ✅ print initial form values
+ 
+
 
   }
 
@@ -548,7 +570,7 @@ GobackToCourses()
 EditCourse(c:any)
 {
  
-window.location.href = '/home/manage-courses?CourseId=' + c.CourseId + '&IsEditMode=true';
+window.location.href = '/manage-courses?CourseId=' + c.CourseId + '&IsEditMode=true';
 
 
 

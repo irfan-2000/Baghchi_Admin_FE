@@ -106,4 +106,42 @@ return this.http.post( `${this.baseurl}api/SubmitAdminFeedback?_=${unique}`, `"$
   }
 
 
+
+GetStudentByMobileEmail(Mobile:any,Email:any)
+{
+      const token = localStorage.getItem('token'); 
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+
+    const unique = Math.random();  
+  let params = new HttpParams().set('Mobile',Mobile).set('Email',Email);
+
+   return this.http.get<any>(`${this.baseurl}api/GetStudentByMobileEmail?_=${unique}`,{
+     headers,withCredentials:false,params
+   });
+}
+
+allotSubscription(payload: any) {
+
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  });
+
+  return this.http.post<any>(
+    `${this.baseurl}api/allot-subscription`,
+    payload,
+    {
+      headers,
+      withCredentials: false
+    }
+  );
+} 
+
+
+
 }

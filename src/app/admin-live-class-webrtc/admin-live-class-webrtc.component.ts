@@ -596,7 +596,7 @@ muteAllStudents() {
   })
   .then(() => {
     console.log('✅ All students muted');
-
+    alert("all students muted");
     // Update UI optimistically
     this.students.forEach(s => {
       if (s.identity !== this.adminIdentity) {
@@ -626,6 +626,7 @@ unmuteAllStudents() {
   })
   .then(() => {
     console.log('✅ All students unmuted');
+    alert("all students unmuted");
 
     // Update UI optimistically
     this.students.forEach(s => {
@@ -1011,6 +1012,9 @@ sendMessage1() {
         }
       });
   }
+EndClass() {
+  window.close();
+}
 
 }
  

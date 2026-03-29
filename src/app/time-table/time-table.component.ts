@@ -100,7 +100,7 @@ getHeight(start: string, end: string): number {
       batchid: 'null',
       startTime: '',
       endTime: '',
-      teachername:''
+      teachername:'Dr.bagchi'
     };
 
     this.showModal = true;

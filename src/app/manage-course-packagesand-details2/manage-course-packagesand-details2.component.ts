@@ -53,21 +53,21 @@ this.route.queryParams.subscribe(params =>
 
  
     this.courseInfoForm = this.fb.group({
- courseName: ['maths', Validators.required],
-      classId: ['1', Validators.required],
-      boardId: ['1', Validators.required],
+ courseName: ['', Validators.required],
+      classId: ['', Validators.required],
+      boardId: ['', Validators.required],
    subjectId: [[], Validators.required],
-      price: [120, Validators.required],
-      oldPrice: [60],
-   courseLevel: ['intermediate', Validators.required],
+      price: ['', Validators.required],
+      oldPrice: [''],
+   courseLevel: ['', Validators.required],
       courseImage: [''],
-   duration: ['4', Validators.required],
-  shortDescription: ['test short', Validators.required],
-  overview: ['test overview', Validators.required],
+   duration: ['', Validators.required],
+  shortDescription: ['', Validators.required],
+  overview: ['', Validators.required],
   highlights: this.fb.array([]),
       requirements: this.fb.array([]),
       objectives: this.fb.array([]),
-       teacher: ['irfan1', Validators.required], 
+       teacher: ['Dr.Bagchi', Validators.required], 
   status: [1, Validators.required]
 });
 
@@ -1149,7 +1149,7 @@ ValidateCourseInfo(): any
 }
 
 AddNewCourse() {
-  window.location.href = '/home/manage-courses2';
+  window.location.href = '/manage-courses';
 }
 
 submitbatches()

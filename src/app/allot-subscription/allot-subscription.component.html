@@ -1,0 +1,85 @@
+ <div class="max-w-3xl mx-auto p-6 space-y-6">
+
+  <!-- 🔹 Student Lookup -->
+  <div class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h2 class="text-xl font-semibold text-gray-800">Find Student</h2>
+
+    <form [formGroup]="studentForm" (ngSubmit)="GetStudentByMobileEmail()">
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <input type="text" formControlName="mobile" placeholder="Enter Mobile Number"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" />
+
+        <input type="email" formControlName="email" placeholder="Enter Email"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" />
+      </div>
+
+      <!-- Validation -->
+      <div class="text-red-500 text-sm mt-2" *ngIf="submitted && studentForm.invalid">
+        Please enter valid Name and Email
+      </div>
+
+      <button type="submit"
+  class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+  Search
+</button>
+
+    </form>
+  </div>
+
+  <!-- 🔹 Student Details -->
+  <div *ngIf="studentData" class="bg-green-50 border border-green-200 p-4 rounded-xl">
+    <h3 class="font-semibold text-green-700 mb-2">Student Found</h3>
+    <p><b>Name:</b> {{studentData.FullName}}</p>
+    <p><b>DOB:</b> {{studentData.DateOfBirth.split(' ')[0]}}</p>
+    <p><b>Father Name:</b> {{studentData.ParentName}}</p>
+    <p><b>Institution:</b> {{studentData.InstitutionName}}</p>
+    <p><b>Class:</b> {{studentData.ClassName}}</p>
+  </div>
+
+  <div *ngIf="noData" class="text-red-600 font-semibold">
+    ❌ No student found
+  </div>
+
+  <!-- 🔹 Subscription Section -->
+  <div class="bg-white shadow-md rounded-2xl p-6 space-y-4" *ngIf="studentData">
+
+    <h2 class="text-xl font-semibold text-gray-800">Subscription</h2>
+
+    <form [formGroup]="subscriptionForm" (ngSubmit)="submitSubscription()">
+
+      <!-- Plan -->
+      <div class="flex flex-wrap gap-4">
+        <label *ngFor="let plan of plans" class="flex items-center gap-2">
+          <input type="radio" [value]="plan" formControlName="plan" />
+          {{plan}}
+        </label>
+      </div>
+
+      <!-- Course -->
+      <select formControlName="courseId"
+        class="w-full px-4 py-2 border rounded-lg mt-3" (change)="getBatchesByCourseid($event)">
+        <option value="">Select Course</option>
+        <option *ngFor="let c of AvailableCourses" [value]="c.CourseId">{{c.CourseName}}</option>
+      </select>
+
+       <select formControlName="batchId"
+        class="w-full px-4 py-2 border rounded-lg mt-3"  >
+        <option value="">Select Batch</option>
+        <option *ngFor="let b of Batches" [value]="b.BatchId">{{b.BatchName}}</option>
+      </select>
+
+      <!-- Amount -->
+      <input type="number" formControlName="amount"
+        placeholder="Amount Paid"
+        class="w-full px-4 py-2 border rounded-lg mt-3" />
+
+      <button type="submit"
+        class="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+        Submit Subscription
+      </button>
+
+    </form>
+  </div>
+
+</div>

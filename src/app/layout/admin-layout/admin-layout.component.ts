@@ -28,10 +28,13 @@ menuItems = [
 
   { label: 'Class History', icon: 'fas fa-chalkboard-teacher', route: '/class-history' },
 
-  { label: 'Discounts', icon: 'fas fa-tags', route: '/discounts' },
+  // { label: 'Discounts', icon: 'fas fa-tags', route: '/discounts' },
 
   { label: 'Admin Feedback', icon: 'fas fa-comment-dots', route: '/Admin-Feedback' },
+
     { label: 'Time Table', icon: 'fas fa-comment-dots', route: '/time-table' },
+
+      { label: 'Allot Subscription', icon: 'fas fa-comment-dots', route: '/Allot-subscription' },
 
 
 ];

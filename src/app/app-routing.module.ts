@@ -14,6 +14,8 @@ import { ChatroomComponent } from './chatroom/chatroom.component';
 import { AdminFeedBackandessentialsComponent } from './admin-feed-backandessentials/admin-feed-backandessentials.component';
 import { AdminLiveClassWebrtcComponent } from './admin-live-class-webrtc/admin-live-class-webrtc.component';
 import { TimeTableComponent } from './time-table/time-table.component';
+import { LiveClassesComponent } from './pages/live-classes/live-classes/live-classes.component';
+import { AllotSubscriptionComponent } from './allot-subscription/allot-subscription.component';
  
 // const routes: Routes = [
 
@@ -50,7 +52,8 @@ import { TimeTableComponent } from './time-table/time-table.component';
 const routes: Routes = [
 
   { path: 'Layout', component: AdminLayoutComponent },
-
+      {path:'webrtc',component:AdminLiveClassWebrtcComponent}
+, 
   {
     path: '',
     component: AdminLayoutComponent,
@@ -69,7 +72,9 @@ const routes: Routes = [
       { path: 'student-details', component: StudentDetailsComponent },
       { path: 'class-history', component: ClasseshistoryComponent },
       { path: 'Admin-Feedback', component: AdminFeedBackandessentialsComponent },
-      {path:'time-table',component:TimeTableComponent}
+      {path:'time-table',component:TimeTableComponent},
+      {path:'Allot-subscription',component:AllotSubscriptionComponent},
+
     ]
   }
 
